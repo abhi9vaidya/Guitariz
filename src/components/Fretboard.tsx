@@ -563,6 +563,17 @@ const Fretboard = () => {
           mode={pianoMode ? 'piano' : 'fretboard'}
         />
       </div>
+
+      {/* Chord Detection Display */}
+      {(highlightedNotes.length > 0 || pianoNotes.length > 0) && (
+        <div className="mt-8 mb-8">
+          <ChordDetectionPanel
+            candidates={chordDetectionResult.candidates}
+            selectedNotes={chordDetectionResult.noteNames}
+            className="glass-card rounded-2xl border-primary/30 shadow-xl"
+          />
+        </div>
+      )}
     </div>
   );
 };
