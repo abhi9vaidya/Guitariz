@@ -28,6 +28,7 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
   const pressedKeys = useRef<Set<string>>(new Set());
   const sustainedNotes = useRef<Set<number>>(new Set());
   const keyDebounce = useRef<Map<string, number>>(new Map());
+  const sustainHeld = useRef<boolean>(false);
 
   const playMidiNote = useCallback((midiNote: number, velocity: number = 0.5) => {
     const frequency = midiToFrequency(midiNote);
@@ -45,8 +46,9 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
   }, [sustained, playMidiNote, onNoteOn]);
 
   const handleNoteOff = useCallback((midiNote: number) => {
-    // Don't stop if sustained
-    if (sustained && sustainedNotes.current.has(midiNote)) {
+    // If sustain is held, keep note alive until sustain is released
+    if (sustained && sustainHeld.current) {
+      sustainedNotes.current.add(midiNote);
       return;
     }
     
@@ -57,6 +59,32 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
     });
     onNoteOff?.(midiNote);
   }, [sustained, onNoteOff]);
+
+  const releaseSustainedNotes = useCallback(() => {
+    if (sustainedNotes.current.size === 0) return;
+    const notesToRelease = Array.from(sustainedNotes.current);
+    sustainedNotes.current.clear();
+
+    setActiveNotes(prev => {
+      const next = new Map(prev);
+      notesToRelease.forEach(n => next.delete(n));
+      return next;
+    });
+    notesToRelease.forEach(n => onNoteOff?.(n));
+  }, [onNoteOff]);
+
+  const setSustainState = useCallback((next: boolean) => {
+    sustainHeld.current = next;
+    setSustained(next);
+    onSustainChange?.(next);
+    if (!next) {
+      releaseSustainedNotes();
+    }
+  }, [onSustainChange, releaseSustainedNotes]);
+
+  const toggleSustain = useCallback(() => {
+    setSustainState(!sustainHeld.current);
+  }, [setSustainState]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
@@ -88,20 +116,12 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
       return;
     }
 
-    // Handle sustain
+    // Handle sustain (momentary pedal behaviour)
     if (key === keymap.sustain) {
       e.preventDefault();
-      setSustained(prev => {
-        const next = !prev;
-        onSustainChange?.(next);
-        
-        // If turning off sustain, release sustained notes
-        if (!next) {
-          sustainedNotes.current.clear();
-        }
-        
-        return next;
-      });
+      if (!sustainHeld.current) {
+        setSustainState(true);
+      }
       return;
     }
 
@@ -134,8 +154,9 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
 
     const key = e.key.toLowerCase();
     
-    // Ignore sustain key release
+    // Sustain key release ends pedal
     if (key === keymap.sustain) {
+      setSustainState(false);
       return;
     }
     
@@ -172,5 +193,7 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
     octaveShift,
     sustained,
     playMidiNote,
+    setSustain: setSustainState,
+    toggleSustain,
   };
 };

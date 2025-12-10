@@ -177,7 +177,7 @@ const Fretboard = () => {
 
   // Piano keyboard integration
   const pianoKeymapConfig = pianoKeyboardPreset === 'azerty' ? AZERTY_KEYMAP : QWERTY_KEYMAP;
-  const { activeNotes: pianoActiveNotes, octaveShift: pianoOctaveShift, sustained } = usePianoKeyboard({
+  const { activeNotes: pianoActiveNotes, octaveShift: pianoOctaveShift, sustained, toggleSustain } = usePianoKeyboard({
     enabled: keyboardEnabled && pianoMode,
     keymap: pianoKeymapConfig,
     onNoteOn: (midiNote, velocity) => {
@@ -381,6 +381,20 @@ const Fretboard = () => {
             <Keyboard className="w-4 h-4 inline mr-2" />
             Keyboard {keyboardEnabled ? "ON" : "OFF"}
           </button>
+
+          {pianoMode && (
+            <button
+              onClick={toggleSustain}
+              className={`px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm border ${
+                sustained
+                  ? 'bg-primary text-primary-foreground glow-accent border-primary/50'
+                  : 'glass-card hover-lift border-primary/30 hover:border-primary/50'
+              }`}
+              title="Toggle sustain (Space)"
+            >
+              Sustain {sustained ? 'ON' : 'OFF'}
+            </button>
+          )}
 
           <button
             onClick={() => setShowHelp(true)}

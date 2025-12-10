@@ -102,8 +102,11 @@ export const PianoKeyboard = ({
       <div className="absolute top-0 left-0 pointer-events-none" style={{ height: KEY_HEIGHT * 0.68 }}>
         {blackKeys.map((key) => {
           const active = activeNoteSet.has(key.midiNote);
-          const whiteIndexBefore = whiteKeys.filter(k => k.midiNote < key.midiNote).length;
-          const left = whiteIndexBefore * WHITE_KEY_WIDTH + WHITE_KEY_WIDTH * 0.7;
+          const previousWhiteMidi = key.midiNote - 1;
+          const whiteIndexBefore = whiteIndexByMidi.get(previousWhiteMidi);
+          if (whiteIndexBefore === undefined) return null;
+
+          const left = whiteIndexBefore * WHITE_KEY_WIDTH + WHITE_KEY_WIDTH * 0.68;
 
           return (
             <button
