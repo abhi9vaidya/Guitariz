@@ -75,6 +75,12 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
         playNote(freq, 1.5, velocity);
       }, index * strumSpeedRef.current);
     });
+
+    // After strumming, clear accumulated notes (for chord mode)
+    setTimeout(() => {
+      activeNotes.current.clear();
+      pressedKeys.current.clear();
+    }, sorted.length * strumSpeedRef.current + 100);
   }, [onStrumDown, getVelocity]);
 
   const strumUp = useCallback(() => {
@@ -96,6 +102,12 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
         playNote(freq, 1.5, velocity);
       }, index * strumSpeedRef.current);
     });
+
+    // After strumming, clear accumulated notes (for chord mode)
+    setTimeout(() => {
+      activeNotes.current.clear();
+      pressedKeys.current.clear();
+    }, sorted.length * strumSpeedRef.current + 100);
   }, [onStrumUp, getVelocity]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -168,7 +180,10 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     const key = e.key.toLowerCase();
     
-    // Clear note from active notes and pressed keys
+    // In chord mode, don't clear notes on key release - they stay until strum
+    if (chordMode) return;
+    
+    // In normal mode, clear note from active notes when key is released
     const noteMapping = keymap.notes.find(m => m.key === key);
     if (noteMapping) {
       const fret = noteMapping.position.fret + octaveShift.current * 12;
@@ -177,7 +192,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       pressedKeys.current.delete(key);
       onNoteOff?.(noteMapping.note, position);
     }
-  }, [enabled, keymap]);
+  }, [enabled, keymap, chordMode]);
 
   useEffect(() => {
     if (!enabled) {

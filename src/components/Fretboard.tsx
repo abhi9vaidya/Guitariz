@@ -1,7 +1,7 @@
   import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Keyboard, Info, Piano as PianoIcon } from "lucide-react";
+import { Keyboard, Info, Piano as PianoIcon, Music } from "lucide-react";
 import { useKeyboardFretboard } from "@/hooks/useKeyboardFretboard";
 import { usePianoKeyboard } from "@/hooks/usePianoKeyboard";
 import { KeyboardHelpOverlay } from "./fretboard/KeyboardHelpOverlay";
@@ -14,6 +14,7 @@ import { DEFAULT_KEYMAP, KeymapConfig } from "@/types/keyboardTypes";
 import { QWERTY_KEYMAP, AZERTY_KEYMAP, KeyboardPreset } from "@/types/pianoTypes";
 import { detectChords, fretboardNotesToMidi, midiToPitchClass, pitchClassToNote } from "@/lib/chordDetection";
 import { DetectionStrictness } from "@/types/chordDetectionTypes";
+import { playNote } from "@/lib/chordAudio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -122,6 +123,32 @@ const Fretboard = () => {
   useEffect(() => {
     localStorage.setItem('chord-max-candidates', maxCandidates.toString());
   }, [maxCandidates]);
+
+  // Handle Enter key to strum fretboard notes
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only in fretboard mode, not piano mode
+      if (pianoMode) return;
+      
+      // Ignore if typing in input fields
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      if (e.code === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          strumUp();
+        } else {
+          strumDown();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pianoMode, highlightedNotes, strumSpeed]);
 
   // Fretboard keyboard integration
   const { activeNotes: keyboardActiveNotes, octaveShift } = useKeyboardFretboard({
@@ -240,6 +267,50 @@ const Fretboard = () => {
     setPianoNotes([]);
   };
 
+  const getVelocity = (index: number, total: number): number => {
+    const position = index / Math.max(total - 1, 1);
+    // Exponential velocity profile for natural dynamics
+    return 0.2 + Math.pow(position, 1.5) * 0.3;
+  };
+
+  const getNoteFrequency = (note: string, octaveShift: number = 0): number => {
+    const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const noteIndex = CHROMATIC.indexOf(note);
+    const baseFreq = 440; // A4
+    const semitones = noteIndex - CHROMATIC.indexOf("A") + (octaveShift * 12);
+    return baseFreq * Math.pow(2, semitones / 12);
+  };
+
+  const strumDown = () => {
+    if (highlightedNotes.length === 0) return;
+    
+    // Sort by string (descending: 5→0, which is high E to low E)
+    const sorted = [...highlightedNotes].sort((a, b) => b.string - a.string);
+    
+    sorted.forEach((noteData, index) => {
+      setTimeout(() => {
+        const freq = getNoteFrequency(noteData.note);
+        const velocity = getVelocity(index, sorted.length);
+        playNote(freq, 1.5, velocity);
+      }, index * strumSpeed);
+    });
+  };
+
+  const strumUp = () => {
+    if (highlightedNotes.length === 0) return;
+    
+    // Sort by string (ascending: 0→5, which is low E to high E)
+    const sorted = [...highlightedNotes].sort((a, b) => a.string - b.string);
+    
+    sorted.forEach((noteData, index) => {
+      setTimeout(() => {
+        const freq = getNoteFrequency(noteData.note);
+        const velocity = getVelocity(index, sorted.length);
+        playNote(freq, 1.5, velocity);
+      }, index * strumSpeed);
+    });
+  };
+
   const togglePianoMode = () => {
     setPianoMode(prev => !prev);
     clearHighlights();
@@ -317,6 +388,28 @@ const Fretboard = () => {
           >
             <Info className="w-5 h-5" />
           </button>
+
+          {!pianoMode && highlightedNotes.length > 0 && (
+            <>
+              <button
+                onClick={strumDown}
+                className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
+                title="Enter - Strum Down (Low to High)"
+              >
+                <Music className="w-4 h-4" />
+                ↓ Strum
+              </button>
+
+              <button
+                onClick={strumUp}
+                className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
+                title="Shift+Enter - Strum Up (High to Low)"
+              >
+                <Music className="w-4 h-4" />
+                ↑ Strum
+              </button>
+            </>
+          )}
 
           <button
             onClick={clearHighlights}
