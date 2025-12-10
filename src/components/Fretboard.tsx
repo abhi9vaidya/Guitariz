@@ -65,7 +65,7 @@ const Fretboard = () => {
   });
   const [velocityProfile, setVelocityProfile] = useState<'linear' | 'exponential' | 'uniform'>(() => {
     const saved = localStorage.getItem('keyboard-velocity-profile');
-    return (saved as any) || 'exponential';
+    return (saved as 'linear' | 'exponential' | 'uniform') || 'exponential';
   });
   const [chordMode, setChordMode] = useState(() => {
     const saved = localStorage.getItem('keyboard-chord-mode');

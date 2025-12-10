@@ -12,7 +12,8 @@ const Metronome = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || (window as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    audioContextRef.current = new AudioContextClass();
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
