@@ -538,7 +538,6 @@ const Fretboard = () => {
               </div>
             </div>
           ))}
-        </div>
 
           {/* Fret numbers */}
           <div className="flex items-center gap-2 mt-6 pl-14">
@@ -553,25 +552,40 @@ const Fretboard = () => {
             ))}
           </div>
         </div>
+        </div>
       )}
 
-      {/* Debug panel */}
-      <div className="flex justify-center">
-        <ChordDebugPanel
-          midiNotes={chordDetectionResult.midiNotes}
-          candidates={chordDetectionResult.candidates}
-          mode={pianoMode ? 'piano' : 'fretboard'}
-        />
+      {/* Debug panel toggle */}
+      <div className="flex justify-center mt-8 mb-8">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowDebug(!showDebug)}
+          className="glass-card border-primary/30 hover:border-primary/50 text-xs"
+        >
+          {showDebug ? 'Hide' : 'Show'} Debug Info
+        </Button>
       </div>
+
+      {showDebug && (
+        <div className="flex justify-center mb-8">
+          <ChordDebugPanel
+            midiNotes={chordDetectionResult.midiNotes}
+            candidates={chordDetectionResult.candidates}
+            mode={pianoMode ? 'piano' : 'fretboard'}
+          />
+        </div>
+      )}
 
       {/* Chord Detection Display */}
       {(highlightedNotes.length > 0 || pianoNotes.length > 0) && (
-        <div className="mt-8 mb-8">
-          <ChordDetectionPanel
-            candidates={chordDetectionResult.candidates}
-            selectedNotes={chordDetectionResult.noteNames}
-            className="glass-card rounded-2xl border-primary/30 shadow-xl"
-          />
+        <div className="flex justify-center mt-8 mb-8">
+          <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl max-w-2xl w-full">
+            <ChordDetectionPanel
+              candidates={chordDetectionResult.candidates}
+              selectedNotes={chordDetectionResult.noteNames}
+            />
+          </div>
         </div>
       )}
     </div>
