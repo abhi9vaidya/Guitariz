@@ -29,13 +29,22 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
   const pressedKeys = useRef<Set<string>>(new Set());
   const activeNotes = useRef<Map<string, FretPosition>>(new Map());
-  const keyDebounce = useRef<Map<string, number>>(new Map());
   const octaveShift = useRef<number>(0);
+  const strumSpeedRef = useRef(strumSpeed);
+  const velocityProfileRef = useRef(velocityProfile);
+  const enabledRef = useRef(enabled);
+
+  // Keep refs in sync with props
+  useEffect(() => {
+    strumSpeedRef.current = strumSpeed;
+    velocityProfileRef.current = velocityProfile;
+    enabledRef.current = enabled;
+  }, [strumSpeed, velocityProfile, enabled]);
 
   const getVelocity = useCallback((index: number, total: number): number => {
     const position = index / Math.max(total - 1, 1);
 
-    switch (velocityProfile) {
+    switch (velocityProfileRef.current) {
       case 'linear':
         return 0.2 + position * 0.3;
       case 'exponential':
@@ -44,19 +53,19 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       default:
         return 0.3;
     }
-  }, [velocityProfile]);
+  }, []);
 
   const strumDown = useCallback(() => {
-    if (!enabled) return;
+    if (!enabledRef.current) return;
 
     onStrumDown?.();
 
-    // Get currently pressed notes or chord mode positions
+    // Get currently pressed notes
     const positions = Array.from(activeNotes.current.values());
 
     if (positions.length === 0) return;
 
-    // Sort by string (low to high: 5→0)
+    // Sort by string (low to high: 5→0, which is high E to low E)
     const sorted = [...positions].sort((a, b) => b.string - a.string);
 
     sorted.forEach((position, index) => {
@@ -64,12 +73,12 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
         const freq = getNoteFrequency(position);
         const velocity = getVelocity(index, sorted.length);
         playNote(freq, 1.5, velocity);
-      }, index * strumSpeed);
+      }, index * strumSpeedRef.current);
     });
-  }, [enabled, strumSpeed, getVelocity, onStrumDown]);
+  }, [onStrumDown, getVelocity]);
 
   const strumUp = useCallback(() => {
-    if (!enabled) return;
+    if (!enabledRef.current) return;
 
     onStrumUp?.();
 
@@ -77,7 +86,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     if (positions.length === 0) return;
 
-    // Sort by string (high to low: 0→5)
+    // Sort by string (high to low: 0→5, which is low E to high E)
     const sorted = [...positions].sort((a, b) => a.string - b.string);
 
     sorted.forEach((position, index) => {
@@ -85,9 +94,9 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
         const freq = getNoteFrequency(position);
         const velocity = getVelocity(index, sorted.length);
         playNote(freq, 1.5, velocity);
-      }, index * strumSpeed);
+      }, index * strumSpeedRef.current);
     });
-  }, [enabled, strumSpeed, getVelocity, onStrumUp]);
+  }, [onStrumUp, getVelocity]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
@@ -100,7 +109,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     const key = e.key.toLowerCase();
 
-    // Handle strum keys
+    // Handle strum keys - Enter and Shift+Enter
     if (e.code === 'Enter') {
       e.preventDefault();
       if (e.shiftKey) {
@@ -129,12 +138,12 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       e.preventDefault();
       
       if (chordMode) {
-        // In chord mode, only strum on Enter - just track the position
+        // In chord mode, accumulate notes and wait for Enter
         const fret = noteMapping.position.fret + octaveShift.current * 12;
         const position = { ...noteMapping.position, fret };
         activeNotes.current.set(key, position);
         pressedKeys.current.add(key);
-        onNoteOn?.(noteMapping.note, 0.5, position);
+        onNoteOn?.(noteMapping.note, 0.3, position);
       } else {
         // In normal mode, play immediately
         const fret = noteMapping.position.fret + octaveShift.current * 12;
@@ -147,7 +156,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       }
       return;
     }
-  }, [enabled, keymap, chordMode, strumDown, strumUp]);
+  }, [enabled, keymap, chordMode, onNoteOn, strumDown, strumUp]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
