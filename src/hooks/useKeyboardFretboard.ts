@@ -98,7 +98,9 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       return;
     }
 
-    // Handle strum keys (only Enter for down strum, Shift+Enter for up strum)
+    const key = e.key.toLowerCase();
+
+    // Handle strum keys
     if (e.code === 'Enter') {
       e.preventDefault();
       if (e.shiftKey) {
@@ -109,8 +111,43 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       return;
     }
 
-    // Remove all other keyboard bindings for note playing
-  }, [enabled, strumDown, strumUp]);
+    // Handle octave shift
+    if (key === '=') {
+      e.preventDefault();
+      octaveShift.current = Math.min(octaveShift.current + 1, 3);
+      return;
+    }
+    if (key === '-') {
+      e.preventDefault();
+      octaveShift.current = Math.max(octaveShift.current - 1, -3);
+      return;
+    }
+
+    // Handle note keys from keymap
+    const noteMapping = keymap.notes.find(m => m.key === key);
+    if (noteMapping) {
+      e.preventDefault();
+      
+      if (chordMode) {
+        // In chord mode, only strum on Enter - just track the position
+        const fret = noteMapping.position.fret + octaveShift.current * 12;
+        const position = { ...noteMapping.position, fret };
+        activeNotes.current.set(key, position);
+        pressedKeys.current.add(key);
+        onNoteOn?.(noteMapping.note, 0.5, position);
+      } else {
+        // In normal mode, play immediately
+        const fret = noteMapping.position.fret + octaveShift.current * 12;
+        const position = { ...noteMapping.position, fret };
+        const freq = getNoteFrequency(position);
+        playNote(freq, 0.8, 0.5);
+        activeNotes.current.set(key, position);
+        pressedKeys.current.add(key);
+        onNoteOn?.(noteMapping.note, 0.5, position);
+      }
+      return;
+    }
+  }, [enabled, keymap, chordMode, strumDown, strumUp]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
@@ -120,8 +157,18 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       return;
     }
 
-    // No key up handling needed since we removed note key bindings
-  }, [enabled]);
+    const key = e.key.toLowerCase();
+    
+    // Clear note from active notes and pressed keys
+    const noteMapping = keymap.notes.find(m => m.key === key);
+    if (noteMapping) {
+      const fret = noteMapping.position.fret + octaveShift.current * 12;
+      const position = { ...noteMapping.position, fret };
+      activeNotes.current.delete(key);
+      pressedKeys.current.delete(key);
+      onNoteOff?.(noteMapping.note, position);
+    }
+  }, [enabled, keymap]);
 
   useEffect(() => {
     if (!enabled) {

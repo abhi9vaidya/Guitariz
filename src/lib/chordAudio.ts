@@ -3,14 +3,32 @@
  * Generates guitar-like tones for chord playback
  */
 
-const audioContext = typeof window !== 'undefined' ? new AudioContext() : null;
+let audioContext: AudioContext | null = null;
+
+// Initialize audio context on first user interaction
+const initAudioContext = (): AudioContext => {
+  if (audioContext) return audioContext;
+  
+  if (typeof window === 'undefined') {
+    throw new Error('Audio context requires browser environment');
+  }
+
+  audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  
+  // Resume audio context if suspended (required by some browsers)
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+  
+  return audioContext;
+};
 
 const GUITAR_TUNING = [329.63, 246.94, 196.00, 146.83, 110.00, 82.41]; // E A D G B e
 
 export const playChord = (frets: number[], volume: number = 0.3): void => {
-  if (!audioContext) return;
+  const ctx = initAudioContext();
 
-  const now = audioContext.currentTime;
+  const now = ctx.currentTime;
   const attackTime = 0.005;
   const decayTime = 0.1;
   const releaseTime = 2.0;
@@ -22,17 +40,17 @@ export const playChord = (frets: number[], volume: number = 0.3): void => {
     const noteFreq = stringFreq * Math.pow(2, fret / 12);
 
     // Create more realistic guitar tone with harmonics
-    const fundamental = audioContext.createOscillator();
-    const harmonic2 = audioContext.createOscillator();
-    const harmonic3 = audioContext.createOscillator();
+    const fundamental = ctx.createOscillator();
+    const harmonic2 = ctx.createOscillator();
+    const harmonic3 = ctx.createOscillator();
     
-    const masterGain = audioContext.createGain();
-    const fundamentalGain = audioContext.createGain();
-    const harmonic2Gain = audioContext.createGain();
-    const harmonic3Gain = audioContext.createGain();
+    const masterGain = ctx.createGain();
+    const fundamentalGain = ctx.createGain();
+    const harmonic2Gain = ctx.createGain();
+    const harmonic3Gain = ctx.createGain();
     
     // Low-pass filter for warmer tone
-    const filter = audioContext.createBiquadFilter();
+    const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(3000 - stringIndex * 300, now);
     filter.Q.setValueAtTime(1, now);
@@ -68,7 +86,7 @@ export const playChord = (frets: number[], volume: number = 0.3): void => {
     harmonic3Gain.connect(filter);
     
     filter.connect(masterGain);
-    masterGain.connect(audioContext.destination);
+    masterGain.connect(ctx.destination);
 
     const startTime = now + stringIndex * 0.02;
     fundamental.start(startTime);
@@ -82,24 +100,24 @@ export const playChord = (frets: number[], volume: number = 0.3): void => {
 };
 
 export const playNote = (frequency: number, duration: number = 1.5, volume: number = 0.3): void => {
-  if (!audioContext) return;
+  const ctx = initAudioContext();
 
-  const now = audioContext.currentTime;
+  const now = ctx.currentTime;
   const attackTime = 0.005;
   const decayTime = 0.1;
   
   // Create realistic guitar tone with harmonics
-  const fundamental = audioContext.createOscillator();
-  const harmonic2 = audioContext.createOscillator();
-  const harmonic3 = audioContext.createOscillator();
+  const fundamental = ctx.createOscillator();
+  const harmonic2 = ctx.createOscillator();
+  const harmonic3 = ctx.createOscillator();
   
-  const masterGain = audioContext.createGain();
-  const fundamentalGain = audioContext.createGain();
-  const harmonic2Gain = audioContext.createGain();
-  const harmonic3Gain = audioContext.createGain();
+  const masterGain = ctx.createGain();
+  const fundamentalGain = ctx.createGain();
+  const harmonic2Gain = ctx.createGain();
+  const harmonic3Gain = ctx.createGain();
   
   // Low-pass filter for guitar-like warmth
-  const filter = audioContext.createBiquadFilter();
+  const filter = ctx.createBiquadFilter();
   filter.type = 'lowpass';
   filter.frequency.setValueAtTime(2500, now);
   filter.Q.setValueAtTime(1.5, now);
@@ -133,7 +151,7 @@ export const playNote = (frequency: number, duration: number = 1.5, volume: numb
   harmonic3Gain.connect(filter);
   
   filter.connect(masterGain);
-  masterGain.connect(audioContext.destination);
+  masterGain.connect(ctx.destination);
 
   fundamental.start(now);
   harmonic2.start(now);
