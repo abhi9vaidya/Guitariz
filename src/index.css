@@ -358,8 +358,98 @@
   .hero-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 }
 
+
 /* reduced-motion accessibility */
 @media (prefers-reduced-motion: reduce) {
   .key-chip, .learning-toggle { transition: none !important; transform: none !important; }
   .circle-radial-bg { filter: none !important; }
 }
+
+/* ---------Scale Explorer Enhancements--------- */
+.scale-explorer-note-chip {
+  @apply transition-all duration-300;
+}
+
+.scale-explorer-note-chip:hover {
+  @apply scale-110 shadow-lg;
+}
+
+.scale-explorer-note-chip:active {
+  @apply scale-95;
+}
+
+.scale-note-degree {
+  @apply text-xs font-semibold opacity-80;
+}
+
+.scale-info-card {
+  @apply transition-all duration-300 hover:shadow-lg hover:border-primary/40;
+}
+
+.scale-selector-button {
+  @apply transition-all duration-200 hover:translate-x-1;
+}
+
+.scale-selector-button[data-selected="true"] {
+  @apply scale-105 shadow-lg;
+}
+
+.fretboard-note-dot {
+  @apply transition-all duration-200 hover:scale-125;
+}
+
+.fretboard-note-degree-label {
+  @apply absolute -top-6 left-1/2 transform -translate-x-1/2 bg-primary/80 text-white text-xs font-bold py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none;
+}
+
+/* Stagger animation for note chips */
+@keyframes noteChipFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.note-chip {
+  animation: noteChipFadeIn 0.3s ease-out forwards;
+}
+
+/* Glow effect for root note */
+@keyframes rootNoteGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.2);
+  }
+}
+
+.root-note-highlight {
+  animation: rootNoteGlow 2s ease-in-out infinite;
+}
+
+/* Responsive adjustments for Scale Explorer */
+@media (max-width: 1024px) {
+  .scale-explorer-note-chip {
+    @apply px-3 py-2 text-sm;
+  }
+}
+
+@media (max-width: 768px) {
+  .note-chip {
+    @apply px-2.5 py-2 text-xs;
+  }
+  
+  .scale-explorer-note-chip:hover {
+    @apply scale-105;
+  }
+
+  .fretboard-note-dot:hover {
+    @apply scale-110;
+  }
+}
+
