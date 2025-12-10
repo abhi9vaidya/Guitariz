@@ -87,13 +87,7 @@ const Index = () => {
         </section>
 
         <section id="scales" className="scroll-mt-20 animate-fade-in">
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Scale Explorer</h2>
-              <p className="text-muted-foreground">Discover scales from Western and global traditions</p>
-            </div>
-            <ScaleExplorer />
-          </div>
+          <ScaleExplorer />
         </section>
 
         <section id="metronome" className="scroll-mt-20 animate-fade-in">
