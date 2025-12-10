@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Music, Scale, Hash, Music2, Globe, Play, Info, Zap, Disc, Guitar, Search, X } from "lucide-react";
+import { Music, Scale, Hash, Music2, Globe, Play, Info, Zap, Guitar, Search, X } from "lucide-react";
 import { playNote } from "@/lib/chordAudio";
 
 

@@ -63,12 +63,12 @@ const Index = () => {
                 <span>Playful. Focused. Fast.</span>
               </div>
               <div className="space-y-4">
-                <h1 className="text-5xl md:text-6xl leading-tight font-bold text-gradient">
-                  Guitar theory that breathes.
-                </h1>
-                <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-                  Move between tools without lag. Each feature now lives on its own page so you can dive deep without the noise.
-                </p>
+                  <h1 className="text-5xl md:text-6xl leading-tight font-bold text-gradient">
+                    Play, hear, and learn music.
+                  </h1>
+                  <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
+                    Guitar and piano, chords and scales—everything stays musical. Jump between instruments, hear changes instantly, and keep the groove moving.
+                  </p>
               </div>
               <div className="flex flex-wrap items-center gap-4">
                 <Button
@@ -94,7 +94,7 @@ const Index = () => {
                 </Button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4">
-                {["Lightweight", "Audio on tap", "Built for practice"].map((text) => (
+                {["Music-first flow", "Audio on tap", "Built for practice"].map((text) => (
                   <div
                     key={text}
                     className="p-3 rounded-xl bg-card/60 border border-border/60 backdrop-blur-md text-sm text-muted-foreground"
@@ -141,14 +141,14 @@ const Index = () => {
 
         <section className="px-6 mt-16">
           <div className="container mx-auto grid md:grid-cols-3 gap-4">
-            {["Speedy loads", "One focus per page", "No more heavy scroll"].map((text) => (
+            {["Speedy loads", "Stay musical", "No more heavy scroll"].map((text) => (
               <div key={text} className="p-5 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md">
                 <p className="font-semibold text-lg mb-1">{text}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {text === "Speedy loads"
                     ? "Each tool is code-split so you only load what you use."
-                    : text === "One focus per page"
-                    ? "Stay on the task at hand—no noisy neighbors on the page."
+                    : text === "Stay musical"
+                    ? "Audio first: fretboard, piano, chords, and scales keep you hearing every change."
                     : "Shorter pages mean smoother scrolling and faster paints."}
                 </p>
               </div>

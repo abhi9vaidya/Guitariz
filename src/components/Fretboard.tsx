@@ -1,6 +1,5 @@
   import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Keyboard, Info, Piano as PianoIcon, Music } from "lucide-react";
 import { useKeyboardFretboard } from "@/hooks/useKeyboardFretboard";
 import { usePianoKeyboard } from "@/hooks/usePianoKeyboard";
@@ -17,7 +16,6 @@ import { DetectionStrictness } from "@/types/chordDetectionTypes";
 import { playNote } from "@/lib/chordAudio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 
 const NOTES = ["E", "A", "D", "G", "B", "E"];
 const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -30,20 +28,6 @@ interface FretNote {
 }
 
 // Chord patterns: intervals from root
-const CHORD_PATTERNS: { [key: string]: number[] } = {
-  "Major": [0, 4, 7],
-  "Minor": [0, 3, 7],
-  "7": [0, 4, 7, 10],
-  "M7": [0, 4, 7, 11],
-  "m7": [0, 3, 7, 10],
-  "sus2": [0, 2, 7],
-  "sus4": [0, 5, 7],
-  "dim": [0, 3, 6],
-  "aug": [0, 4, 8],
-  "add9": [0, 4, 7, 14],
-  "6": [0, 4, 7, 9],
-  "m6": [0, 3, 7, 9],
-};
 
 const Fretboard = () => {
   const [highlightedNotes, setHighlightedNotes] = useState<FretNote[]>([]);
@@ -157,7 +141,7 @@ const Fretboard = () => {
     strumSpeed,
     velocityProfile,
     chordMode,
-    onNoteOn: (note, velocity, position) => {
+    onNoteOn: (note, _velocity, position) => {
       const exists = highlightedNotes.some(
         n => n.string === position.string && n.fret === position.fret
       );
@@ -168,7 +152,7 @@ const Fretboard = () => {
         ]);
       }
     },
-    onNoteOff: (note, position) => {
+    onNoteOff: (_note, position) => {
       setHighlightedNotes(prev =>
         prev.filter(n => !(n.string === position.string && n.fret === position.fret))
       );
@@ -180,7 +164,7 @@ const Fretboard = () => {
   const { activeNotes: pianoActiveNotes, octaveShift: pianoOctaveShift, sustained, toggleSustain } = usePianoKeyboard({
     enabled: keyboardEnabled && pianoMode,
     keymap: pianoKeymapConfig,
-    onNoteOn: (midiNote, velocity) => {
+    onNoteOn: (midiNote, _velocity) => {
       setPianoNotes(prev => [...prev, midiNote]);
     },
     onNoteOff: (midiNote) => {
@@ -231,7 +215,7 @@ const Fretboard = () => {
 
   const isKeyboardActive = (stringIndex: number, fret: number): boolean => {
     return keyboardActiveNotes.some(
-      ([key, pos]) => pos.string === stringIndex && pos.fret === pos.fret
+      ([, pos]) => pos.string === stringIndex && pos.fret === fret
     );
   };
 
@@ -312,7 +296,7 @@ const Fretboard = () => {
   };
 
   const togglePianoMode = () => {
-    setPianoMode(prev => !prev);
+    setPianoMode((prev: boolean) => !prev);
     clearHighlights();
   };
 
