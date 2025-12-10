@@ -31,7 +31,7 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
 
   const playMidiNote = useCallback((midiNote: number, velocity: number = 0.5) => {
     const frequency = midiToFrequency(midiNote);
-    playNote(frequency, 2.0, velocity);
+    playNote(frequency, 2.2, velocity, 'piano');
   }, []);
 
   const handleNoteOn = useCallback((midiNote: number, key: string, velocity: number = 0.5) => {

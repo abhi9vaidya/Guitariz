@@ -291,7 +291,7 @@ const Fretboard = () => {
       setTimeout(() => {
         const freq = getNoteFrequency(noteData.note);
         const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.5, velocity);
+        playNote(freq, 1.8, velocity, 'guitar');
       }, index * strumSpeed);
     });
   };
@@ -306,7 +306,7 @@ const Fretboard = () => {
       setTimeout(() => {
         const freq = getNoteFrequency(noteData.note);
         const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.5, velocity);
+        playNote(freq, 1.8, velocity, 'guitar');
       }, index * strumSpeed);
     });
   };
@@ -394,7 +394,7 @@ const Fretboard = () => {
               <button
                 onClick={strumDown}
                 className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
-                title="Enter - Strum Down (Low to High)"
+                title="Enter - Strum Down (High to Low)"
               >
                 <Music className="w-4 h-4" />
                 ↓ Strum
@@ -403,7 +403,7 @@ const Fretboard = () => {
               <button
                 onClick={strumUp}
                 className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
-                title="Shift+Enter - Strum Up (High to Low)"
+                title="Shift+Enter - Strum Up (Low to High)"
               >
                 <Music className="w-4 h-4" />
                 ↑ Strum
@@ -419,6 +419,24 @@ const Fretboard = () => {
           </button>
         </div>
       </div>
+
+      {/* Quick guidance for fretboard mode */}
+      {!pianoMode && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+          <div className="glass-card border-primary/20 rounded-xl p-4">
+            <p className="text-sm font-semibold">Strumming</p>
+            <p className="text-sm text-muted-foreground">Enter strums high to low; Shift+Enter strums low to high. Tune the feel with strum speed and velocity in settings.</p>
+          </div>
+          <div className="glass-card border-primary/20 rounded-xl p-4">
+            <p className="text-sm font-semibold">Keyboard layout</p>
+            <p className="text-sm text-muted-foreground">Mapped letters light frets; '-' and '=' shift octaves. Toggle chord mode to stack notes before strumming.</p>
+          </div>
+          <div className="glass-card border-primary/20 rounded-xl p-4">
+            <p className="text-sm font-semibold">Clicks & cleanup</p>
+            <p className="text-sm text-muted-foreground">Click frets to toggle notes, watch mapped keys float above active frets, and use Clear anytime to reset the board.</p>
+          </div>
+        </div>
+      )}
 
       {/* Modern Settings Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

@@ -33,6 +33,15 @@ export const KeyboardHelpOverlay = ({ keymap, isOpen, onClose }: KeyboardHelpOve
         </div>
 
         <div className="space-y-6">
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
+            <h3 className="text-sm font-semibold text-primary mb-2">Quickstart</h3>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Click frets or press the mapped keys to light notes.</li>
+              <li>• Enter strums high to low, Shift+Enter strums low to high. Use chord mode to stack notes first.</li>
+              <li>• '-' and '=' shift the octave. Use Clear on the fretboard to reset.</li>
+            </ul>
+          </div>
+
           {/* Note mappings */}
           <div>
             <h3 className="text-lg font-semibold mb-3 text-muted-foreground">Note Keys</h3>
@@ -56,13 +65,13 @@ export const KeyboardHelpOverlay = ({ keymap, isOpen, onClose }: KeyboardHelpOve
                 <Badge variant="outline" className="font-mono">
                   {keymap.downStrum}
                 </Badge>
-                <span className="text-sm">Down Strum (Low → High)</span>
+                <span className="text-sm">Down Strum (High to Low)</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
                 <Badge variant="outline" className="font-mono">
                   {keymap.upStrum}
                 </Badge>
-                <span className="text-sm">Up Strum (High → Low)</span>
+                <span className="text-sm">Up Strum (Low to High)</span>
               </div>
             </div>
           </div>
@@ -90,9 +99,9 @@ export const KeyboardHelpOverlay = ({ keymap, isOpen, onClose }: KeyboardHelpOve
           <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
             <h4 className="font-semibold mb-2 text-primary">💡 Tips</h4>
             <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Hold down multiple keys and press Enter to strum a chord</li>
-              <li>• Keyboard input is disabled when typing in text fields</li>
-              <li>• Customize key bindings in the settings panel</li>
+              <li>• In chord mode, hold notes, then press Enter or Shift+Enter to strum.</li>
+              <li>• Keyboard input pauses automatically while typing in text fields.</li>
+              <li>• Customize key bindings and strum feel in the settings panel.</li>
             </ul>
           </div>
         </div>

@@ -528,14 +528,14 @@ const ScaleExplorer = () => {
                                 aria-label={`Note ${note}, degree ${index + 1}`}
                                 onClick={() => {
                                   const noteFreq = 440 * Math.pow(2, (NOTES.indexOf(note) - 9) / 12);
-                                  playNote(noteFreq);
+                                  playNote(noteFreq, 1.6, 0.35, 'piano');
                                   setLastPlayed(note);
                                 }}
                                 onKeyDown={(e) => {
                                   if (e.key === ' ' || e.key === 'Enter') {
                                     e.preventDefault();
                                     const noteFreq = 440 * Math.pow(2, (NOTES.indexOf(note) - 9) / 12);
-                                    playNote(noteFreq);
+                                    playNote(noteFreq, 1.6, 0.35, 'piano');
                                     setLastPlayed(note);
                                   }
                                 }}
@@ -573,14 +573,14 @@ const ScaleExplorer = () => {
                                   aria-label={`Indian note ${note}, degree ${index + 1}`}
                                   onClick={() => {
                                     const noteFreq = 440 * Math.pow(2, (NOTES.indexOf(getScaleNotes[index]) - 9) / 12);
-                                    playNote(noteFreq);
+                                    playNote(noteFreq, 1.6, 0.35, 'piano');
                                     setLastPlayed(getScaleNotes[index]);
                                   }}
                                   onKeyDown={(e) => {
                                     if (e.key === ' ' || e.key === 'Enter') {
                                       e.preventDefault();
                                       const noteFreq = 440 * Math.pow(2, (NOTES.indexOf(getScaleNotes[index]) - 9) / 12);
-                                      playNote(noteFreq);
+                                      playNote(noteFreq, 1.6, 0.35, 'piano');
                                       setLastPlayed(getScaleNotes[index]);
                                     }
                                   }}

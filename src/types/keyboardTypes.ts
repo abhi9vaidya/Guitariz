@@ -47,7 +47,7 @@ export const DEFAULT_KEYMAP: KeymapConfig = {
     { key: 'l', position: { string: 3, fret: 0 }, note: 'D' },
   ],
   downStrum: 'Enter',
-  upStrum: 'Shift',
+  upStrum: 'Shift+Enter',
   octaveUp: '=',
   octaveDown: '-',
 };

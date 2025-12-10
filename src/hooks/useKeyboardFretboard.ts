@@ -65,14 +65,14 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     if (positions.length === 0) return;
 
-    // Sort by string (low to high: 5→0, which is high E to low E)
+    // Sort by string treble → bass (high E to low E)
     const sorted = [...positions].sort((a, b) => b.string - a.string);
 
     sorted.forEach((position, index) => {
       setTimeout(() => {
         const freq = getNoteFrequency(position);
         const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.5, velocity);
+        playNote(freq, 1.5, velocity, 'guitar');
       }, index * strumSpeedRef.current);
     });
 
@@ -92,14 +92,14 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     if (positions.length === 0) return;
 
-    // Sort by string (high to low: 0→5, which is low E to high E)
+    // Sort by string bass → treble (low E to high E)
     const sorted = [...positions].sort((a, b) => a.string - b.string);
 
     sorted.forEach((position, index) => {
       setTimeout(() => {
         const freq = getNoteFrequency(position);
         const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.5, velocity);
+        playNote(freq, 1.5, velocity, 'guitar');
       }, index * strumSpeedRef.current);
     });
 
@@ -161,7 +161,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
         const fret = noteMapping.position.fret + octaveShift.current * 12;
         const position = { ...noteMapping.position, fret };
         const freq = getNoteFrequency(position);
-        playNote(freq, 0.8, 0.5);
+        playNote(freq, 0.9, 0.5, 'guitar');
         activeNotes.current.set(key, position);
         pressedKeys.current.add(key);
         onNoteOn?.(noteMapping.note, 0.5, position);
