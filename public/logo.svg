@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none" role="img" aria-label="Guitariz logo">
+  <defs>
+    <linearGradient id="pickGradient" x1="20" y1="16" x2="104" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f6ad37" />
+      <stop offset="0.5" stop-color="#1fb5b0" />
+      <stop offset="1" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="glowGradient" x1="32" y1="28" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <path
+    d="M63.7 14c-15.8 0-33 7.4-38.5 21.8-5.5 14.2 3 32 12.5 45.9 9.2 13.3 18.5 22.4 25.8 22.4 7.2 0 16.5-9.1 25.7-22.4 9.5-13.9 18-31.7 12.5-45.9C96.2 21.4 79.5 14 63.7 14Z"
+    fill="url(#pickGradient)"
+    stroke="#0f172a"
+    stroke-opacity="0.08"
+    stroke-width="4"
+  />
+  <path
+    d="M63 24c-10 0-20.5 4.8-24 14.4-3.6 10 2.4 22.5 9.4 32.6C55 80.5 62 88 68 88c6 0 13-7.5 19.5-17 7-10.1 13-22.6 9.4-32.6C93.4 28.8 83 24 73 24"
+    fill="url(#glowGradient)"
+  />
+  <g stroke="#f8fafc" stroke-linecap="round" stroke-width="3">
+    <path d="M47 46c7.2-8.5 26.8-8.5 34 0" opacity="0.9" />
+    <path d="M44 58h40" opacity="0.8" />
+    <path d="M48 70c6.5 6.2 24.5 6.2 31 0" opacity="0.7" />
+  </g>
+  <circle cx="64" cy="58" r="9" fill="#0f172a" fill-opacity="0.2" />
+  <path
+    d="M64 50c-4.4 0-8 3.1-8 7s3.6 7 8 7c1 0 2-0.2 2.9-0.5l-2.5-3.4c-0.2-0.3-0.4-0.5-0.4-1.1v-6.7h5.8c0.6 0 1-0.4 1-1 0-0.6-0.4-1-1-1H64Z"
+    fill="#f8fafc"
+  />
+  <circle cx="64" cy="30" r="4" fill="#f8fafc" fill-opacity="0.65" />
+  <circle cx="82" cy="40" r="3" fill="#f8fafc" fill-opacity="0.45" />
+</svg>
