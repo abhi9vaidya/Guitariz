@@ -17,28 +17,35 @@ const Navigation = () => {
     }
   };
 
+  const handleStart = () => scrollToSection("fretboard");
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50">
+      <div className="container mx-auto px-4 md:px-6 pt-4">
+        <div className="relative rounded-2xl border border-border/50 bg-card/70 backdrop-blur-xl shadow-lg px-4 md:px-6 py-3 flex items-center justify-between gap-4">
+          <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{ backgroundImage: "linear-gradient(120deg, hsla(16,92%,64%,0.12), hsla(192,86%,55%,0.08), hsla(313,78%,63%,0.12))" }} />
+
           {/* Logo */}
-          <button onClick={() => scrollToSection("fretboard")} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img src="/logo.png" alt="Guitariz Logo" className="w-10 h-10 rounded-lg" />
+          <button
+            onClick={() => scrollToSection("fretboard")}
+            className="relative flex items-center gap-3 hover:opacity-90 transition-opacity"
+          >
+            <img src="/logo.png" alt="Guitariz Logo" className="w-10 h-10 rounded-xl" />
             <div className="flex flex-col text-left">
               <h1 className="font-bold text-lg">Guitariz</h1>
-              <p className="text-xs text-muted-foreground">Music Theory Tools</p>
+              <p className="text-xs text-muted-foreground">Playful theory studio</p>
             </div>
           </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1 relative">
             {navItems.map((item) => (
               <Button
                 key={item.id}
                 variant="ghost"
                 size="sm"
                 onClick={() => scrollToSection(item.id)}
-                className="gap-2 text-muted-foreground hover:text-foreground hover:bg-transparent transition-colors"
+                className="gap-2 text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors rounded-full"
               >
                 <item.icon className="w-4 h-4" />
                 <span className="text-sm">{item.label}</span>
@@ -47,9 +54,20 @@ const Navigation = () => {
           </div>
 
           {/* Mobile Menu */}
-          <div className="md:hidden">
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
+          <div className="md:hidden relative">
+            <Button variant="ghost" size="sm" className="text-muted-foreground rounded-full" onClick={() => scrollToSection("fretboard")}> 
               <Music className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div className="hidden md:block relative">
+            <Button
+              size="sm"
+              className="gap-2 rounded-full px-4 bg-gradient-to-r from-primary via-secondary to-accent text-background shadow-md hover:shadow-lg"
+              onClick={handleStart}
+            >
+              Jam now
+              <Music className="w-4 h-4" />
             </Button>
           </div>
         </div>

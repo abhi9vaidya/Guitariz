@@ -303,33 +303,31 @@ const ScaleExplorer = () => {
   const scaleData = currentScales[selectedScale];
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-8 md:py-12 px-4 md:px-8">
-      <div className="container">
+    <div className="relative w-full min-h-screen py-10 md:py-14 px-4 md:px-8 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none opacity-45" style={{ backgroundImage: "radial-gradient(circle at 18% 20%, hsla(24,94%,60%,0.10), transparent 30%), radial-gradient(circle at 78% 18%, hsla(195,83%,52%,0.10), transparent 26%)" }} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),transparent_45%)] opacity-30" />
+      <div className="container relative">
         {/* Header */}
-        <div className="mb-8 md:mb-10 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-2 md:p-3 bg-gradient-to-br from-accent/20 to-primary/20 rounded-2xl">
-              <Disc className="w-5 h-5 md:w-6 md:h-6 text-accent" />
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gradient">Scale Explorer</h2>
-          </div>
+        <div className="mb-10 md:mb-12 text-center space-y-3">
+          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Scales • Modes • Ragas</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gradient">Scale Explorer</h2>
           <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Discover scales and their patterns across the fretboard
+            Slide between Western scales and Indian ragas and map the fretboard with a clean, calm layout.
           </p>
         </div>
 
         {/* Tabs */}
         <Tabs value={scaleCategory} onValueChange={setScaleCategory} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 md:mb-8 h-11 md:h-12 rounded-xl shadow-lg backdrop-blur-sm bg-card/50 border border-border/50 p-1 gap-1">
-            <TabsTrigger value="western" className="flex items-center justify-center gap-2 text-xs sm:text-sm md:text-base font-medium data-[state=active]:glow-accent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white transition-all duration-300 hover:bg-primary/5 rounded-lg">
-              <Music className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+          <TabsList className="grid w-full grid-cols-2 mb-6 md:mb-8 h-12 md:h-14 rounded-xl bg-card/60 border border-border/60 p-1.5 gap-1">
+            <TabsTrigger value="western" className="flex items-center justify-center gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-card data-[state=active]:border data-[state=active]:border-primary data-[state=active]:text-foreground transition-all duration-200 rounded-lg">
+              <Music className="w-5 h-5 flex-shrink-0" />
               <span className="hidden sm:inline">Western</span>
-              <Badge variant="secondary" className="ml-1 md:ml-2 text-xs md:text-xs h-fit">{Object.keys(WESTERN_SCALES).length}</Badge>
+              <Badge variant="secondary" className="ml-2 text-[11px] h-fit">{Object.keys(WESTERN_SCALES).length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="raga" className="flex items-center justify-center gap-2 text-xs sm:text-sm md:text-base font-medium data-[state=active]:glow-accent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white transition-all duration-300 hover:bg-primary/5 rounded-lg">
-              <Globe className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+            <TabsTrigger value="raga" className="flex items-center justify-center gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-card data-[state=active]:border data-[state=active]:border-primary data-[state=active]:text-foreground transition-all duration-200 rounded-lg">
+              <Globe className="w-5 h-5 flex-shrink-0" />
               <span className="hidden sm:inline">Ragas</span>
-              <Badge variant="secondary" className="ml-1 md:ml-2 text-xs md:text-xs h-fit">{Object.keys(RAGA_SCALES).length}</Badge>
+              <Badge variant="secondary" className="ml-2 text-[11px] h-fit">{Object.keys(RAGA_SCALES).length}</Badge>
             </TabsTrigger>
           </TabsList>
 
@@ -337,7 +335,7 @@ const ScaleExplorer = () => {
             <div className="grid lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {/* Enhanced Controls Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="glass-card rounded-xl shadow-lg sticky top-4 lg:top-8">
+            <Card className="glass-card rounded-xl shadow-md sticky top-4 lg:top-8 border border-border/40">
               <CardHeader className="pb-3 md:pb-4">
                 <CardTitle className="text-lg md:text-xl flex items-center gap-2 text-gradient">
                   <Info className="w-4 h-4 md:w-5 md:h-5 text-primary" />
@@ -392,7 +390,7 @@ const ScaleExplorer = () => {
                   </div>
 
                   {/* Scale List */}
-                  <ScrollArea className="h-48 md:h-56 border border-border/50 rounded-lg p-2 bg-background/30 mt-2">
+                  <ScrollArea className="h-48 md:h-56 border border-border/50 rounded-lg p-2 bg-background/40 mt-2">
                     <div className="space-y-1">
                       {filteredScales.length > 0 ? (
                         filteredScales.map((scale) => (
@@ -402,10 +400,10 @@ const ScaleExplorer = () => {
                               setSelectedScale(scale);
                               setScaleSearchQuery("");
                             }}
-                            className={`w-full px-3 py-2 rounded-md text-left text-xs md:text-sm font-medium transition-all duration-200 line-clamp-1 ${
+                            className={`w-full px-3 py-2 rounded-lg text-left text-xs md:text-sm font-semibold transition-all duration-150 line-clamp-1 ${
                               selectedScale === scale
-                                ? "bg-gradient-to-r from-primary to-accent text-white shadow-md"
-                                : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
+                                ? "bg-card border border-primary text-foreground"
+                                : "text-muted-foreground hover:text-foreground hover:bg-card/70"
                             }`}
                           >
                             {scale}
@@ -431,8 +429,8 @@ const ScaleExplorer = () => {
                         onClick={() => setSelectedCategory(null)}
                         className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
                           selectedCategory === null
-                            ? "bg-gradient-to-r from-primary to-accent text-white shadow-sm"
-                            : "bg-background/50 border border-border/60 text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                            ? "bg-card border border-primary text-foreground"
+                            : "bg-card/70 border border-border/60 text-muted-foreground hover:border-primary/60 hover:text-foreground"
                         }`}
                       >
                         All
@@ -443,8 +441,8 @@ const ScaleExplorer = () => {
                           onClick={() => setSelectedCategory(cat)}
                           className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-all duration-200 ${
                             selectedCategory === cat
-                              ? "bg-gradient-to-r from-primary to-accent text-white shadow-sm"
-                              : "bg-background/50 border border-border/60 text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                                ? "bg-card border border-primary text-foreground"
+                                : "bg-card/70 border border-border/60 text-muted-foreground hover:border-primary/60 hover:text-foreground"
                           }`}
                         >
                           {cat}
@@ -496,8 +494,8 @@ const ScaleExplorer = () => {
           <div className="lg:col-span-2">
             <div className="grid gap-4 md:gap-6 lg:gap-8">
               {/* Scale Title Card */}
-              <Card className="glass-card rounded-xl shadow-lg overflow-hidden border border-border/40">
-                <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border/40 px-4 md:px-6 py-4 md:py-5">
+              <Card className="glass-card rounded-xl shadow-md overflow-hidden border border-border/40 bg-card/80">
+                <div className="bg-card/70 border-b border-border/40 px-4 md:px-6 py-4 md:py-5">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg">
                       <Music className="w-4 h-4 md:w-5 md:h-5 text-primary" />
@@ -526,7 +524,7 @@ const ScaleExplorer = () => {
                             <TooltipTrigger asChild>
                               <button
                                 type="button"
-                                className={`inline-flex flex-col items-center gap-0.5 px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-bold shadow-md transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background ${NOTE_COLORS[note as keyof typeof NOTE_COLORS]}`}
+                                className={`inline-flex flex-col items-center gap-0.5 px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-bold shadow-sm transition-all duration-150 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background ${NOTE_COLORS[note as keyof typeof NOTE_COLORS]}`}
                                 aria-label={`Note ${note}, degree ${index + 1}`}
                                 onClick={() => {
                                   const noteFreq = 440 * Math.pow(2, (NOTES.indexOf(note) - 9) / 12);
@@ -571,7 +569,7 @@ const ScaleExplorer = () => {
                               <TooltipTrigger asChild>
                                 <button
                                   type="button"
-                                  className={`inline-flex flex-col items-center gap-0.5 px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-bold shadow-md transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background ${NOTE_COLORS[getScaleNotes[index] as keyof typeof NOTE_COLORS]}`}
+                                  className={`inline-flex flex-col items-center gap-0.5 px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-bold shadow-sm transition-all duration-150 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background ${NOTE_COLORS[getScaleNotes[index] as keyof typeof NOTE_COLORS]}`}
                                   aria-label={`Indian note ${note}, degree ${index + 1}`}
                                   onClick={() => {
                                     const noteFreq = 440 * Math.pow(2, (NOTES.indexOf(getScaleNotes[index]) - 9) / 12);
@@ -639,7 +637,7 @@ const ScaleExplorer = () => {
               </Card>
 
               {/* Scale Information Card */}
-              <Card className="glass-card rounded-xl shadow-lg border border-border/40">
+              <Card className="glass-card rounded-xl shadow-md border border-border/40 bg-card/80">
                 <CardHeader className="pb-3 md:pb-4 border-b border-border/40">
                   <CardTitle className="text-base md:text-lg flex items-center gap-2">
                     <Info className="w-4 h-4 md:w-5 md:h-5 text-primary" />
@@ -732,7 +730,7 @@ const ScaleExplorer = () => {
         {/* Enhanced Visual Representations */}
         <div className="lg:col-span-3 space-y-8">
           {/* Fretboard Scale Visualization */}
-          <Card className="glass-card rounded-2xl shadow-lg">
+          <Card className="glass-card rounded-xl shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-accent/20 to-primary/20 rounded-lg">
@@ -823,21 +821,19 @@ const ScaleExplorer = () => {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div
-                                  className={`absolute group transition-all duration-200 cursor-pointer hover:scale-125 ${
-                                    isRoot
-                                      ? "z-20"
-                                      : "z-10"
-                                  }`}
+                                  className={`absolute group transition-all duration-150 cursor-pointer hover:scale-112 ${
+                                              isRoot ? "z-20" : "z-10"
+                                            }`}
                                   style={{
                                     left: `${intersectionX}px`,
                                     top: `${intersectionY}px`,
                                   }}
                                 >
                                   <div
-                                    className={`relative w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-lg transition-all duration-200 ${
+                                    className={`relative w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow ${
                                       isRoot
-                                        ? "bg-gradient-to-br from-yellow-400 to-yellow-600 text-white ring-3 ring-yellow-400/50 scale-125 animate-pulse"
-                                        : `${chromaticColor} text-white shadow-md hover:shadow-xl`
+                                        ? "bg-yellow-500 text-white ring-2 ring-yellow-400/60"
+                                        : `${chromaticColor} text-white shadow-sm`
                                     }`}
                                     style={{
                                       transform: isRoot ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%)',

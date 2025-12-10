@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,66 +9,68 @@
    ----------------------------- */
 
 :root {
-  /* Core */
-  --background: 240 45% 8%;
-  --foreground: 210 40% 98%;
+  /* Core palette: midnight eggplant + sunset coral + electric teal */
+  --background: 258 52% 7%;
+  --foreground: 44 38% 96%;
 
-  --card: 240 30% 12%;
-  --card-foreground: 210 40% 98%;
+  --card: 250 40% 12%;
+  --card-foreground: 44 38% 96%;
 
-  --popover: 240 35% 10%;
-  --popover-foreground: 210 40% 98%;
+  --popover: 255 40% 10%;
+  --popover-foreground: 44 38% 96%;
 
-  --primary: 180 85% 55%;
-  --primary-foreground: 240 45% 8%;
+  --primary: 24 94% 60%; /* warm amber */
+  --primary-foreground: 258 52% 7%;
 
-  --secondary: 270 80% 65%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 195 83% 52%; /* teal */
+  --secondary-foreground: 258 52% 7%;
 
-  --muted: 240 20% 20%;
-  --muted-foreground: 215 20% 65%;
+  --accent: 220 80% 66%; /* cobalt */
+  --accent-foreground: 258 52% 7%;
 
-  --accent: 180 85% 55%;
-  --accent-foreground: 240 45% 8%;
+  --muted: 255 28% 22%;
+  --muted-foreground: 252 15% 75%;
 
-  --destructive: 0 72% 55%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 2 88% 62%;
+  --destructive-foreground: 44 38% 96%;
 
-  --border: 240 25% 18%;
-  --input: 240 25% 18%;
-  --ring: 180 85% 55%;
+  --border: 255 30% 22%;
+  --input: 255 30% 22%;
+  --ring: 192 86% 55%;
 
-  --radius: 1rem;
+  --radius: 1.1rem;
 
-  --focus-ring: rgba(11,120,209,0.24);
+  --focus-ring: rgba(255,119,61,0.25);
   --focus-outline: 3px;
 
   /* Custom tokens */
-  --gradient-primary: linear-gradient(135deg, hsl(240 45% 12%) 0%, hsl(270 45% 18%) 100%);
-  --gradient-accent: linear-gradient(135deg, hsl(180 85% 55%) 0%, hsl(200 85% 65%) 100%);
-  --gradient-glow: linear-gradient(135deg, hsl(180 85% 55% / 0.2) 0%, hsl(270 80% 65% / 0.2) 100%);
+  --gradient-primary: linear-gradient(135deg, hsl(258 52% 9%) 0%, hsl(220 80% 14%) 100%);
+  --gradient-accent: linear-gradient(120deg, hsl(24 94% 60%) 0%, hsl(195 83% 52%) 50%, hsl(220 80% 66%) 100%);
+  --gradient-glow: radial-gradient(circle at 22% 22%, hsl(24 94% 60% / 0.16), transparent 44%),
+                   radial-gradient(circle at 78% 18%, hsl(195 83% 52% / 0.16), transparent 40%),
+                   radial-gradient(circle at 50% 70%, hsl(220 80% 66% / 0.16), transparent 42%);
 
-  --glass-bg: hsl(240 30% 12% / 0.6);
-  --glass-border: hsl(240 25% 25% / 0.3);
+  --glass-bg: hsl(252 38% 18% / 0.55);
+  --glass-border: hsl(255 30% 40% / 0.35);
 
-  --fretboard-wood: 30 25% 25%;
-  --fretboard-fret: 0 0% 70%;
-  --fretboard-string: 40 10% 80%;
+  --fretboard-wood: 28 30% 23%;
+  --fretboard-fret: 0 0% 72%;
+  --fretboard-string: 40 10% 82%;
 
-  --note-root: 0 85% 60%;
-  --note-third: 180 85% 55%;
-  --note-fifth: 270 80% 65%;
-  --note-seventh: 45 90% 60%;
-  --note-default: 210 15% 50%;
+  --note-root: 16 92% 64%;
+  --note-third: 192 86% 55%;
+  --note-fifth: 313 78% 63%;
+  --note-seventh: 44 90% 62%;
+  --note-default: 210 12% 55%;
 
-  --sidebar-background: 240 35% 10%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-primary: 180 85% 55%;
-  --sidebar-primary-foreground: 240 45% 8%;
-  --sidebar-accent: 240 25% 18%;
-  --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-border: 240 25% 18%;
-  --sidebar-ring: 180 85% 55%;
+  --sidebar-background: 255 45% 10%;
+  --sidebar-foreground: 44 38% 96%;
+  --sidebar-primary: 16 92% 64%;
+  --sidebar-primary-foreground: 258 52% 7%;
+  --sidebar-accent: 255 30% 16%;
+  --sidebar-accent-foreground: 44 38% 96%;
+  --sidebar-border: 255 30% 20%;
+  --sidebar-ring: 192 86% 55%;
 }
 
 /* dark mode helper */
@@ -90,10 +94,25 @@
     padding: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-family: var(--ui-font, Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial);
+    font-family: 'Manrope', 'Space Grotesk', system-ui, -apple-system, "Segoe UI", sans-serif;
     background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(circle at 12% 18%, hsla(16,92%,64%,0.14), transparent 28%),
+      radial-gradient(circle at 82% 12%, hsla(313,78%,63%,0.16), transparent 26%),
+      radial-gradient(circle at 22% 82%, hsla(192,86%,55%,0.12), transparent 24%),
+      linear-gradient(145deg, hsla(258,52%,10%,0.9), hsla(255,45%,10%,0.82));
     color: hsl(var(--foreground));
     overflow-x: hidden; /* prevents horizontal scroll caused by overflow */
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Space Grotesk', 'Manrope', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: hsla(16,92%,64%,0.2);
+    color: hsl(var(--foreground));
   }
 
   /* visible keyboard focus */
@@ -145,6 +164,68 @@
   }
 
   .glow-accent { box-shadow: 0 0 30px hsl(var(--primary) / 0.3); }
+
+  /* Mood overlays */
+  .ink-blob {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .ink-blob::before,
+  .ink-blob::after {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background: var(--gradient-glow);
+    filter: blur(42px);
+    opacity: 0.9;
+    z-index: -1;
+    transform: rotate(6deg);
+  }
+  .ink-blob::after {
+    inset: -15%;
+    transform: rotate(-8deg) scale(1.04);
+  }
+
+  .pulse-border {
+    position: relative;
+  }
+  .pulse-border::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(120deg, hsla(16,92%,64%,0.4), hsla(192,86%,55%,0.4), hsla(313,78%,63%,0.35));
+    filter: blur(12px);
+    opacity: 0.65;
+    z-index: -1;
+  }
+
+  .sunset-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsla(16,92%,64%,0.35), hsla(313,78%,63%,0.35), transparent);
+  }
+
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    background: hsla(255,30%,22%,0.7);
+    border: 1px solid hsla(255,30%,40%,0.35);
+    color: hsl(var(--foreground));
+  }
+
+  .ribbon {
+    background: linear-gradient(120deg, hsl(16 92% 64%), hsl(192 86% 55%), hsl(313 78% 63%));
+    color: hsl(var(--background));
+    border-radius: 999px;
+    padding: 0.5rem 1.2rem;
+    box-shadow: 0 10px 30px hsla(16,92%,64%,0.25);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
 
   /* Hover / focus effects */
   .hover-lift { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
