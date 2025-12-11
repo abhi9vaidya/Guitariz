@@ -38,6 +38,7 @@ An interactive web application for exploring guitar, piano, and music theory thr
 - **⌨️ Keyboard Support** - Customizable keyboard mappings (QWERTY, AZERTY) for hands-on practice.
 - **🎯 Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices.
 - **💾 Persistent Settings** - Your preferences are saved locally for a consistent experience.
+- **🤖 Chord AI (in progress)** - Upload audio to preview chords, tempo, and key; frontend is live, backend endpoint is still being finalized.
 
 ---
 
@@ -109,6 +110,11 @@ npm run preview
 2. Start the metronome
 3. Practice scales, chord transitions, or finger exercises at different tempos
 
+### Using Chord AI (in progress)
+1. Open the Chord AI page and drop an `.mp3`, `.wav`, or `.m4a` file
+2. Press play to see the waveform, live chord timeline, tempo, and key summary
+3. The UI calls the endpoint set in `VITE_CHORD_AI_API` (falls back to `/api/analyze`); the backend service is not bundled yet
+
 ---
 
 ## 📁 Project Structure
@@ -118,6 +124,7 @@ src/
 ├── components/
 │   ├── ui/                    # Reusable UI components (badge, button, card, etc.)
 │   ├── chord/                 # Chord diagram & variation components
+│   ├── chord-ai/              # Waveform, timeline, and summary UI (Chord AI)
 │   ├── piano/                 # Piano keyboard components
 │   ├── fretboard/             # Fretboard & keyboard settings
 │   ├── Fretboard.tsx          # Main fretboard interface
@@ -128,11 +135,15 @@ src/
 ├── hooks/
 │   ├── useKeyboardFretboard.ts    # Keyboard input handling
 │   ├── usePianoKeyboard.ts        # Piano keyboard input
+│   ├── useChordAnalysis.ts        # Chord AI client for backend/local analysis
+│   ├── useAudioPlayer.ts          # Audio playback + peaks for analysis
 │   └── use-toast.ts               # Toast notifications
 ├── lib/
 │   ├── chordDetection.ts      # Core chord detection algorithm
 │   ├── chordAudio.ts          # Sound generation
 │   ├── chordAdapter.ts        # Data transformation utilities
+│   ├── api/
+│   │   └── analyzeClient.ts   # Chord AI API client (expects VITE_CHORD_AI_API)
 │   └── utils.ts               # General utilities
 ├── types/
 │   ├── chordTypes.ts          # Chord-related types
@@ -143,11 +154,13 @@ src/
 │   └── chordData.ts           # Chord database
 ├── pages/
 │   ├── Index.tsx              # Main application page
+│   ├── ChordAIPage.tsx        # Chord AI experience (in progress)
 │   └── NotFound.tsx           # 404 page
 ├── App.tsx                    # Root component
 ├── main.tsx                   # Application entry point
 ├── index.css                  # Global styles
 └── vite-env.d.ts              # Vite environment types
+backend/                       # Experimental Chord AI backend (not bundled for deployment)
 ```
 
 ---
