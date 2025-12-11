@@ -129,7 +129,7 @@ const Index = () => {
                 <Sparkles className="w-4 h-4" />
                 <span>Playful. Focused. Fast.</span>
               </motion.div>
-              <motion.div className="space-y-4" variants={blurRise(0.12)}>
+              <motion.div className="space-y-4" variants={tiltFade(0.12)}>
                 <h1 className="text-5xl md:text-6xl leading-tight font-bold text-gradient">
                   Play, hear, and learn music.
                 </h1>
@@ -137,7 +137,7 @@ const Index = () => {
                   Guitar and piano, chords and scales—everything stays musical. Jump between instruments, hear changes instantly, and keep the groove moving.
                 </p>
               </motion.div>
-              <motion.div className="flex flex-wrap items-center gap-4" variants={pop(0.16)}>
+              <motion.div className="flex flex-wrap items-center gap-4" variants={tiltFade(0.18)}>
                 <Button
                   size="lg"
                   className="gap-2 px-7 py-6 text-base font-semibold bg-gradient-to-r from-primary via-secondary to-accent text-background shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-transform"
@@ -197,9 +197,13 @@ const Index = () => {
                         className="block h-full p-4 rounded-2xl border border-border/50 bg-card/70 backdrop-blur-md hover:border-primary/50 transition hover:-translate-y-1 hover:shadow-lg card-lift"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 grid place-items-center">
+                          <motion.div
+                            className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 grid place-items-center"
+                            animate={{ y: [0, -4, 0], scale: [1, 1.05, 1] }}
+                            transition={{ duration: 3 + idx * 0.2, repeat: Infinity, ease: "easeInOut" }}
+                          >
                             <Icon className="w-5 h-5 text-primary" />
-                          </div>
+                          </motion.div>
                           <div>
                             <p className="font-semibold">{title}</p>
                             <p className="text-sm text-muted-foreground">{desc}</p>
@@ -273,9 +277,13 @@ const Index = () => {
                     className="block h-full p-5 rounded-2xl border border-border/50 bg-card/70 hover:border-primary/50 hover:-translate-y-1 transition shadow-md card-lift"
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 grid place-items-center">
+                      <motion.div
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 grid place-items-center"
+                        animate={{ scale: [1, 1.08, 1], y: [0, -3, 0] }}
+                        transition={{ duration: 3.4 + idx * 0.15, repeat: Infinity, ease: "easeInOut" }}
+                      >
                         <Icon className="w-5 h-5 text-primary" />
-                      </div>
+                      </motion.div>
                       <p className="font-semibold text-lg">{title}</p>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
@@ -326,7 +334,7 @@ const Index = () => {
                 </li>
                 <li>
                   <a
-                    href="https://www.linkedin.com/in/abhinav-vaidya"
+                    href="https://www.linkedin.com/in/abhinav-vaidya-718843211/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-primary transition-colors"
