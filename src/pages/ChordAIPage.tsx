@@ -53,7 +53,7 @@ const ChordAIPage = () => {
               </CardHeader>
               <CardContent className="space-y-4 text-muted-foreground">
                 <p>
-                  Thanks for checking this out. Soon you\'ll be able to upload any track and get chords, scales, tempo, and a hopeful MIDI (if I manage to do that) with a bit of humor.
+                  Thanks for checking this out. Soon you\'ll be able to upload any track and get chords, scales, tempo, and a hopeful MIDI (if I manage to do that).
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>
