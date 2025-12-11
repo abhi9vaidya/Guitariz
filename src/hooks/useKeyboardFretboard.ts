@@ -24,7 +24,6 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
     onNoteOn,
     onNoteOff,
     onStrumDown,
-    onStrumUp,
   } = options;
 
   const pressedKeys = useRef<Set<string>>(new Set());
@@ -65,50 +64,21 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     if (positions.length === 0) return;
 
-    // Sort by string treble → bass (high E to low E)
+    // Play together for tighter chord (no arpeggiated sweep)
     const sorted = [...positions].sort((a, b) => b.string - a.string);
 
     sorted.forEach((position, index) => {
-      setTimeout(() => {
-        const freq = getNoteFrequency(position);
-        const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.5, velocity, 'guitar');
-      }, index * strumSpeedRef.current);
+      const freq = getNoteFrequency(position);
+      const velocity = getVelocity(index, sorted.length);
+      playNote(freq, 1.5, velocity, 'guitar');
     });
 
     // After strumming, clear accumulated notes (for chord mode)
     setTimeout(() => {
       activeNotes.current.clear();
       pressedKeys.current.clear();
-    }, sorted.length * strumSpeedRef.current + 100);
+    }, 150);
   }, [onStrumDown, getVelocity]);
-
-  const strumUp = useCallback(() => {
-    if (!enabledRef.current) return;
-
-    onStrumUp?.();
-
-    const positions = Array.from(activeNotes.current.values());
-
-    if (positions.length === 0) return;
-
-    // Sort by string bass → treble (low E to high E)
-    const sorted = [...positions].sort((a, b) => a.string - b.string);
-
-    sorted.forEach((position, index) => {
-      setTimeout(() => {
-        const freq = getNoteFrequency(position);
-        const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.5, velocity, 'guitar');
-      }, index * strumSpeedRef.current);
-    });
-
-    // After strumming, clear accumulated notes (for chord mode)
-    setTimeout(() => {
-      activeNotes.current.clear();
-      pressedKeys.current.clear();
-    }, sorted.length * strumSpeedRef.current + 100);
-  }, [onStrumUp, getVelocity]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
@@ -121,14 +91,10 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     const key = e.key.toLowerCase();
 
-    // Handle strum keys - Enter and Shift+Enter
+    // Handle strum key - Enter only
     if (e.code === 'Enter') {
       e.preventDefault();
-      if (e.shiftKey) {
-        strumUp();
-      } else {
-        strumDown();
-      }
+      strumDown();
       return;
     }
 
@@ -168,7 +134,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       }
       return;
     }
-  }, [enabled, keymap, chordMode, onNoteOn, strumDown, strumUp]);
+  }, [enabled, keymap, chordMode, onNoteOn, strumDown]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
@@ -215,6 +181,5 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
     activeNotes: Array.from(activeNotes.current.entries()),
     octaveShift: octaveShift.current,
     strumDown,
-    strumUp,
   };
 };

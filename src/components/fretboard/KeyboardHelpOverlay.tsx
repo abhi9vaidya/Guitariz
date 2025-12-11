@@ -59,20 +59,12 @@ export const KeyboardHelpOverlay = ({ keymap, isOpen, onClose }: KeyboardHelpOve
 
           {/* Strum controls */}
           <div>
-            <h3 className="text-lg font-semibold mb-3 text-muted-foreground">Strum Controls</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
-                <Badge variant="outline" className="font-mono">
-                  {keymap.downStrum}
-                </Badge>
-                <span className="text-sm">Down Strum (High to Low)</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
-                <Badge variant="outline" className="font-mono">
-                  {keymap.upStrum}
-                </Badge>
-                <span className="text-sm">Up Strum (Low to High)</span>
-              </div>
+            <h3 className="text-lg font-semibold mb-3 text-muted-foreground">Strum Control</h3>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
+              <Badge variant="outline" className="font-mono">
+                {keymap.downStrum}
+              </Badge>
+              <span className="text-sm">Strum (High to Low)</span>
             </div>
           </div>
 

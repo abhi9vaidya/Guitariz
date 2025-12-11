@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 const NOTES = ["E", "A", "D", "G", "B", "E"];
 const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const FRETS = 12;
-
+const STRING_BASE_FREQ = [82.41, 110.0, 146.83, 196.0, 246.94, 329.63]; // Low E to high E
 interface FretNote {
   string: number;
   fret: number;
@@ -109,30 +109,7 @@ const Fretboard = () => {
   }, [maxCandidates]);
 
   // Handle Enter key to strum fretboard notes
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only in fretboard mode, not piano mode
-      if (pianoMode) return;
-      
-      // Ignore if typing in input fields
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-        return;
-      }
-
-      if (e.code === 'Enter') {
-        e.preventDefault();
-        if (e.shiftKey) {
-          strumUp();
-        } else {
-          strumDown();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [pianoMode, highlightedNotes, strumSpeed]);
+  // (moved below strum helpers to avoid reference order issues)
 
   // Fretboard keyboard integration
   const { activeNotes: keyboardActiveNotes, octaveShift } = useKeyboardFretboard({
@@ -221,7 +198,7 @@ const Fretboard = () => {
 
   const getActiveKey = (stringIndex: number, fret: number): string | undefined => {
     const active = keyboardActiveNotes.find(
-      ([key, pos]) => pos.string === stringIndex && pos.fret === fret
+      ([, pos]) => pos.string === stringIndex && pos.fret === fret
     );
     return active?.[0];
   };
@@ -257,26 +234,20 @@ const Fretboard = () => {
     return 0.2 + Math.pow(position, 1.5) * 0.3;
   };
 
-  const getNoteFrequency = (note: string, octaveShift: number = 0): number => {
-    const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    const noteIndex = CHROMATIC.indexOf(note);
-    const baseFreq = 440; // A4
-    const semitones = noteIndex - CHROMATIC.indexOf("A") + (octaveShift * 12);
-    return baseFreq * Math.pow(2, semitones / 12);
+  const getNoteFrequency = (stringIndex: number, fret: number): number => {
+    const base = STRING_BASE_FREQ[stringIndex] ?? 110; // fallback A2
+    return base * Math.pow(2, fret / 12);
   };
 
   const strumDown = () => {
     if (highlightedNotes.length === 0) return;
     
-    // Sort by string (descending: 5→0, which is high E to low E)
+    // Play all notes together for a tight chord instead of a sweep
     const sorted = [...highlightedNotes].sort((a, b) => b.string - a.string);
-    
     sorted.forEach((noteData, index) => {
-      setTimeout(() => {
-        const freq = getNoteFrequency(noteData.note);
-        const velocity = getVelocity(index, sorted.length);
-        playNote(freq, 1.8, velocity, 'guitar');
-      }, index * strumSpeed);
+      const freq = getNoteFrequency(noteData.string, noteData.fret);
+      const velocity = getVelocity(index, sorted.length);
+      playNote(freq, 1.8, velocity, 'guitar');
     });
   };
 
@@ -288,12 +259,33 @@ const Fretboard = () => {
     
     sorted.forEach((noteData, index) => {
       setTimeout(() => {
-        const freq = getNoteFrequency(noteData.note);
+        const freq = getNoteFrequency(noteData.string, noteData.fret);
         const velocity = getVelocity(index, sorted.length);
         playNote(freq, 1.8, velocity, 'guitar');
       }, index * strumSpeed);
     });
   };
+
+  // Allow Enter to strum highlighted frets when keyboard control is off
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (pianoMode) return;
+      if (keyboardEnabled) return; // avoid double fire with keyboard hook
+
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      if (e.code === 'Enter') {
+        e.preventDefault();
+        strumDown();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pianoMode, keyboardEnabled, highlightedNotes, strumSpeed, strumDown, strumUp]);
 
   const togglePianoMode = () => {
     setPianoMode((prev: boolean) => !prev);
@@ -388,25 +380,14 @@ const Fretboard = () => {
           </button>
 
           {!pianoMode && highlightedNotes.length > 0 && (
-            <>
-              <button
-                onClick={strumDown}
-                className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
-                title="Enter - Strum Down (High to Low)"
-              >
-                <Music className="w-4 h-4" />
-                ↓ Strum
-              </button>
-
-              <button
-                onClick={strumUp}
-                className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
-                title="Shift+Enter - Strum Up (Low to High)"
-              >
-                <Music className="w-4 h-4" />
-                ↑ Strum
-              </button>
-            </>
+            <button
+              onClick={strumDown}
+              className="px-4 py-3 rounded-full glass-card hover-lift border-primary/30 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm font-semibold text-sm flex items-center gap-2"
+              title="Enter - Strum (High to Low)"
+            >
+              <Music className="w-4 h-4" />
+              Strum
+            </button>
           )}
 
           <button
