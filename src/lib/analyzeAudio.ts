@@ -22,6 +22,36 @@ const PITCH_CLASS_NAMES = [
 const MAJOR_PROFILE = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
 const MINOR_PROFILE = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
 
+const CHORD_TEMPLATES: { name: string; vec: number[] }[] = [];
+for (let root = 0; root < 12; root++) {
+  const types: Record<string, number[]> = {
+    "": [0, 4, 7],
+    "m": [0, 3, 7],
+    "7": [0, 4, 7, 10],
+    "maj7": [0, 4, 7, 11],
+    "m7": [0, 3, 7, 10],
+    "dim": [0, 3, 6],
+    "sus2": [0, 2, 7],
+    "sus4": [0, 5, 7],
+  };
+  for (const [suffix, intervals] of Object.entries(types)) {
+    const vec = new Array(12).fill(0);
+    intervals.forEach(iv => {
+      vec[(root + iv) % 12] = 1.0;
+      // Harmonics
+      vec[(root + iv + 7) % 12] += 0.1;
+    });
+    // Bias root
+    vec[root] += 0.2;
+    // Normalize
+    const norm = Math.sqrt(vec.reduce((a, b) => a + b * b, 0));
+    CHORD_TEMPLATES.push({
+      name: PITCH_CLASS_NAMES[root] + suffix,
+      vec: vec.map(v => v / (norm + 1e-9)),
+    });
+  }
+}
+
 export type AnalyzeTrackResult = AnalysisResult;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
@@ -157,31 +187,39 @@ function detectPitchClasses(audioBuffer: AudioBuffer, windowSeconds = 0.75): { h
     peaks.sort((a, b) => b.mag - a.mag);
     const selected = peaks.slice(0, peakCount);
 
-    const pitchClasses: Set<number> = new Set();
+    const pitchClassesArr = new Array(12).fill(0);
     selected.forEach(({ bin, mag }) => {
       const freq = (bin * sampleRate) / windowSize;
       const pc = frequencyToPitchClass(freq);
-      pitchClasses.add(pc);
+      pitchClassesArr[pc] += mag;
       histogram[pc] += mag;
     });
 
-    const notes = Array.from(pitchClasses).map((pc) => PITCH_CLASS_NAMES[pc]);
-    let detected: string | undefined;
-    try {
-      detected = notes.length ? Chord.detect(notes)[0] : undefined;
-    } catch (err) {
-      // If tonal throws, fall back to joined notes
-      console.warn("Chord.detect failed", err);
+    // Template matching
+    let bestChord = "N.C.";
+    let maxScore = -1;
+    
+    // Normalize window pitch classes
+    const pcSum = pitchClassesArr.reduce((a, b) => a + b, 0);
+    if (pcSum > 0.05) {
+      const pcNorm = pitchClassesArr.map(v => v / pcSum);
+      CHORD_TEMPLATES.forEach(tpl => {
+        const score = tpl.vec.reduce((acc, v, i) => acc + v * pcNorm[i], 0);
+        if (score > maxScore) {
+          maxScore = score;
+          bestChord = tpl.name;
+        }
+      });
     }
-    const chordName = detected || (notes.length ? notes.join("-") : "N.C.");
-    const confidence = clamp(selected.reduce((acc, v) => acc + v.mag, 0) / (selected.length || 1) / 50, 0, 1);
+
+    const confidence = clamp(maxScore, 0, 1);
     const startSec = start / sampleRate;
     const endSec = Math.min(channel.length / sampleRate, startSec + windowSize / sampleRate);
 
     segments.push({
       start: startSec,
       end: endSec,
-      chord: chordName,
+      chord: bestChord,
       confidence,
     });
   }
@@ -206,17 +244,28 @@ export async function analyzeTrack(audioBuffer: AudioBuffer): Promise<AnalyzeTra
     const merged: ChordSegment[] = [];
     segments.forEach((seg) => {
       const last = merged[merged.length - 1];
-      if (last && last.chord === seg.chord && Math.abs(last.end - seg.start) < 0.05) {
+      if (last && last.chord === seg.chord && Math.abs(last.end - seg.start) < 0.1) {
         last.end = seg.end;
-        last.confidence = lerp(last.confidence, seg.confidence, 0.5);
+        last.confidence = Math.max(last.confidence, seg.confidence);
       } else {
         merged.push({ ...seg });
       }
     });
 
+    // Remove very short "glitch" chords (less than 0.2s) by absorbing them into neighbors
+    const smoothed: ChordSegment[] = [];
+    for (let i = 0; i < merged.length; i++) {
+        const curr = merged[i];
+        if ((curr.end - curr.start) < 0.2 && smoothed.length > 0) {
+            smoothed[smoothed.length - 1].end = curr.end;
+        } else {
+            smoothed.push(curr);
+        }
+    }
+
     const safeTempo = Number.isFinite(tempo) && tempo > 0 ? Math.round(tempo) : 100;
-    const safeChords = merged.length
-      ? merged
+    const safeChords = smoothed.length
+      ? smoothed
       : [{ start: 0, end: Math.max(audioBuffer.duration, 1), chord: `${key} ${scale}`, confidence: 0.4 }];
 
     return {
@@ -225,7 +274,17 @@ export async function analyzeTrack(audioBuffer: AudioBuffer): Promise<AnalyzeTra
       key,
       scale,
       chords: safeChords,
-      simpleChords: safeChords.map(s => ({ ...s, chord: s.chord.split(" ")[0] })),
+      simpleChords: safeChords.map(s => {
+        let sc = s.chord;
+        // Basic simplification logic: keep only root and minor flag
+        if (sc.includes("m") && !sc.includes("maj")) {
+          sc = sc.split("m")[0] + "m";
+        } else if (sc !== "N.C.") {
+          // Extract root (handle #)
+          sc = sc.match(/^[A-G]#?/)?.[0] || sc;
+        }
+        return { ...s, chord: sc };
+      }),
     };
   } catch (err) {
     console.error("analyzeTrack failed", err);

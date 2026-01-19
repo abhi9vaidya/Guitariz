@@ -20,6 +20,8 @@ const formatTime = (seconds: number) => {
 const ChordTimeline = ({ segments, currentTime, onSeek }: ChordTimelineProps) => {
   const activeRef = useRef<HTMLDivElement>(null);
 
+  const activeIndex = segments.findIndex(s => currentTime >= s.start && currentTime <= s.end);
+
   useEffect(() => {
     if (activeRef.current) {
       activeRef.current.scrollIntoView({
@@ -27,7 +29,7 @@ const ChordTimeline = ({ segments, currentTime, onSeek }: ChordTimelineProps) =>
         block: "center",
       });
     }
-  }, [currentTime, segments.length]);
+  }, [activeIndex]);
 
   return (
     <ScrollArea className="h-[432px] pr-4">
