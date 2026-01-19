@@ -67,6 +67,17 @@ For production deployments:
 3. **Queue System**: Use Celery/Redis for background processing on large files
 4. **Model Selection**: Swap `htdemucs` for `htdemucs_ft` (fine-tuned) for even better quality
 
+### Production Deployment
+
+Since vocal separation requires high CPU/Memory and the `demucs` library, it **cannot run on Vercel Serverless**.
+
+1. **Host Backend**: Deploy the `backend/` folder to a service like **Railway**, **Render**, or a **VPS** with at least 4GB RAM.
+2. **Environment Variable**: In your **Vercel Project Settings**, add a new Environment Variable:
+   - `VITE_API_URL`: `https://your-backend-url.com`
+3. **Redeploy**: Re-run your Vercel deployment.
+
+Note: The `vercel.json` has been updated to correctly route `/api` requests and avoid "405 Method Not Allowed" errors by ensuring API calls aren't rewritten to `index.html`.
+
 ## Technical Details
 
 ### Demucs Architecture

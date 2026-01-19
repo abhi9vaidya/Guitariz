@@ -1,6 +1,7 @@
 import { AnalysisResult, ChordSegment } from "@/types/chordAI";
 
-const defaultEndpoint = import.meta.env.VITE_CHORD_AI_API || "/api/analyze";
+const defaultBase = import.meta.env.VITE_API_URL || "";
+const defaultEndpoint = import.meta.env.VITE_CHORD_AI_API || `${defaultBase}/api/analyze`;
 
 const normalizeChords = (chords: any[], durationHint?: number): ChordSegment[] => {
   if (!Array.isArray(chords)) return [];
