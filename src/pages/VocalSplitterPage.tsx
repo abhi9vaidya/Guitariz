@@ -56,8 +56,19 @@ const VocalSplitterPage = () => {
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${errorText}`);
+        let errorText = "";
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType?.includes("application/json")) {
+            const errorData = await response.json();
+            errorText = errorData.detail || errorData.message || JSON.stringify(errorData);
+          } else {
+            errorText = await response.text();
+          }
+        } catch (e) {
+          errorText = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorText || `Server returned ${response.status}`);
       }
       
       const data = await response.json();
@@ -91,10 +102,17 @@ const VocalSplitterPage = () => {
       let errorMessage = "Could not separate audio. Please try again.";
       
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        errorMessage = "Backend server is not running. Please start the backend first or deploy the application.";
+        errorMessage = "Backend server is not running. Please ensure the backend is deployed and accessible.";
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
+      
+      // Log full error details to console for debugging
+      console.error("Full error details:", {
+        error,
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       
       toast({
         title: "Separation failed",
