@@ -197,7 +197,7 @@ const ChordAIPage = () => {
                           <div className="w-12 h-12 rounded-full border-t-2 border-white animate-spin opacity-20" />
                           <span className="text-xs text-muted-foreground uppercase tracking-widest animate-pulse">Neural Decoding...</span>
                         </div>
-                      ) : result && (
+                      ) : result ? (
                         <div className="space-y-4">
                           <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
                             <Settings2 className="w-3 h-3" />
@@ -209,7 +209,7 @@ const ChordAIPage = () => {
                             onSeek={seek}
                           />
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 )}

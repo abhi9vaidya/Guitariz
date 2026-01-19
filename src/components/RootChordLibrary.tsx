@@ -225,8 +225,6 @@ const RootChordLibrary = () => {
           )}
         </div>
       )}
-        </div>
-      )}
 
       {!selectedRoot && !searchedChord && (
         <div className="text-center py-12 text-muted-foreground">
