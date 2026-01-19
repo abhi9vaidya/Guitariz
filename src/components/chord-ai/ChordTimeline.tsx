@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { ChordSegment } from "@/types/chordAI";
 import { useEffect, useRef } from "react";
@@ -18,21 +17,39 @@ const formatTime = (seconds: number) => {
 };
 
 const ChordTimeline = ({ segments, currentTime, onSeek }: ChordTimelineProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
 
   const activeIndex = segments.findIndex(s => currentTime >= s.start && currentTime <= s.end);
 
   useEffect(() => {
-    if (activeRef.current) {
-      activeRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
+    if (activeRef.current && containerRef.current) {
+      const container = containerRef.current;
+      const activeElement = activeRef.current;
+      
+      const containerRect = container.getBoundingClientRect();
+      const activeRect = activeElement.getBoundingClientRect();
+      
+      // Calculate relative position to container
+      const relativeTop = activeElement.offsetTop;
+      const relativeHeight = activeElement.offsetHeight;
+      const containerScrollTop = container.scrollTop;
+      const containerHeight = container.offsetHeight;
+
+      // If active element is outside current view, scroll it in
+      if (relativeTop < containerScrollTop) {
+        container.scrollTo({ top: relativeTop - 20, behavior: "smooth" });
+      } else if (relativeTop + relativeHeight > containerScrollTop + containerHeight) {
+        container.scrollTo({ top: relativeTop - containerHeight + relativeHeight + 20, behavior: "smooth" });
+      }
     }
   }, [activeIndex]);
 
   return (
-    <ScrollArea className="h-[432px] pr-4">
+    <div 
+      ref={containerRef}
+      className="h-[432px] overflow-y-auto pr-4 custom-scrollbar scroll-smooth"
+    >
       <div className="space-y-3 py-2">
         {segments.map((seg, idx) => {
           const isActive = currentTime >= seg.start && currentTime <= seg.end;
@@ -82,7 +99,7 @@ const ChordTimeline = ({ segments, currentTime, onSeek }: ChordTimelineProps) =>
           );
         })}
       </div>
-    </ScrollArea>
+    </div>
   );
 };
 
