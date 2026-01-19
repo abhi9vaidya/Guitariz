@@ -33,9 +33,11 @@ export async function analyzeRemote(file: File, endpoint: string = defaultEndpoi
   const tempo = typeof json.tempo === "number" ? json.tempo : 0;
   const key = typeof json.key === "string" ? json.key : "C";
   const scale = typeof json.scale === "string" ? json.scale : "major";
+  const meter = typeof json.meter === "number" ? json.meter : 4;
   const chords = normalizeChords(json.chords, json.duration);
+  const simpleChords = json.simpleChords ? normalizeChords(json.simpleChords, json.duration) : [];
 
-  return { tempo, key, scale, chords };
+  return { tempo, key, scale, meter, chords, simpleChords };
 }
 
 export default analyzeRemote;

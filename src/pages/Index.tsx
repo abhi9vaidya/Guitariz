@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Music2, Layers, Disc, Music, BookOpen, Bot } from "lucide-react";
+import { ArrowRight, Music2, Layers, Disc, Music, BookOpen, Bot, Wand2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -9,6 +9,7 @@ const toolCards = [
   { title: "Chord Library", desc: "1,000+ voicings with interactive diagrams.", icon: Layers, to: "/chords" },
   { title: "Scale Explorer", desc: "Visualize modes and exotic scales instantly.", icon: Disc, to: "/scales" },
   { title: "Metronome", desc: "High-precision timing with visual pulse.", icon: Music, to: "/metronome" },
+  { title: "Vocal Splitter", desc: "AI-powered vocal and instrumental separation.", icon: Wand2, to: "/vocal-splitter" },
   { title: "Chord AI", desc: "Neural network harmonic transcription.", icon: Bot, to: "/chord-ai" },
   { title: "Theory Wheel", desc: "Interactive Circle of Fifths and key logic.", icon: BookOpen, to: "/theory" },
 ];

@@ -11,6 +11,7 @@ const ChordsPage = lazy(() => import("./pages/ChordsPage"));
 const ScalesPage = lazy(() => import("./pages/ScalesPage"));
 const MetronomePage = lazy(() => import("./pages/MetronomePage"));
 const ChordAIPage = lazy(() => import("./pages/ChordAIPage"));
+const VocalSplitterPage = lazy(() => import("./pages/VocalSplitterPage"));
 const TheoryPage = lazy(() => import("./pages/TheoryPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -72,6 +73,14 @@ const App = () => (
             element={
               <Suspense fallback={<RouteFallback />}>
                 <ChordAIPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vocal-splitter"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <VocalSplitterPage />
               </Suspense>
             }
           />

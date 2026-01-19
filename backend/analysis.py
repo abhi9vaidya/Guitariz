@@ -91,6 +91,54 @@ def _separate_vocals(audio_path: Path) -> Optional[Path]:
         return None
 
 
+def separate_audio_full(audio_path: Path) -> Optional[dict]:
+    """Separate audio into vocals and instrumental tracks. Returns paths to both."""
+    try:
+        from demucs.pretrained import get_model
+        from demucs.apply import apply_model
+        import torch
+        
+        # Load pre-trained Demucs model
+        model = get_model("htdemucs")
+        model.cpu()
+        model.eval()
+        
+        # Load audio
+        wav, sr = librosa.load(audio_path, sr=44100, mono=False)
+        if wav.ndim == 1:
+            wav = np.stack([wav, wav])
+        
+        # Convert to torch tensor
+        wav_tensor = torch.from_numpy(wav).float().unsqueeze(0)
+        
+        # Apply separation
+        with torch.no_grad():
+            sources = apply_model(model, wav_tensor, device="cpu", shifts=1, split=True)
+        
+        # Extract stems: [drums, bass, other, vocals]
+        stems = sources[0]
+        vocals = stems[3]
+        instrumental = stems[0] + stems[1] + stems[2]
+        
+        # Save both tracks
+        vocals_path = audio_path.parent / f"{audio_path.stem}_vocals.wav"
+        instrumental_path = audio_path.parent / f"{audio_path.stem}_instrumental.wav"
+        
+        sf.write(vocals_path, vocals.cpu().numpy().T, sr)
+        sf.write(instrumental_path, instrumental.cpu().numpy().T, sr)
+        
+        return {
+            "vocals": vocals_path,
+            "instrumental": instrumental_path,
+        }
+        
+    except Exception as e:
+        print(f"Full audio separation failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
 def _estimate_key(chroma: np.ndarray) -> Tuple[str, str]:
     # Compute mean chroma across time
     chroma_mean = chroma.mean(axis=1)
