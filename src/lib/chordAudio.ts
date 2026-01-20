@@ -30,8 +30,8 @@ const LOCAL_PIANO_SAMPLE_SET = [
   { midi: 72, file: 'piano_C5.mp3' },
 ];
 
-// Remote fallback (Tone.js Salamander, CC BY 3.0, attribution: Alexander Holm)
-const REMOTE_PIANO_BASE = 'https://tonejs.github.io/audio/salamander/';
+// Remote fallback (Use a reliable CDN for piano samples)
+const REMOTE_PIANO_BASE = 'https://cdn.jsdelivr.net/gh/nbrosowsky/tonejs-instruments/samples/piano/';
 const REMOTE_PIANO_SAMPLE_SET = [
   { midi: 48, file: 'C3.mp3' },
   { midi: 52, file: 'E3.mp3' },
