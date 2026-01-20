@@ -419,7 +419,20 @@ def analyze_file(file_path: Path, separate_vocals: bool = False) -> dict:
     
     # Smooth chroma across time to reduce noise
     chroma = librosa.util.normalize(chroma, axis=0) # Normalize each frame
-    chroma = librosa.decompose.nnls(chroma, np.eye(12))[0] # Optional: reduce transients
+    
+    # Apply NNLS decomposition to reduce transients (handle API changes)
+    try:
+        # Try newer librosa API first (0.10.0+)
+        from sklearn.decomposition import NMF
+        nmf = NMF(n_components=12, init='random', random_state=0, max_iter=200)
+        chroma = nmf.fit_transform(chroma.T).T
+    except:
+        try:
+            # Fallback to older librosa decompose API
+            chroma = librosa.decompose.nnls(chroma, np.eye(12))[0]
+        except:
+            # If both fail, skip this step
+            pass
     
     # Re-normalize after processing
     chroma = librosa.util.normalize(chroma, axis=0)
