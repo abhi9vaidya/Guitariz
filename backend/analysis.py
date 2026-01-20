@@ -180,10 +180,9 @@ def _segment_chords(
     hop_length: int,
     beats_per_bar: int = 4,
 ) -> List[dict]:
-    # Smooth chroma with a median filter to remove noise/transients
-    # Use scipy's median_filter since librosa.util.median_filter was removed
+    # Apply gentle median smoothing (don't over-process)
     from scipy.ndimage import median_filter
-    chroma = median_filter(chroma, size=(1, 7))
+    chroma = median_filter(chroma, size=(1, 3))  # Reduced from 7 to 3
 
     # If we lack reliable beats, fall back to ~0.5s windows
     if beats is None or len(beats) < 2:
@@ -415,22 +414,11 @@ def analyze_file(file_path: Path, separate_vocals: bool = False) -> dict:
     # Separate harmonic for better chord detection
     y_harmonic = librosa.effects.hpss(y)[0]
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=hop_length)
+    
+    # Use Chroma CQT (works better than STFT for chords)
     chroma = librosa.feature.chroma_cqt(y=y_harmonic, sr=sr, hop_length=hop_length)
     
-    # Smooth chroma across time to reduce noise
-    chroma = librosa.util.normalize(chroma, axis=0)
-    
-    # Apply NMF decomposition to reduce transients
-    try:
-        from sklearn.decomposition import NMF
-        nmf = NMF(n_components=12, init='random', random_state=0, max_iter=200)
-        chroma = nmf.fit_transform(chroma.T).T
-    except:
-        try:
-            chroma = librosa.decompose.nnls(chroma, np.eye(12))[0]
-        except:
-            pass
-    
+    # Light normalization only - don't over-process
     chroma = librosa.util.normalize(chroma, axis=0)
     
     key, scale = _estimate_key(chroma)
@@ -440,7 +428,7 @@ def analyze_file(file_path: Path, separate_vocals: bool = False) -> dict:
     if beat_frames is None or len(beat_frames) < 2:
         beat_frames = np.arange(0, chroma.shape[1], 22050 // (2 * hop_length))
 
-    # Precise chords (smaller windows)
+    # Precise chords
     chords = _segment_chords(chroma, sr, beat_frames, hop_length=hop_length, beats_per_bar=2)
     
     # Simple chords (larger windows or smoothed)
