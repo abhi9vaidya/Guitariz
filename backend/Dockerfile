@@ -25,6 +25,8 @@ COPY --chown=user . .
 
 # Hugging Face uses port 7860
 ENV PORT=7860
-
+# Preload models at build time (optional - can be done at runtime too)
+# This caches the models in the container image
+RUN python preload_models.py || true
 # Run the application
 CMD ["python", "main.py"]
