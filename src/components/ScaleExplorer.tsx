@@ -137,9 +137,9 @@ const RAGA_SCALES = {
   },
   "Yaman": {
     intervals: [0, 2, 4, 6, 7, 9, 11],
-    description: "Evening raga - romantic, majestic. Equivalent to Lydian mode.",
-    aroha: "N R G M D N S",
-    avaroha: "S N D M G R S",
+    description: "Evening raga - romantic, majestic. Uses tivra Ma (sharp 4th).",
+    aroha: "N R G m D N S",
+    avaroha: "S N D m G R S",
     time: "Evening (6-9 PM)",
     mood: "Romantic, heroic"
   },
@@ -161,7 +161,7 @@ const RAGA_SCALES = {
   },
   "Bilawal": {
     intervals: [0, 2, 4, 5, 7, 9, 11],
-    description: "Morning raga - pure, bright. Equivalent to major scale. One of the 10 parent ragas (thaats).",
+    description: "Morning raga - pure, bright. All shuddha notes. One of the 10 parent ragas (thaats).",
     aroha: "S R G M P D N S",
     avaroha: "S N D P M G R S",
     time: "Morning (9-12 PM)",
@@ -185,7 +185,7 @@ const RAGA_SCALES = {
   },
   "Malkauns": {
     intervals: [0, 3, 5, 8, 10],
-    description: "Midnight raga - mysterious, deep. Pentatonic scale without Ma and Ni komal.",
+    description: "Midnight raga - mysterious, deep. Pentatonic scale without Re and Pa.",
     aroha: "S g M d n S",
     avaroha: "S n d M g S",
     time: "Midnight (12-3 AM)",
@@ -201,15 +201,15 @@ const RAGA_SCALES = {
   },
   "Puriya Dhanashree": {
     intervals: [0, 1, 4, 6, 7, 9, 11],
-    description: "Evening raga - romantic, devotional. Also called Puriya or Purvikalyan.",
-    aroha: "N r G M D N S",
-    avaroha: "S N D M G r S",
+    description: "Evening raga - romantic, devotional. Uses komal Re and tivra Ma.",
+    aroha: "N r G m D N S",
+    avaroha: "S N D m G r S",
     time: "Evening (6-9 PM)",
     mood: "Romantic, devotional"
   },
   "Jaunpuri": {
     intervals: [0, 2, 3, 5, 7, 8, 11],
-    description: "Morning raga - serious, deep. Similar to Asavari with tivra Ma.",
+    description: "Morning raga - serious, deep. Similar to Asavari with shuddha Ni.",
     aroha: "S R g M P d N S",
     avaroha: "S N d P M g R S",
     time: "Morning (9-12 PM)",
