@@ -130,9 +130,9 @@ const RAGA_SCALES = {
   "Bhairav": {
     intervals: [0, 1, 4, 5, 7, 8, 11],
     description: "Morning raga - devotional, serious. Equivalent to Phrygian dominant scale.",
-    aroha: "S r G M P d n S",
-    avaroha: "S n d P M G r S",
-    time: "Dawn",
+    aroha: "S r G M P d N S",
+    avaroha: "S N d P M G r S",
+    time: "Dawn (6-9 AM)",
     mood: "Devotional, contemplative"
   },
   "Yaman": {
@@ -140,15 +140,15 @@ const RAGA_SCALES = {
     description: "Evening raga - romantic, majestic. Equivalent to Lydian mode.",
     aroha: "N R G M D N S",
     avaroha: "S N D M G R S",
-    time: "Evening",
+    time: "Evening (6-9 PM)",
     mood: "Romantic, heroic"
   },
   "Bhairavi": {
     intervals: [0, 1, 3, 5, 7, 8, 10],
-    description: "Dawn raga - devotional, soothing. Minor scale with all komal notes.",
+    description: "Dawn raga - devotional, soothing. All komal (flat) notes except Sa and Pa.",
     aroha: "S r g M P d n S",
     avaroha: "S n d P M g r S",
-    time: "Dawn",
+    time: "Dawn/Morning (6-9 AM)",
     mood: "Devotional, peaceful"
   },
   "Kafi": {
@@ -156,8 +156,72 @@ const RAGA_SCALES = {
     description: "Evening raga - romantic, light. Equivalent to Dorian mode.",
     aroha: "N R g M D n S",
     avaroha: "S n D M g R S",
-    time: "Evening",
+    time: "Evening (6-9 PM)",
     mood: "Romantic, joyful"
+  },
+  "Bilawal": {
+    intervals: [0, 2, 4, 5, 7, 9, 11],
+    description: "Morning raga - pure, bright. Equivalent to major scale. One of the 10 parent ragas (thaats).",
+    aroha: "S R G M P D N S",
+    avaroha: "S N D P M G R S",
+    time: "Morning (9-12 PM)",
+    mood: "Bright, joyful"
+  },
+  "Darbari": {
+    intervals: [0, 2, 3, 5, 7, 8, 10],
+    description: "Night raga - deep, serious. Associated with royalty and profound emotions.",
+    aroha: "S R g M P d n S",
+    avaroha: "S n d P M g R S",
+    time: "Late Night (12-3 AM)",
+    mood: "Serious, majestic"
+  },
+  "Bageshri": {
+    intervals: [0, 2, 3, 5, 7, 9, 10],
+    description: "Night raga - romantic, yearning. Expresses longing and devotion.",
+    aroha: "S g M D n S",
+    avaroha: "S n D M g R S",
+    time: "Late Night (12-3 AM)",
+    mood: "Longing, romantic"
+  },
+  "Malkauns": {
+    intervals: [0, 3, 5, 8, 10],
+    description: "Midnight raga - mysterious, deep. Pentatonic scale without Ma and Ni komal.",
+    aroha: "S g M d n S",
+    avaroha: "S n d M g S",
+    time: "Midnight (12-3 AM)",
+    mood: "Mysterious, meditative"
+  },
+  "Bihag": {
+    intervals: [0, 2, 4, 5, 7, 9, 11],
+    description: "Night raga - romantic, playful. Similar to Bilawal but with different emphasis.",
+    aroha: "S G M D N S",
+    avaroha: "S N D P M G R S",
+    time: "Night (9-12 AM)",
+    mood: "Romantic, playful"
+  },
+  "Puriya Dhanashree": {
+    intervals: [0, 1, 4, 6, 7, 9, 11],
+    description: "Evening raga - romantic, devotional. Also called Puriya or Purvikalyan.",
+    aroha: "N r G M D N S",
+    avaroha: "S N D M G r S",
+    time: "Evening (6-9 PM)",
+    mood: "Romantic, devotional"
+  },
+  "Jaunpuri": {
+    intervals: [0, 2, 3, 5, 7, 8, 11],
+    description: "Morning raga - serious, deep. Similar to Asavari with tivra Ma.",
+    aroha: "S R g M P d N S",
+    avaroha: "S N d P M g R S",
+    time: "Morning (9-12 PM)",
+    mood: "Serious, contemplative"
+  },
+  "Durga": {
+    intervals: [0, 2, 4, 7, 9],
+    description: "Evening raga - joyful, pure. Pentatonic scale without Ma and Ni.",
+    aroha: "S R G P D S",
+    avaroha: "S D P G R S",
+    time: "Evening (6-9 PM)",
+    mood: "Joyful, uplifting"
   }
 };
 
