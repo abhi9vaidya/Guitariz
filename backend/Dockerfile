@@ -17,9 +17,6 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY --chown=user requirements.txt .
 
-# Install build dependencies first (required for compiling madmom)
-RUN pip install --no-cache-dir Cython>=0.29.0 numpy
-
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
