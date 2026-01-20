@@ -83,8 +83,13 @@ const ChordAIPage = () => {
                   Chord <span className="text-muted-foreground font-thin">AI</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-light">
-                  Decode the architecture of any song. Our neural engine extracts harmonic progressions, tempo clusters, and scale maps from raw audio. <span className="text-white/40">Enable "Vocal Filter" for better chord accuracy on songs with vocals.</span>
+                  Decode the architecture of any song. Our neural engine extracts harmonic progressions, tempo clusters, and scale maps from raw audio. <span className="text-white/40">Enable "Isolate" for better chord accuracy on songs with vocals.</span>
                 </p>
+                <div className="mt-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 max-w-2xl">
+                  <p className="text-xs text-amber-200/90">
+                    <strong className="text-amber-100">Beta Feature:</strong> Chord detection is approximate and works best with simple acoustic songs. Complex chords (7ths, jazz voicings) may be detected as simpler variants. Use the "Isolate" toggle for improved accuracy on vocal tracks.
+                  </p>
+                </div>
               </div>
             </div>
             
