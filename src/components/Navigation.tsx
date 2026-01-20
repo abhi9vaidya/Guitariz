@@ -23,9 +23,11 @@ const Navigation = () => {
             to="/"
             className="relative flex items-center gap-3 hover:opacity-90 transition-opacity group"
           >
-            <div className="w-9 h-9 flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all">
-              <Guitar className="w-5 h-5 text-white" />
-            </div>
+            <img 
+              src="/logo.svg" 
+              alt="Guitariz Logo" 
+              className="w-10 h-10 object-contain"
+            />
             <div className="flex flex-col text-left">
               <h1 className="font-bold text-base tracking-tight text-white leading-tight">Guitariz</h1>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Studio</p>
