@@ -20,8 +20,11 @@ COPY --chown=user requirements.txt .
 # Install Cython first (required to build madmom)
 RUN pip install --no-cache-dir Cython>=0.25
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install all packages except madmom first
+RUN pip install --no-cache-dir -r requirements.txt || true
+
+# Install madmom separately with --no-build-isolation to use the installed Cython
+RUN pip install --no-cache-dir --no-build-isolation madmom>=0.16.1
 
 # Copy the rest of the backend code
 COPY --chown=user . .
