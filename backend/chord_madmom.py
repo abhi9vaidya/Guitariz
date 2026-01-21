@@ -11,9 +11,18 @@ from typing import Dict, List, Tuple, Optional
 # Try to import madmom, but don't fail if it's not available
 try:
     import madmom
+    import madmom.features.chords
+    import madmom.features.key
+    import madmom.features.tempo
     MADMOM_AVAILABLE = True
-except ImportError:
+    print("[madmom] Successfully loaded - fast analysis available")
+except ImportError as e:
     MADMOM_AVAILABLE = False
+    print(f"[madmom] Import failed: {e}")
+    print("[madmom] Not available - using librosa fallback")
+except Exception as e:
+    MADMOM_AVAILABLE = False
+    print(f"[madmom] Unexpected error: {e}")
     print("[madmom] Not available - using librosa fallback")
 
 
