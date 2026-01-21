@@ -1,5 +1,5 @@
-# Use Python 3.11 (madmom is not compatible with Python 3.12)
-FROM python:3.11-slim
+# Use Python 3.9 (madmom requires Python <=3.9 for collections.MutableSequence)
+FROM python:3.9-slim
 
 # Install system dependencies and build tools
 RUN apt-get update && apt-get install -y \
