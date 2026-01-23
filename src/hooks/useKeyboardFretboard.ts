@@ -91,9 +91,10 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     const key = e.key.toLowerCase();
 
-    // Handle strum key - Enter only
-    if (e.code === 'Enter') {
+    // Handle strum key - Enter and NumpadEnter
+    if (e.key === 'Enter' || e.code === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       strumDown();
       return;
     }

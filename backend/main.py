@@ -71,7 +71,7 @@ async def lifespan(app: FastAPI):
     print("[Startup] ✓ Cleanup thread started")
     yield
 
-app = FastAPI(title="Chord AI Backend", version="1.3.2", lifespan=lifespan)
+app = FastAPI(title="Chord AI Backend", version="1.3.4", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

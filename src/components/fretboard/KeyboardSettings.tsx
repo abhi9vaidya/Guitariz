@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings2, Download, Upload, RotateCcw } from 'lucide-react';
+import { Settings2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface KeyboardSettingsProps {
@@ -37,38 +37,6 @@ export const KeyboardSettings = ({
 }: KeyboardSettingsProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleExport = () => {
-    const data = JSON.stringify({ keymap, strumSpeed, velocityProfile, chordMode }, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'keyboard-config.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success('Configuration exported');
-  };
-
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        if (data.keymap) onKeymapChange(data.keymap);
-        if (data.strumSpeed) onStrumSpeedChange(data.strumSpeed);
-        if (data.velocityProfile) onVelocityProfileChange(data.velocityProfile);
-        if (data.chordMode !== undefined) onChordModeChange(data.chordMode);
-        toast.success('Configuration imported');
-      } catch (error) {
-        toast.error('Invalid configuration file');
-      }
-    };
-    reader.readAsText(file);
-  };
-
   const handleReset = () => {
     onKeymapChange(DEFAULT_KEYMAP);
     onStrumSpeedChange(30);
@@ -79,27 +47,33 @@ export const KeyboardSettings = ({
 
   return (
     <Card className="glass-card p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Settings2 className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold">Keyboard Settings</h3>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Settings2 className="w-5 h-5 text-primary" />
+          </div>
+          <h3 className="text-xl font-semibold text-white tracking-tight">Keyboard Settings</h3>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
+          className="hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
         >
           {isExpanded ? 'Collapse' : 'Expand'}
         </Button>
       </div>
 
       {isExpanded && (
-        <div className="space-y-6 animate-accordion-down">
+        <div className="space-y-6 pt-4 animate-in fade-in slide-in-from-top-2 duration-300">
           {/* Chord Mode */}
-          <div className="flex items-center justify-between">
-            <Label htmlFor="chord-mode" className="text-sm">
-              Chord Mode (strum on Enter)
-            </Label>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="space-y-0.5">
+              <Label htmlFor="chord-mode" className="text-sm font-semibold text-white">
+                Chord Mode
+              </Label>
+              <p className="text-[11px] text-muted-foreground">Automatically strum on Enter key.</p>
+            </div>
             <Switch
               id="chord-mode"
               checked={chordMode}
@@ -108,61 +82,48 @@ export const KeyboardSettings = ({
           </div>
 
           {/* Strum Speed */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="strum-speed" className="text-sm">
-                Strum Speed
-              </Label>
-              <span className="text-sm text-muted-foreground">{strumSpeed}ms</span>
+          <div className="space-y-4 px-1">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="strum-speed" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Strum Speed
+                </Label>
+                <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded italic">{strumSpeed}ms</span>
+              </div>
+              <Slider
+                id="strum-speed"
+                min={10}
+                max={100}
+                step={5}
+                value={[strumSpeed]}
+                onValueChange={([value]) => onStrumSpeedChange(value)}
+                className="py-2"
+              />
             </div>
-            <Slider
-              id="strum-speed"
-              min={10}
-              max={100}
-              step={5}
-              value={[strumSpeed]}
-              onValueChange={([value]) => onStrumSpeedChange(value)}
-            />
+
+            {/* Velocity Profile */}
+            <div className="space-y-3">
+              <Label htmlFor="velocity-profile" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Velocity Profile
+              </Label>
+              <Select value={velocityProfile} onValueChange={onVelocityProfileChange}>
+                <SelectTrigger id="velocity-profile" className="bg-white/5 border-white/10 hover:border-white/20 transition-colors h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="uniform">Uniform</SelectItem>
+                  <SelectItem value="linear">Linear</SelectItem>
+                  <SelectItem value="exponential">Exponential</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {/* Velocity Profile */}
-          <div className="space-y-2">
-            <Label htmlFor="velocity-profile" className="text-sm">
-              Velocity Profile
-            </Label>
-            <Select value={velocityProfile} onValueChange={onVelocityProfileChange}>
-              <SelectTrigger id="velocity-profile">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="uniform">Uniform</SelectItem>
-                <SelectItem value="linear">Linear</SelectItem>
-                <SelectItem value="exponential">Exponential</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Import/Export/Reset */}
-          <div className="flex flex-wrap gap-2 pt-4 border-t border-border/50">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <label>
-                <Upload className="w-4 h-4 mr-2" />
-                Import
-                <Input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={handleImport}
-                />
-              </label>
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleReset}>
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Reset
+          {/* Reset */}
+          <div className="pt-2 border-t border-white/5">
+            <Button variant="ghost" size="sm" onClick={handleReset} className="w-full text-muted-foreground hover:text-white gap-2 h-9">
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset to Defaults
             </Button>
           </div>
         </div>

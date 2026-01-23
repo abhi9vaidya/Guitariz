@@ -97,6 +97,13 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
 
     const key = e.key.toLowerCase();
     
+    // Prevent Enter from scrolling or triggering default actions
+    if (e.key === 'Enter' || e.code === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     // Debounce repeated key events
     const now = Date.now();
     const lastTime = keyDebounce.current.get(key) || 0;
@@ -195,5 +202,6 @@ export const usePianoKeyboard = (options: PianoKeyboardOptions) => {
     playMidiNote,
     setSustain: setSustainState,
     toggleSustain,
+    setOctaveShift,
   };
 };

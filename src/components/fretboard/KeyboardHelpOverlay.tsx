@@ -34,11 +34,24 @@ export const KeyboardHelpOverlay = ({ keymap, isOpen, onClose }: KeyboardHelpOve
 
         <div className="space-y-6">
           <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
-            <h3 className="text-sm font-semibold text-primary mb-2">Quickstart</h3>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Click frets or press the mapped keys to light notes.</li>
-              <li>• Enter strums high to low, Shift+Enter strums low to high. Use chord mode to stack notes first.</li>
-              <li>• '-' and '=' shift the octave. Use Clear on the fretboard to reset.</li>
+            <h3 className="text-sm font-semibold text-primary mb-2 italic">How to Use</h3>
+            <ul className="text-sm space-y-2 text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">●</span>
+                <span><strong className="text-white">Interactivity:</strong> Click any fret directly to toggle a note. Chords are automatically detected and named as you play.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">●</span>
+                <span><strong className="text-white">Strumming:</strong> Press <span className="text-primary font-mono font-bold">ENTER</span> to strum your selected notes. Formation order counts!</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">●</span>
+                <span><strong className="text-white">Theory:</strong> Enable <strong className="text-white">"Scale Overlay"</strong> in the settings to see scale shapes across the entire neck.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">●</span>
+                <span><strong className="text-white">Keyboard:</strong> Mapped keys (A-Z) will light up specific frets. Used for fast playing and practicing.</span>
+              </li>
             </ul>
           </div>
 

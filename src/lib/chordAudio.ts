@@ -120,51 +120,61 @@ const createPluckedString = (
   panPosition: number = 0
 ) => {
   const now = ctx.currentTime;
-  const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * Math.max(duration, 1), ctx.sampleRate);
-  const data = noiseBuffer.getChannelData(0);
+  
+  // Pluck: use even shorter noise for cleaner transients
+  const burstLength = 0.012; 
+  const sampleRate = ctx.sampleRate;
+  const burstBuffer = ctx.createBuffer(1, Math.floor(sampleRate * burstLength), sampleRate);
+  const data = burstBuffer.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
-    data[i] = Math.random() * 2 - 1;
+    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length); // Linear fade on noise burst for cleaner pluck
   }
 
   const noise = ctx.createBufferSource();
-  noise.buffer = noiseBuffer;
+  noise.buffer = burstBuffer;
 
   const delay = ctx.createDelay();
   delay.delayTime.setValueAtTime(1 / frequency, now);
 
   const feedback = ctx.createGain();
-  feedback.gain.setValueAtTime(0.35 + Math.min(0.25, 150 / frequency * 0.01), now);
+  // Decay logic: Higher notes decay faster naturally
+  const decayValue = Math.min(0.99, 0.98 + (40 / frequency) * 0.01);
+  feedback.gain.setValueAtTime(decayValue, now);
 
   const damp = ctx.createBiquadFilter();
   damp.type = 'lowpass';
-  damp.frequency.setValueAtTime(3800, now);
-  damp.Q.setValueAtTime(0.9, now);
+  damp.frequency.setValueAtTime(Math.min(12000, frequency * 8), now);
+  damp.Q.setValueAtTime(0.5, now);
 
+  // Body Resonance: peaking filter at generic wood frequencies
   const body = ctx.createBiquadFilter();
   body.type = 'peaking';
-  body.frequency.setValueAtTime(2200, now);
-  body.gain.setValueAtTime(3, now);
-  body.Q.setValueAtTime(1.2, now);
+  body.frequency.setValueAtTime(220, now);
+  body.gain.setValueAtTime(4, now);
+  body.Q.setValueAtTime(0.7, now);
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(volume, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + duration + 0.6);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(volume * 0.8, now + 0.005);
+  gain.gain.exponentialRampToValueAtTime(volume * 0.3, now + 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.5);
 
   const panner = ctx.createStereoPanner();
   panner.pan.setValueAtTime(panPosition, now);
 
-  // Feedback loop for Karplus-Strong pluck
+  // Karplus-Strong loop
   noise.connect(delay);
   delay.connect(damp);
   damp.connect(feedback);
   feedback.connect(delay);
+  
+  // Output path
   damp.connect(body);
   body.connect(gain);
   gain.connect(panner);
   panner.connect(ctx.destination);
 
   noise.start(now);
-  noise.stop(now + duration + 0.5);
 };
 
 const createSaturator = (ctx: AudioContext, amount: number) => {
