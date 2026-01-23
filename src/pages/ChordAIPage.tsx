@@ -25,6 +25,15 @@ const ChordAIPage = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    document.title = "Chord AI - Neural Audio Transcription & Harmonic Mapping | Guitariz";
+    // Also meta description if possible
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", "Advanced Chord AI: Extract chords, tempo, and scales from any audio file using neural networks. High-precision harmonic transcription for guitarists.");
+    }
+  }, []);
+
   const { loadFile, play, pause, seek, audioBuffer, peaks, duration, currentTime, isPlaying, fileInfo } =
     useAudioPlayer();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

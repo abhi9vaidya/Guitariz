@@ -10,7 +10,7 @@ const toolCards = [
   { title: "Scale Explorer", desc: "Visualize modes and exotic scales instantly.", icon: Disc, to: "/scales" },
   { title: "Metronome", desc: "High-precision timing with visual pulse.", icon: Music, to: "/metronome" },
   { title: "Vocal Splitter", desc: "AI-powered vocal and instrumental separation.", icon: Wand2, to: "/vocal-splitter" },
-  { title: "Chord AI", desc: "Neural network harmonic transcription.", icon: Bot, to: "/chord-ai" },
+  { title: "Chord AI", desc: "Neural audio chord detection and harmonic transcription.", icon: Bot, to: "/chord-ai" },
   { title: "Theory Wheel", desc: "Interactive Circle of Fifths and key logic.", icon: BookOpen, to: "/theory" },
 ];
 
