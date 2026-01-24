@@ -16,6 +16,7 @@ const TheoryPage = lazy(() => import("./pages/TheoryPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 import GuitarizLoader from "@/components/ui/loader";
+import { Analytics } from "@vercel/analytics/react";
 
 const RouteFallback = () => (
   <GuitarizLoader fullScreen text="INITIALIZING" />
@@ -25,6 +26,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <Analytics />
     <TooltipProvider>
       <Toaster />
       <Sonner />
