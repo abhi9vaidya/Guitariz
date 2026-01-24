@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Navigation from "@/components/Navigation";
-// ... (rest of imports)
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import WaveformViewer from "@/components/chord-ai/WaveformViewer";
+import { Wand2, Upload, Mic, Music2, Download, Loader2, Activity } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 const VocalSplitterPage = () => {
   useEffect(() => {

@@ -1,8 +1,101 @@
-import { Guitar, Layers, Disc, BookOpen, Music, Bot, Wand2 } from "lucide-react";
+import { Guitar, Layers, Disc, BookOpen, Music, Bot, Wand2, Download } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Navigation = () => {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone) {
+      setIsInstalled(true);
+      setIsChecking(false);
+      return;
+    }
+
+    const handler = (e: any) => {
+      console.log("✅ Install prompt is ready!");
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+      setIsChecking(false);
+    };
+
+    const installedHandler = () => {
+      console.log("✅ App installed successfully!");
+      setIsInstalled(true);
+      setIsInstallable(false);
+      toast("🎉 Welcome to the Studio!", {
+        description: "Guitariz is now installed!",
+      });
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+
+    // Shorter timeout - if no prompt after 2 seconds, assume not available
+    const timer = setTimeout(() => {
+      if (!deferredPrompt) {
+        console.warn("⚠️ Install prompt not available - browser may not support it");
+      }
+      setIsChecking(false);
+    }, 2000);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+      clearTimeout(timer);
+    };
+  }, [deferredPrompt]);
+
+  const handleInstall = async () => {
+    // If already installed, just notify
+    if (isInstalled) {
+      toast("🎸 Already Jamming!", {
+        description: "Guitariz Studio is already installed and ready to rock!",
+      });
+      return;
+    }
+
+    // Try to use deferredPrompt if available
+    if (deferredPrompt) {
+      try {
+        console.log("📱 Triggering install prompt...");
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Install outcome: ${outcome}`);
+        
+        if (outcome === "accepted") {
+          setDeferredPrompt(null);
+          setIsInstallable(false);
+          setIsInstalled(true);
+          toast("🎉 Installing...", {
+            description: "Guitariz Studio is being installed. Check your desktop or home screen!",
+          });
+        }
+      } catch (error) {
+        console.error("Install error:", error);
+        toast("⚠️ Install Issue", {
+          description: "Something went wrong. Try using the browser's menu to install (⋮ → Install app).",
+          duration: 5000,
+        });
+      }
+      return;
+    }
+
+    // No prompt available - guide user to manual install
+    console.warn("❌ No install prompt available - guiding to manual install");
+    toast("📍 Manual Install", {
+      description: "Use your browser menu (three dots ⋮) and select 'Install Guitariz Studio' or look for an install icon in the address bar.",
+      duration: 6000,
+    });
+  };
+
   const navItems = [
     { icon: Guitar, label: "Fretboard", path: "/fretboard" },
     { icon: Layers, label: "Chords", path: "/chords" },
@@ -10,6 +103,7 @@ const Navigation = () => {
     { icon: Music, label: "Metronome", path: "/metronome" },
     { icon: Wand2, label: "Vocal Splitter", path: "/vocal-splitter" },
     { icon: BookOpen, label: "Theory", path: "/theory" },
+    { icon: Bot, label: "Chord AI", path: "/chord-ai" },
   ];
 
   const location = useLocation();
@@ -30,7 +124,7 @@ const Navigation = () => {
             />
             <div className="flex flex-col text-left">
               <h1 className="font-bold text-base tracking-tight text-white leading-tight">Guitariz</h1>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Studio</p>
+              <p className="text-[10px] uppercase tracking-widest text-white/60 font-medium">Studio</p>
             </div>
           </Link>
 
@@ -56,16 +150,21 @@ const Navigation = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              className="hidden sm:flex gap-2 rounded-lg px-4 bg-white text-black hover:bg-white/90 font-semibold transition-all h-9"
-              asChild
-            >
-              <Link to="/chord-ai">
-                Chord AI
-                <Bot className="w-4 h-4" />
-              </Link>
-            </Button>
+            {!isInstalled ? (
+              <Button
+                size="sm"
+                onClick={handleInstall}
+                className="hidden sm:flex gap-2 rounded-lg px-4 bg-white text-black hover:bg-white/90 font-semibold transition-all h-9 shadow-[0_0_15px_rgba(255,255,255,0.15)]"
+              >
+                <Download className={`w-4 h-4 ${isInstallable ? "animate-bounce" : ""}`} />
+                <span>Install Studio</span>
+              </Button>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/40 text-xs font-medium">
+                <Music className="w-3 h-3" />
+                <span>Studio Active</span>
+              </div>
+            )}
             
             <div className="lg:hidden">
               <Button variant="ghost" size="icon" className="text-white bg-white/5 border border-white/10 rounded-lg">
