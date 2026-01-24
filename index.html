@@ -1,37 +1,42 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Guitariz - Chord AI, Fretboard & Music Theory Toolkit</title>
-    <meta name="description" content="Guitariz: Advanced music laboratory with Chord AI, interactive fretboard, piano keys, vocal splitter, and scale explorer. Professional-grade music theory tools for modern creators." />
-    <meta name="keywords" content="chord AI, guitar chords, scale explorer, vocal splitter, music theory, fretboard, piano, metronome, audio analysis" />
-    <meta name="author" content="Guitariz" />
-    <meta name="google-site-verification" content="fiV76-oFNb4iegJn4UP9XLNZZ4Fqz0yAZpJ9VfJ46QQ" />
 
-    <meta property="og:title" content="Guitariz - Guitar Learning & Music Theory" />
-    <meta property="og:description" content="Music-forward toolkit: fretboard and piano explorers, chord library, scale navigator, metronome, and theory aides." />
-    <meta property="og:url" content="https://guitariz.studio/" />
-    <meta property="og:image" content="https://guitariz.studio/logo.png" />
-    <meta property="og:site_name" content="Guitariz" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guitariz - Chord AI, Fretboard & Music Theory Toolkit</title>
+  <meta name="description"
+    content="Guitariz: Advanced music laboratory with Chord AI, interactive fretboard, piano keys, vocal splitter, and scale explorer. Professional-grade music theory tools for modern creators." />
+  <meta name="keywords"
+    content="chord AI, guitar chords, scale explorer, vocal splitter, music theory, fretboard, piano, metronome, audio analysis" />
+  <meta name="author" content="Guitariz" />
+  <meta name="google-site-verification" content="fiV76-oFNb4iegJn4UP9XLNZZ4Fqz0yAZpJ9VfJ46QQ" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Guitariz - Chord AI & Music Theory Toolkit" />
-    <meta name="twitter:description" content="Advanced music-forward toolkit: Chord AI, interactive fretboard, and music theory labs." />
-    <meta name="twitter:image" content="https://guitariz.studio/logo.png" />
+  <meta property="og:title" content="Guitariz - Guitar Learning & Music Theory" />
+  <meta property="og:description"
+    content="Music-forward toolkit: fretboard and piano explorers, chord library, scale navigator, metronome, and theory aides." />
+  <meta property="og:url" content="https://guitariz.studio/" />
+  <meta property="og:image" content="https://guitariz.studio/logo.png" />
+  <meta property="og:site_name" content="Guitariz" />
 
-    <meta name="theme-color" content="#060606" />
-    <link rel="canonical" href="https://guitariz.studio/" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Guitariz - Chord AI & Music Theory Toolkit" />
+  <meta name="twitter:description"
+    content="Advanced music-forward toolkit: Chord AI, interactive fretboard, and music theory labs." />
+  <meta name="twitter:image" content="https://guitariz.studio/logo.png" />
 
-    <!-- Apple PWA tags -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Guitariz" />
-    <link rel="apple-touch-icon" href="/logo.png" />
-    
-    <script type="application/ld+json">
+  <meta name="theme-color" content="#060606" />
+  <link rel="canonical" href="https://guitariz.studio/" />
+
+  <!-- Apple PWA tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Guitariz" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+
+  <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -44,52 +49,32 @@
           "@type": "Organization",
           "name": "Guitariz Studio"
         },
-        "screenshot": "https://guitariz.studio/logo.png",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://guitariz.studio/search?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
+        "screenshot": "https://guitariz.studio/logo.png"
       }
     </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://guitariz.studio/"
-        },{
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Chord AI",
-          "item": "https://guitariz.studio/chord-ai"
-        },{
-          "@type": "ListItem",
-          "position": 3,
-          "name": "Fretboard",
-          "item": "https://guitariz.studio/fretboard"
-        }]
-      }
-    </script>
-    <meta property="og:type" content="website" />
-
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <link rel="alternate icon" type="image/png" href="/logo.png" />
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <style>
-      :root { --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-      html,body { font-family: var(--ui-font); }
-    </style>
-  </head>
 
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="alternate icon" type="image/png" href="/logo.png" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,
+    body {
+      font-family: var(--ui-font);
+    }
+  </style>
+</head>
+
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
