@@ -1,6 +1,7 @@
-import { Guitar, Layers, Disc, BookOpen, Music, Bot, Wand2, Download } from "lucide-react";
+import { Guitar, Layers, Disc, BookOpen, Music, Bot, Wand2, Download, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -9,6 +10,7 @@ const Navigation = () => {
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check if already installed
@@ -69,7 +71,7 @@ const Navigation = () => {
         await deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         console.log(`Install outcome: ${outcome}`);
-        
+
         if (outcome === "accepted") {
           setDeferredPrompt(null);
           setIsInstallable(false);
@@ -117,9 +119,9 @@ const Navigation = () => {
             to="/"
             className="relative flex items-center gap-3 hover:opacity-90 transition-opacity group"
           >
-            <img 
-              src="/logo.svg" 
-              alt="Guitariz Logo" 
+            <img
+              src="/logo.svg"
+              alt="Guitariz Logo"
               className="w-10 h-10 object-contain"
             />
             <div className="flex flex-col text-left">
@@ -136,11 +138,10 @@ const Navigation = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive
-                      ? "text-white bg-white/10 shadow-inner border border-white/5"
-                      : "text-muted-foreground hover:text-white hover:bg-white/5"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
+                    ? "text-white bg-white/10 shadow-inner border border-white/5"
+                    : "text-muted-foreground hover:text-white hover:bg-white/5"
+                    }`}
                 >
                   <item.icon className="w-4 h-4" />
                   <span>{item.label}</span>
@@ -165,12 +166,48 @@ const Navigation = () => {
                 <span>Studio Active</span>
               </div>
             )}
-            
-            <div className="lg:hidden">
-              <Button variant="ghost" size="icon" className="text-white bg-white/5 border border-white/10 rounded-lg">
-                <Layers className="w-5 h-5" />
-              </Button>
-            </div>
+
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden text-white bg-white/5 border border-white/10 rounded-lg"
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-[300px] bg-[#0a0a0a]/95 backdrop-blur-xl border-white/10"
+              >
+                <SheetHeader className="pb-6 border-b border-white/10">
+                  <SheetTitle className="flex items-center gap-3 text-white">
+                    <img src="/logo.svg" alt="Guitariz" className="w-8 h-8" />
+                    <span>Guitariz Studio</span>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-2 pt-6">
+                  {navItems.map((item) => {
+                    const isActive = location.pathname.startsWith(item.path);
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive
+                            ? "text-white bg-white/10 border border-white/10"
+                            : "text-muted-foreground hover:text-white hover:bg-white/5"
+                          }`}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
