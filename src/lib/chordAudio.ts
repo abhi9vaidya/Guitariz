@@ -11,7 +11,7 @@
  * String 6 (Low E):   82.41 Hz (E2)
  */
 
-type InstrumentType = 'guitar' | 'piano';
+export type InstrumentType = 'guitar' | 'piano';
 
 let audioContext: AudioContext | null = null;
 let pianoSamplesReady = false;
@@ -33,6 +33,7 @@ const LOCAL_PIANO_SAMPLE_SET = [
 // Remote fallback (Use a reliable CDN for piano samples)
 const REMOTE_PIANO_BASE = 'https://cdn.jsdelivr.net/gh/nbrosowsky/tonejs-instruments/samples/piano/';
 const REMOTE_PIANO_SAMPLE_SET = [
+  { midi: 36, file: 'C2.mp3' },
   { midi: 48, file: 'C3.mp3' },
   { midi: 52, file: 'E3.mp3' },
   { midi: 55, file: 'G3.mp3' },
@@ -40,6 +41,7 @@ const REMOTE_PIANO_SAMPLE_SET = [
   { midi: 64, file: 'E4.mp3' },
   { midi: 67, file: 'G4.mp3' },
   { midi: 72, file: 'C5.mp3' },
+  { midi: 84, file: 'C6.mp3' },
 ];
 
 // Initialize audio context on first user interaction
@@ -108,26 +110,27 @@ const ensurePianoSamples = async () => {
   }
 };
 
-// Standard guitar tuning frequencies (Hz)
-// Strings ordered from 1st (high E) to 6th (low E)
-const GUITAR_TUNING = [329.63, 246.94, 196.00, 146.83, 110.00, 82.41];
+// Standard guitar tuning frequencies (Hz) - Ordered from String 6 (Low E) to String 1 (High E)
+// This matches standard chord data arrays where index 0 is the Low E string.
+const GUITAR_TUNING = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63];
 
 const createPluckedString = (
   ctx: AudioContext,
   frequency: number,
   duration: number,
   volume: number,
-  panPosition: number = 0
+  panPosition: number = 0,
+  startTime: number = ctx.currentTime
 ) => {
-  const now = ctx.currentTime;
+  const now = startTime;
   
   // Pluck: use even shorter noise for cleaner transients
-  const burstLength = 0.012; 
+  const burstLength = 0.01; 
   const sampleRate = ctx.sampleRate;
   const burstBuffer = ctx.createBuffer(1, Math.floor(sampleRate * burstLength), sampleRate);
   const data = burstBuffer.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length); // Linear fade on noise burst for cleaner pluck
+    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length); 
   }
 
   const noise = ctx.createBufferSource();
@@ -137,40 +140,31 @@ const createPluckedString = (
   delay.delayTime.setValueAtTime(1 / frequency, now);
 
   const feedback = ctx.createGain();
-  // Decay logic: Higher notes decay faster naturally
-  const decayValue = Math.min(0.99, 0.98 + (40 / frequency) * 0.01);
+  // Ensure feedback is never >= 1 to prevent unstable screeching
+  const decayValue = Math.min(0.98, 0.95 + (20 / frequency) * 0.02);
   feedback.gain.setValueAtTime(decayValue, now);
 
   const damp = ctx.createBiquadFilter();
   damp.type = 'lowpass';
-  damp.frequency.setValueAtTime(Math.min(12000, frequency * 8), now);
+  // Lower cutoff for a warmer, less "sharp" sound
+  damp.frequency.setValueAtTime(Math.min(8000, frequency * 6), now);
   damp.Q.setValueAtTime(0.5, now);
-
-  // Body Resonance: peaking filter at generic wood frequencies
-  const body = ctx.createBiquadFilter();
-  body.type = 'peaking';
-  body.frequency.setValueAtTime(220, now);
-  body.gain.setValueAtTime(4, now);
-  body.Q.setValueAtTime(0.7, now);
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(volume * 0.8, now + 0.005);
-  gain.gain.exponentialRampToValueAtTime(volume * 0.3, now + 0.3);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.5);
+  gain.gain.linearRampToValueAtTime(volume * 0.5, now + 0.008);
+  gain.gain.exponentialRampToValueAtTime(volume * 0.2, now + 0.4);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
   const panner = ctx.createStereoPanner();
   panner.pan.setValueAtTime(panPosition, now);
 
-  // Karplus-Strong loop
   noise.connect(delay);
   delay.connect(damp);
   damp.connect(feedback);
   feedback.connect(delay);
   
-  // Output path
-  damp.connect(body);
-  body.connect(gain);
+  damp.connect(gain);
   gain.connect(panner);
   panner.connect(ctx.destination);
 
@@ -194,90 +188,112 @@ const createPianoTone = (
   frequency: number,
   duration: number,
   volume: number,
-  panPosition: number = 0
+  panPosition: number = 0,
+  startTime: number = ctx.currentTime
 ) => {
-  const now = ctx.currentTime;
+  const now = startTime;
 
+  // Polyphonic piano tone uses a mix of sine and triangle for "bite"
   const partialMain = ctx.createOscillator();
-  const partialDetune = ctx.createOscillator();
-  const partialAir = ctx.createOscillator();
+  const partial2nd = ctx.createOscillator();
+  const partial3rd = ctx.createOscillator();
+  const partial4th = ctx.createOscillator();
+  const partial5th = ctx.createOscillator();
 
   partialMain.type = 'sine';
   partialMain.frequency.setValueAtTime(frequency, now);
 
-  partialDetune.type = 'triangle';
-  partialDetune.frequency.setValueAtTime(frequency * 2, now);
-  partialDetune.detune.setValueAtTime(8, now);
+  partial2nd.type = 'sine';
+  partial2nd.frequency.setValueAtTime(frequency * 2, now);
+  partial2nd.detune.setValueAtTime(2, now);
 
-  partialAir.type = 'triangle';
-  partialAir.frequency.setValueAtTime(frequency * 3, now);
-  partialAir.detune.setValueAtTime(-12, now);
+  partial3rd.type = 'sine';
+  partial3rd.frequency.setValueAtTime(frequency * 3, now);
+  partial3rd.detune.setValueAtTime(-1, now);
+
+  // Higher partials use triangle for a bit more harmonic complexity/percussion
+  partial4th.type = 'triangle';
+  partial4th.frequency.setValueAtTime(frequency * 4, now);
+  partial4th.detune.setValueAtTime(4, now);
+
+  partial5th.type = 'triangle';
+  partial5th.frequency.setValueAtTime(frequency * 5, now);
+  partial5th.detune.setValueAtTime(-3, now);
 
   const hammerNoise = ctx.createBufferSource();
-  const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate);
+  const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
   const data = noiseBuffer.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.02));
+    // Sharp noise burst for the hammer hit
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.003));
   }
   hammerNoise.buffer = noiseBuffer;
 
   const lowpass = ctx.createBiquadFilter();
   lowpass.type = 'lowpass';
-  lowpass.frequency.setValueAtTime(6000, now);
-  lowpass.frequency.exponentialRampToValueAtTime(1800, now + duration * 0.5);
-  lowpass.Q.setValueAtTime(0.8, now);
+  // Dynamic filter: starts bright, darkens as note decays
+  lowpass.frequency.setValueAtTime(Math.min(10000, frequency * 10), now);
+  lowpass.frequency.exponentialRampToValueAtTime(Math.min(2000, frequency * 2), now + duration * 0.8);
+  lowpass.Q.setValueAtTime(0.5, now);
 
-  const damper = ctx.createBiquadFilter();
-  damper.type = 'highpass';
-  damper.frequency.setValueAtTime(35, now);
-  damper.Q.setValueAtTime(0.8, now);
-
-  const saturator = createSaturator(ctx, 1.6);
+  const highpass = ctx.createBiquadFilter();
+  highpass.type = 'highpass';
+  highpass.frequency.setValueAtTime(60, now); // Remove sub-bass muck
 
   const gainMain = ctx.createGain();
-  const gainDetune = ctx.createGain();
-  const gainAir = ctx.createGain();
+  const gain2nd = ctx.createGain();
+  const gain3rd = ctx.createGain();
+  const gain4th = ctx.createGain();
+  const gain5th = ctx.createGain();
   const gainNoise = ctx.createGain();
   const masterGain = ctx.createGain();
 
-  gainMain.gain.setValueAtTime(volume * 0.6, now);
-  gainDetune.gain.setValueAtTime(volume * 0.28, now);
-  gainAir.gain.setValueAtTime(volume * 0.18, now);
-  gainNoise.gain.setValueAtTime(volume * 0.25, now);
-  gainNoise.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+  gainMain.gain.setValueAtTime(volume * 0.8, now);
+  gain2nd.gain.setValueAtTime(volume * 0.25, now);
+  gain3rd.gain.setValueAtTime(volume * 0.12, now);
+  gain4th.gain.setValueAtTime(volume * 0.06, now);
+  gain5th.gain.setValueAtTime(volume * 0.03, now);
+  gainNoise.gain.setValueAtTime(volume * 0.4, now);
+  gainNoise.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
 
+  // ADSR-like envelope
   masterGain.gain.setValueAtTime(0, now);
-  masterGain.gain.linearRampToValueAtTime(volume * 1.1, now + 0.012);
-  masterGain.gain.exponentialRampToValueAtTime(volume * 0.55, now + 0.28);
-  masterGain.gain.exponentialRampToValueAtTime(0.0004, now + duration + 0.2);
+  masterGain.gain.linearRampToValueAtTime(volume, now + 0.015); 
+  masterGain.gain.exponentialRampToValueAtTime(volume * 0.5, now + 0.3);
+  masterGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-  const pannerL = ctx.createStereoPanner();
-  pannerL.pan.setValueAtTime(Math.max(-0.35, panPosition - 0.12), now);
-  const pannerR = ctx.createStereoPanner();
-  pannerR.pan.setValueAtTime(Math.min(0.35, panPosition + 0.12), now);
+  const panner = ctx.createStereoPanner();
+  panner.pan.setValueAtTime(panPosition, now);
+
+  const compressor = ctx.createDynamicsCompressor();
+  compressor.threshold.setValueAtTime(-15, now);
+  compressor.ratio.setValueAtTime(4, now);
 
   partialMain.connect(gainMain).connect(lowpass);
-  partialDetune.connect(gainDetune).connect(lowpass);
-  partialAir.connect(gainAir).connect(lowpass);
+  partial2nd.connect(gain2nd).connect(lowpass);
+  partial3rd.connect(gain3rd).connect(lowpass);
+  partial4th.connect(gain4th).connect(lowpass);
+  partial5th.connect(gain5th).connect(lowpass);
   hammerNoise.connect(gainNoise).connect(lowpass);
 
-  lowpass.connect(damper);
-  damper.connect(saturator);
-  saturator.connect(masterGain);
-  masterGain.connect(pannerL);
-  masterGain.connect(pannerR);
-  pannerL.connect(ctx.destination);
-  pannerR.connect(ctx.destination);
+  lowpass.connect(highpass);
+  highpass.connect(masterGain);
+  masterGain.connect(panner);
+  panner.connect(compressor);
+  compressor.connect(ctx.destination);
 
   partialMain.start(now);
-  partialDetune.start(now);
-  partialAir.start(now);
+  partial2nd.start(now);
+  partial3rd.start(now);
+  partial4th.start(now);
+  partial5th.start(now);
   hammerNoise.start(now);
 
-  partialMain.stop(now + duration + 0.2);
-  partialDetune.stop(now + duration + 0.2);
-  partialAir.stop(now + duration + 0.2);
-  hammerNoise.stop(now + 0.15);
+  partialMain.stop(now + duration + 0.1);
+  partial2nd.stop(now + duration + 0.1);
+  partial3rd.stop(now + duration + 0.1);
+  partial4th.stop(now + duration + 0.1);
+  partial5th.stop(now + duration + 0.1);
 };
 
 const getNearestSample = (midi: number) => {
@@ -300,14 +316,15 @@ const playSampledPiano = (
   frequency: number,
   duration: number,
   volume: number,
-  panPosition: number
+  panPosition: number,
+  startTime: number = ctx.currentTime
 ) => {
   const midi = midiFromFrequency(frequency);
   const sample = getNearestSample(midi);
   if (!sample) return false;
 
   const playbackRate = Math.pow(2, (midi - sample.midi) / 12);
-  const now = ctx.currentTime;
+  const now = startTime;
 
   const source = ctx.createBufferSource();
   source.buffer = sample.buffer;
@@ -315,16 +332,26 @@ const playSampledPiano = (
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(volume, now + 0.01);
+  gain.gain.linearRampToValueAtTime(volume, now + 0.015);
   gain.gain.exponentialRampToValueAtTime(volume * 0.6, now + 0.35);
   gain.gain.exponentialRampToValueAtTime(0.0003, now + duration + 0.3);
+
+  const highpass = ctx.createBiquadFilter();
+  highpass.type = 'highpass';
+  highpass.frequency.setValueAtTime(80, now);
 
   const panner = ctx.createStereoPanner();
   panner.pan.setValueAtTime(panPosition, now);
 
+  const compressor = ctx.createDynamicsCompressor();
+  compressor.threshold.setValueAtTime(-12, now);
+  compressor.ratio.setValueAtTime(3, now);
+
   source.connect(gain);
-  gain.connect(panner);
-  panner.connect(ctx.destination);
+  gain.connect(highpass);
+  highpass.connect(panner);
+  panner.connect(compressor);
+  compressor.connect(ctx.destination);
 
   source.start(now);
   source.stop(now + Math.max(duration + 0.5, sample.buffer.duration / playbackRate));
@@ -332,9 +359,20 @@ const playSampledPiano = (
   return true;
 };
 
-export const playChord = (frets: number[], volume: number = 0.3): void => {
+export const playChord = (
+  frets: number[], 
+  volume: number = 0.3,
+  instrument: InstrumentType = 'piano'
+): void => {
   const ctx = initAudioContext();
+  const now = ctx.currentTime;
+  const strumDelay = 0.035; // Slightly slower, more deliberate strum
 
+  if (instrument === 'piano') {
+    void ensurePianoSamples();
+  }
+
+  // Iterate strings (index 0 is Low E)
   frets.forEach((fret, stringIndex) => {
     if (fret === -1) return;
 
@@ -342,7 +380,31 @@ export const playChord = (frets: number[], volume: number = 0.3): void => {
     const noteFreq = stringFreq * Math.pow(2, fret / 12);
     // Spread stereo slightly per string (-0.4 ... 0.4)
     const pan = (stringIndex / 5) * 0.8 - 0.4;
-    createPluckedString(ctx, noteFreq, 2.6, volume, pan);
+    
+    // Low strings play first in a standard downstrum (index 0 first)
+    const timeOffset = stringIndex * strumDelay;
+    const playTime = now + timeOffset;
+
+    if (instrument === 'piano') {
+      const clampedDuration = 2.8;
+      // Scale volume: lower notes are louder naturally on piano, but we balance for polyphony
+      const noteVolume = Math.min(volume * 0.75, 0.45); 
+      
+      const usedSample = playSampledPiano(
+        ctx,
+        noteFreq,
+        clampedDuration,
+        noteVolume,
+        pan,
+        playTime
+      );
+
+      if (!usedSample) {
+        createPianoTone(ctx, noteFreq, clampedDuration, noteVolume, pan, playTime);
+      }
+    } else {
+      createPluckedString(ctx, noteFreq, 2.6, volume, pan, playTime);
+    }
   });
 };
 
@@ -350,9 +412,10 @@ export const playNote = (
   frequency: number,
   duration: number = 1.5,
   volume: number = 0.3,
-  instrument: InstrumentType = 'guitar'
+  instrument: InstrumentType = 'piano'
 ): void => {
   const ctx = initAudioContext();
+  const now = ctx.currentTime;
   const panPosition = Math.random() * 0.2 - 0.1; // subtle width
 
   if (instrument === 'piano') {
@@ -366,14 +429,15 @@ export const playNote = (
       frequency,
       clampedDuration,
       Math.min(volume, 0.7),
-      panPosition
+      panPosition,
+      now
     );
 
     if (!usedSample) {
-      createPianoTone(ctx, frequency, clampedDuration, Math.min(volume, 0.5), panPosition);
+      createPianoTone(ctx, frequency, clampedDuration, Math.min(volume, 0.5), panPosition, now);
     }
     return;
   }
 
-  createPluckedString(ctx, frequency, duration, volume, panPosition);
+  createPluckedString(ctx, frequency, duration, volume, panPosition, now);
 };
