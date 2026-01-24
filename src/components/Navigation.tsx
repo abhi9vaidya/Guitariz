@@ -21,7 +21,7 @@ const Navigation = () => {
     }
 
     const handler = (e: any) => {
-      console.log("✅ Install prompt is ready!");
+
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
@@ -29,7 +29,7 @@ const Navigation = () => {
     };
 
     const installedHandler = () => {
-      console.log("✅ App installed successfully!");
+
       setIsInstalled(true);
       setIsInstallable(false);
       toast("🎉 Welcome to the Studio!", {
@@ -43,7 +43,7 @@ const Navigation = () => {
     // Shorter timeout - if no prompt after 2 seconds, assume not available
     const timer = setTimeout(() => {
       if (!deferredPrompt) {
-        console.warn("⚠️ Install prompt not available - browser may not support it");
+
       }
       setIsChecking(false);
     }, 2000);
@@ -67,10 +67,10 @@ const Navigation = () => {
     // Try to use deferredPrompt if available
     if (deferredPrompt) {
       try {
-        console.log("📱 Triggering install prompt...");
+
         await deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`Install outcome: ${outcome}`);
+
 
         if (outcome === "accepted") {
           setDeferredPrompt(null);
@@ -81,7 +81,7 @@ const Navigation = () => {
           });
         }
       } catch (error) {
-        console.error("Install error:", error);
+
         toast("⚠️ Install Issue", {
           description: "Something went wrong. Try using the browser's menu to install (⋮ → Install app).",
           duration: 5000,
@@ -91,7 +91,7 @@ const Navigation = () => {
     }
 
     // No prompt available - guide user to manual install
-    console.warn("❌ No install prompt available - guiding to manual install");
+
     toast("📍 Manual Install", {
       description: "Use your browser menu (three dots ⋮) and select 'Install Guitariz Studio' or look for an install icon in the address bar.",
       duration: 6000,
@@ -196,8 +196,8 @@ const Navigation = () => {
                         to={item.path}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive
-                            ? "text-white bg-white/10 border border-white/10"
-                            : "text-muted-foreground hover:text-white hover:bg-white/5"
+                          ? "text-white bg-white/10 border border-white/10"
+                          : "text-muted-foreground hover:text-white hover:bg-white/5"
                           }`}
                       >
                         <item.icon className="w-5 h-5" />
