@@ -1,8 +1,21 @@
 import Navigation from "@/components/Navigation";
 import Metronome from "@/components/Metronome";
 import { Timer, Zap, Activity } from "lucide-react";
+import { useEffect } from "react";
 
 const MetronomePage = () => {
+  useEffect(() => {
+    document.title = "Precision Metronome | Guitariz - Pro Rhythm Tools";
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute("href", "https://guitariz.studio/metronome");
+    }
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Professional grade metronome with sample-accurate playback. Support for poly-meters, tap-tempo, and visual pulse feedback.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background grain effect */}

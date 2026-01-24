@@ -1,8 +1,21 @@
 import Navigation from "@/components/Navigation";
 import Fretboard from "@/components/Fretboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEffect } from "react";
 
 const FretboardPage = () => {
+  useEffect(() => {
+    document.title = "Virtual Fretboard & Piano | Guitariz - Interactive Instrument";
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute("href", "https://guitariz.studio/fretboard");
+    }
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Interactive high-fidelity instrument sandbox. Explore chord voicings, scale patterns, and interval relationships on virtual guitar and piano.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background grain effect */}

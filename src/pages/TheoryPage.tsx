@@ -1,8 +1,21 @@
 import Navigation from "@/components/Navigation";
 import CircleOfFifths from "@/components/CircleOfFifths";
 import { Disc, Music, Bot, Layers } from "lucide-react";
+import { useEffect } from "react";
 
 const TheoryPage = () => {
+  useEffect(() => {
+    document.title = "Circle of Fifths | Guitariz - Music Theory Lab";
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute("href", "https://guitariz.studio/theory");
+    }
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Master music theory with our interactive Circle of Fifths. Visualize key relationships, chord families, and harmonic modulation.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background grain effect */}

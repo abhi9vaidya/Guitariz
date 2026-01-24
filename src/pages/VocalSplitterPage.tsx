@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Navigation from "@/components/Navigation";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import WaveformViewer from "@/components/chord-ai/WaveformViewer";
-import { Wand2, Upload, Mic, Music2, Download, Loader2, Activity } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
+// ... (rest of imports)
 
 const VocalSplitterPage = () => {
+  useEffect(() => {
+    document.title = "AI Vocal Splitter | Guitariz - Stem Separation";
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute("href", "https://guitariz.studio/vocal-splitter");
+    }
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Separate vocals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.");
+    }
+  }, []);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { toast } = useToast();
   

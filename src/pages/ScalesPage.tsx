@@ -1,8 +1,21 @@
 import Navigation from "@/components/Navigation";
 import ScaleExplorer from "@/components/ScaleExplorer";
 import { Disc, Music, Bot, Layers } from "lucide-react";
+import { useEffect } from "react";
 
 const ScalesPage = () => {
+  useEffect(() => {
+    document.title = "Scale Explorer | Guitariz - Musical Modes & Intervals";
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute("href", "https://guitariz.studio/scales");
+    }
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Visualize musical scales and modal relationships. Map intervals to the circle of fifths or directly to the interactive fretboard.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background grain effect */}

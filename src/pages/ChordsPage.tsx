@@ -1,8 +1,23 @@
 import Navigation from "@/components/Navigation";
 import RootChordLibrary from "@/components/RootChordLibrary";
 import { BookOpen, Music, Layers, Bot } from "lucide-react";
+import { useEffect } from "react";
 
 const ChordsPage = () => {
+  useEffect(() => {
+    document.title = "Chord Library | Guitariz - Interactive Chord Voicings";
+    // Update canonical
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute("href", "https://guitariz.studio/chords");
+    }
+    // Update meta description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Explore a definitive collection of chord voicings and intervals. Filter by root, quality, and complexity with high-fidelity piano previews.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background grain effect */}
