@@ -34,6 +34,45 @@ const ChordAIPage = () => {
     if (metaDescription) {
       metaDescription.setAttribute("content", "Advanced Chord AI: Extract chords, tempo, and scales from any audio file using neural networks. High-precision harmonic transcription for guitarists.");
     }
+    // Canonical link for this route (preferred domain)
+    try {
+      const canonicalHref = "https://guitariz.studio/chord-ai";
+      let canonical = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.href = canonicalHref;
+
+      // og:url for social previews
+      let ogUrl = document.querySelector('meta[property="og:url"]') as HTMLMetaElement | null;
+      if (!ogUrl) {
+        ogUrl = document.createElement('meta');
+        ogUrl.setAttribute('property', 'og:url');
+        document.head.appendChild(ogUrl);
+      }
+      ogUrl.content = canonicalHref;
+
+      // Page JSON-LD (WebPage)
+      const ldId = 'ld-chordai-page';
+      const existingLd = document.getElementById(ldId);
+      if (existingLd) existingLd.remove();
+      const ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = ldId;
+      ld.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Chord AI - Guitariz",
+        "url": canonicalHref,
+        "description": "Advanced Chord AI: Extract chords, tempo, and scales from audio using neural networks.",
+        "inLanguage": "en-US"
+      });
+      document.head.appendChild(ld);
+    } catch (e) {
+      // noop
+    }
   }, []);
 
   const { loadFile, play, pause, seek, audioBuffer, peaks, duration, currentTime, isPlaying, fileInfo } =

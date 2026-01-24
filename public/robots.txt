@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://guitariz.vercel.app/sitemap.xml
+Sitemap: https://guitariz.studio/sitemap.xml

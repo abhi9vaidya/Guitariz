@@ -1,7 +1,7 @@
 {
   "name": "guitariz",
   "description": "Full-stack music learning platform with AI-powered chord detection, vocal isolation, and interactive theory tools.",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "type": "module",
   "private": false,
   "author": "Abhinav Vaidya",
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/abhi9vaidya/guitariz.git"
   },
-  "homepage": "https://guitariz.vercel.app",
+  "homepage": "https://guitariz.studio",
   "bugs": {
     "url": "https://github.com/abhi9vaidya/guitariz/issues"
   },
