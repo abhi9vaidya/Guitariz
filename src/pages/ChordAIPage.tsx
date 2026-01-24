@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Bot, Upload, Pause, Play, Activity, Settings2, Sparkles, Wand2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import GuitarizLoader from "@/components/ui/loader";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -515,18 +516,17 @@ const ChordAIPage = () => {
                       </div>
 
                       {analysisLoading ? (
-                        <div className="py-20 flex flex-col items-center justify-center space-y-4">
-                          <div className="w-12 h-12 rounded-full border-t-2 border-white animate-spin opacity-20" />
-                          <span className="text-xs text-muted-foreground uppercase tracking-widest animate-pulse">
-                            {separateVocals ? "Separating Vocals & Analyzing..." : "Neural Decoding..."}
-                          </span>
+                        <div className="py-20 flex flex-col items-center justify-center space-y-8">
+                          <GuitarizLoader size="lg" text={separateVocals ? "SEPARATING VOCALS" : "NEURAL DECODING"} />
                           {separateVocals && (
-                            <p className="text-[10px] text-muted-foreground/60 max-w-xs text-center">
-                              This may take 3-5 minutes for vocal separation
+                            <p className="text-[10px] text-muted-foreground/60 max-w-xs text-center animate-pulse">
+                              This involves heavy processing (3-5 mins)
                             </p>
-                          )}                          <p className="text-[10px] text-amber-200/80 max-w-xs text-center">
-                            Settings are locked during analysis
-                          </p>                        </div>
+                          )}
+                          <p className="text-[9px] text-amber-200/40 uppercase tracking-widest max-w-xs text-center">
+                            Audio Engine Locked
+                          </p>
+                        </div>
                       ) : result ? (
                         <div className="space-y-12">
                           <div className="space-y-4">

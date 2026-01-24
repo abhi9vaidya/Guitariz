@@ -15,8 +15,10 @@ const VocalSplitterPage = lazy(() => import("./pages/VocalSplitterPage"));
 const TheoryPage = lazy(() => import("./pages/TheoryPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+import GuitarizLoader from "@/components/ui/loader";
+
 const RouteFallback = () => (
-  <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>
+  <GuitarizLoader fullScreen text="INITIALIZING" />
 );
 
 const queryClient = new QueryClient();
