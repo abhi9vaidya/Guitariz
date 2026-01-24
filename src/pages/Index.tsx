@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Music2, Layers, Disc, Music, BookOpen, Bot, Wand2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import Footer from "@/components/Footer";
+
 
 const toolCards = [
   { title: "Fretboard", desc: "Interactive neck with adaptive note labeling.", icon: Music2, to: "/fretboard" },
@@ -29,7 +31,7 @@ const Index = () => {
       <main className="pt-32 pb-24 relative z-10">
         <section className="px-6">
           <div className="container mx-auto max-w-5xl">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
@@ -38,7 +40,7 @@ const Index = () => {
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-white/5 bg-white/[0.02] text-muted-foreground text-[10px] font-bold tracking-[0.3em] uppercase">
                 <span>Modern Music Laboratory</span>
               </div>
-              
+
               <div className="space-y-6">
                 <h1 className="text-7xl md:text-9xl font-light tracking-tighter text-white">
                   Design <span className="text-muted-foreground font-thin italic">Sound.</span>
@@ -62,7 +64,7 @@ const Index = () => {
             </motion.div>
 
             {/* Feature Grid */}
-            <motion.div 
+            <motion.div
               variants={{
                 hidden: { opacity: 0 },
                 show: {
@@ -82,8 +84,8 @@ const Index = () => {
                   key={tool.title}
                   variants={{
                     hidden: { opacity: 0, y: 30 },
-                    show: { 
-                      opacity: 1, 
+                    show: {
+                      opacity: 1,
                       y: 0,
                       transition: {
                         type: "spring",
@@ -93,7 +95,7 @@ const Index = () => {
                     }
                   }}
                 >
-                  <Link 
+                  <Link
                     to={tool.to}
                     className="group block p-8 rounded-[2rem] glass-card hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden"
                   >
@@ -110,7 +112,7 @@ const Index = () => {
                     </div>
                     {/* Subtle hover reveal */}
                     <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
-                       <ArrowRight className="w-10 h-10 text-white" />
+                      <ArrowRight className="w-10 h-10 text-white" />
                     </div>
                   </Link>
                 </motion.div>
@@ -120,13 +122,7 @@ const Index = () => {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-white/5 py-10">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.5em] font-bold">
-             2026 Guitariz Studio 
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
