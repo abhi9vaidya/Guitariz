@@ -17,6 +17,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 import GuitarizLoader from "@/components/ui/loader";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const RouteFallback = () => (
   <GuitarizLoader fullScreen text="INITIALIZING" />
@@ -27,6 +28,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Analytics />
+    <SpeedInsights />
     <TooltipProvider>
       <Toaster />
       <Sonner />
