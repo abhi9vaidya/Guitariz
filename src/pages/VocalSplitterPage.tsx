@@ -7,6 +7,8 @@ import WaveformViewer from "@/components/chord-ai/WaveformViewer";
 import { Wand2, Upload, Mic, Music2, Download, Loader2, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
+import { ChordAISkeleton } from "@/components/ui/SkeletonLoader";
 
 const VocalSplitterPage = () => {
   useEffect(() => {
@@ -431,7 +433,28 @@ const VocalSplitterPage = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 40, -20, 0],
+            y: [0, -20, 40, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-indigo-500/5 top-[-5%] left-[-5%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -40, 20, 0],
+            y: [0, 40, -20, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[400px] h-[400px] bg-rose-500/5 bottom-[-5%] right-[-5%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -445,11 +468,11 @@ const VocalSplitterPage = () => {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-7xl font-light tracking-tighter text-white">
+              <h1 className="text-5xl md:text-7xl font-light tracking-tighter text-white font-display">
                 Vocal <span className="text-muted-foreground font-thin">Splitter</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-                Separate vocals and instrumentals with precision. Adjust levels independently and export clean stems for remixing or karaoke.
+                Separate vocals and instrumentals with precision. Adjust levels independently and export <span className="text-white/80">clean stems</span> for remixing or karaoke.
               </p>
               <div className="mt-4 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/5 max-w-2xl mx-auto">
                 <p className="text-xs text-muted-foreground">
@@ -513,25 +536,17 @@ const VocalSplitterPage = () => {
 
                 {/* Process Button */}
                 {!separated && (
-                  <Button
-                    onClick={processSeparation}
-                    disabled={processing}
-                    className="w-full h-16 rounded-2xl bg-white text-black hover:bg-white/90 text-lg font-semibold"
-                  >
-                    {processing ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        {uploadProgress !== null && uploadProgress < 100
-                          ? `Uploading… ${uploadProgress}%`
-                          : "Separating Audio… (this may take a few minutes)"}
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="w-5 h-5 mr-2" />
-                        Separate Vocals & Instrumentals
-                      </>
-                    )}
-                  </Button>
+                  <div className="space-y-6">
+                    <Button
+                      onClick={processSeparation}
+                      disabled={processing}
+                      className="w-full h-16 rounded-2xl bg-white text-black hover:bg-white/90 text-lg font-semibold shadow-2xl transition-all active:scale-[0.98]"
+                    >
+                      <Wand2 className="w-5 h-5 mr-2" />
+                      Separate Vocals & Instrumentals
+                    </Button>
+                    {processing && <ChordAISkeleton />}
+                  </div>
                 )}
 
                 {/* Upload Progress Bar */}

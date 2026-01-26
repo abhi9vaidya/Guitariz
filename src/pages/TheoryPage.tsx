@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import CircleOfFifths from "@/components/CircleOfFifths";
 import { Disc, Layers } from "lucide-react";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 const TheoryPage = () => {
   useEffect(() => {
@@ -17,9 +18,29 @@ const TheoryPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background grain effect */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+    <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 20, -10, 0],
+            y: [0, -10, 20, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[600px] h-[600px] bg-rose-500/5 top-[-10%] left-[-10%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -20, 10, 0],
+            y: [0, 10, -20, 0],
+          }}
+          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-blue-500/5 bottom-[-10%] right-[-10%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -35,11 +56,11 @@ const TheoryPage = () => {
             </div>
 
             <header className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                Circle of <span className="text-muted-foreground">Fifths</span>
+              <h1 className="text-4xl md:text-5xl font-light tracking-tighter text-white font-display">
+                Circle of <span className="text-muted-foreground font-thin italic">Fifths</span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed text-pretty">
-                Visualize key relationships and chord families. The fundamental map for composition and modulation.
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+                Visualize key relationships and chord families. The <span className="text-white/80">fundamental map</span> for composition and modulation.
               </p>
             </header>
           </div>

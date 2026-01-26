@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Metronome from "@/components/Metronome";
 import { Timer, Zap } from "lucide-react";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 const MetronomePage = () => {
   useEffect(() => {
@@ -17,9 +18,29 @@ const MetronomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background grain effect */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+    <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 25, -10, 0],
+            y: [0, -10, 25, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-red-500/5 top-[-5%] left-[-5%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -25, 10, 0],
+            y: [0, 25, -10, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[400px] h-[400px] bg-amber-500/5 bottom-[-5%] right-[-5%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -35,11 +56,11 @@ const MetronomePage = () => {
             </div>
 
             <header className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                Pulse <span className="text-muted-foreground">Engine</span>
+              <h1 className="text-4xl md:text-5xl font-light tracking-tighter text-white font-display">
+                Pulse <span className="text-muted-foreground font-thin italic">Engine</span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed text-pretty">
-                Master your timing with sample-accurate playback. Support for complex poly-meters and tap-tempo.
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+                Master your timing with <span className="text-white/80">sample-accurate</span> playback. Support for complex poly-meters and tap-tempo.
               </p>
             </header>
           </div>

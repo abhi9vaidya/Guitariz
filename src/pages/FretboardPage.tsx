@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Fretboard from "@/components/Fretboard";
 
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 const FretboardPage = () => {
   useEffect(() => {
@@ -17,9 +18,29 @@ const FretboardPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background grain effect */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+    <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 30, -15, 0],
+            y: [0, -15, 30, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-emerald-500/5 top-[-5%] left-[-5%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -30, 15, 0],
+            y: [0, 30, -15, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[400px] h-[400px] bg-sky-500/5 bottom-[-5%] right-[-5%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -35,11 +56,11 @@ const FretboardPage = () => {
             </div>
 
             <header className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                Fretboard <span className="text-muted-foreground">&</span> Piano
+              <h1 className="text-4xl md:text-5xl font-light tracking-tighter text-white font-display">
+                Fretboard <span className="text-muted-foreground font-thin italic">&</span> Piano
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
-                A high-fidelity instrument sandbox. Explore chord voicings, scale patterns, and interval relationships in real-time.
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+                A high-fidelity instrument sandbox. Explore chord voicings, scale patterns, and <span className="text-white/80">interval relationships</span> in real-time.
               </p>
             </header>
           </div>

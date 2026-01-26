@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Keyboard, Info, Music, Search, Settings2 } from "lucide-react";
+import { Keyboard, Info, Music, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useKeyboardFretboard } from "@/hooks/useKeyboardFretboard";
 import { usePianoKeyboard } from "@/hooks/usePianoKeyboard";
@@ -342,6 +342,7 @@ const Fretboard = () => {
     setPianoNotes([]);
   };
 
+  /* 
   const getVelocity = useCallback((index: number, total: number): number => {
     const position = index / Math.max(total - 1, 1);
 
@@ -356,6 +357,7 @@ const Fretboard = () => {
     // Exponential velocity profile for natural dynamics (default)
     return 0.2 + Math.pow(position, 1.5) * 0.3;
   }, [velocityProfile]);
+  */
 
   const getStrumPattern = useCallback((): (FretNote & { indexInStrum: number })[] => {
     // Build a per-string pattern from the *actual* highlighted fretboard positions.
@@ -431,21 +433,23 @@ const Fretboard = () => {
       }
 
       if (pianoMode) return;
-      if (keyboardEnabled) return; // avoid double fire with keyboard hook
 
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
       }
 
-      // Handle Enter (Strum) for Fretboard
+      // Handle Enter (Strum) for Fretboard - Always active regardless of keyboardEnabled state
       if (e.key === 'Enter' || e.code === 'Enter') {
         if (e.shiftKey) {
           strumUp();
         } else {
           strumDown();
         }
+        return;
       }
+
+      if (keyboardEnabled) return; // ignore other keys if keyboard hook is handling them
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -473,8 +477,8 @@ const Fretboard = () => {
             <button
               onClick={() => setPianoMode(false)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!pianoMode
-                  ? "bg-white/10 text-white shadow-inner border border-white/10"
-                  : "text-muted-foreground hover:text-white hover:bg-white/5"
+                ? "bg-white/10 text-white shadow-inner border border-white/10"
+                : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
             >
               Guitar Fretboard
@@ -482,8 +486,8 @@ const Fretboard = () => {
             <button
               onClick={() => setPianoMode(true)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${pianoMode
-                  ? "bg-white/10 text-white shadow-inner border border-white/10"
-                  : "text-muted-foreground hover:text-white hover:bg-white/5"
+                ? "bg-white/10 text-white shadow-inner border border-white/10"
+                : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
             >
               Piano Keys
@@ -524,8 +528,8 @@ const Fretboard = () => {
             <button
               onClick={() => setKeyboardEnabled(!keyboardEnabled)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border ${keyboardEnabled
-                  ? "bg-primary/20 border-primary/30 text-primary-foreground stroke-primary"
-                  : "bg-white/5 border-white/10 text-muted-foreground"
+                ? "bg-primary/20 border-primary/30 text-primary-foreground stroke-primary"
+                : "bg-white/5 border-white/10 text-muted-foreground"
                 }`}
             >
               <Keyboard className="w-4 h-4" />

@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import ScaleExplorer from "@/components/ScaleExplorer";
 import { Disc, Music, Bot, Layers } from "lucide-react";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 const ScalesPage = () => {
   useEffect(() => {
@@ -17,9 +18,29 @@ const ScalesPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background grain effect */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+    <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 45, -20, 0],
+            y: [0, -25, 45, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-cyan-500/5 top-[-5%] left-[-5%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -45, 20, 0],
+            y: [0, 45, -20, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[400px] h-[400px] bg-violet-500/5 bottom-[-5%] right-[-5%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -35,11 +56,11 @@ const ScalesPage = () => {
             </div>
 
             <header className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                Scale <span className="text-muted-foreground">Explorer</span>
+              <h1 className="text-4xl md:text-5xl font-light tracking-tighter text-white font-display">
+                Scale <span className="text-muted-foreground font-thin italic">Explorer</span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed text-pretty">
-                A mathematical approach to melody. Visualize intervals across the circle of fifths or map them directly to the fretboard.
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+                A mathematical approach to melody. Visualize intervals across the circle of fifths or map them <span className="text-white/80">directly to the fretboard</span>.
               </p>
             </header>
           </div>

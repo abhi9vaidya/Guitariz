@@ -15,7 +15,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Bot, Upload, Pause, Play, Activity, Settings2, Sparkles, Wand2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
-import GuitarizLoader from "@/components/ui/loader";
+import { motion } from "framer-motion";
+import { ChordAISkeleton } from "@/components/ui/SkeletonLoader";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -261,8 +262,28 @@ const ChordAIPage = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
-      {/* Structural Grain */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 50, -25, 0],
+            y: [0, -25, 50, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-blue-500/5 top-[-5%] left-[-5%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -50, 25, 0],
+            y: [0, 50, -25, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[400px] h-[400px] bg-amber-500/5 bottom-[-5%] right-[-5%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -516,17 +537,7 @@ const ChordAIPage = () => {
                       </div>
 
                       {analysisLoading ? (
-                        <div className="py-20 flex flex-col items-center justify-center space-y-8">
-                          <GuitarizLoader size="lg" text={separateVocals ? "SEPARATING VOCALS" : "NEURAL DECODING"} />
-                          {separateVocals && (
-                            <p className="text-[10px] text-muted-foreground/60 max-w-xs text-center animate-pulse">
-                              This involves heavy processing (3-5 mins)
-                            </p>
-                          )}
-                          <p className="text-[9px] text-amber-200/40 uppercase tracking-widest max-w-xs text-center">
-                            Audio Engine Locked
-                          </p>
-                        </div>
+                        <ChordAISkeleton />
                       ) : result ? (
                         <div className="space-y-12">
                           <div className="space-y-4">

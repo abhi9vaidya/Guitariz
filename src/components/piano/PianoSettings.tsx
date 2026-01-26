@@ -5,29 +5,73 @@
 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Keyboard, Piano, Settings2 } from 'lucide-react';
+import { Trash2, Keyboard, Piano, Settings2, Wind } from 'lucide-react';
 import { KeyboardPreset } from '@/types/pianoTypes';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 interface PianoSettingsProps {
   keyboardPreset: KeyboardPreset;
   onKeyboardPresetChange: (preset: KeyboardPreset) => void;
+  sustained: boolean;
+  onSustainChange: () => void;
+  onClear: () => void;
   octaveShift: number;
 }
 
 export const PianoSettings = ({
   keyboardPreset,
   onKeyboardPresetChange,
+  sustained,
+  onSustainChange,
+  onClear,
+  octaveShift,
 }: PianoSettingsProps) => {
   return (
     <div className="space-y-8 h-full flex flex-col">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Piano className="w-5 h-5 text-primary" />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Piano className="w-5 h-5 text-primary" />
+          </div>
+          <h3 className="text-xl font-semibold text-white tracking-tight">Piano Settings</h3>
         </div>
-        <h3 className="text-xl font-semibold text-white tracking-tight">Piano Settings</h3>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onClear}
+          className="h-8 gap-2 rounded-lg border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">Clear</span>
+        </Button>
       </div>
 
       <div className="space-y-6 flex-1">
+        {/* Sustain Toggle */}
+        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 shadow-inner">
+          <div className="space-y-1">
+            <Label className="text-xs font-bold text-white flex items-center gap-2">
+              <Wind className="w-3 h-3 text-primary" />
+              Pedal Sustain
+            </Label>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Latching Mode</p>
+          </div>
+          <Switch
+            checked={sustained}
+            onCheckedChange={onSustainChange}
+            className="data-[state=checked]:bg-primary"
+          />
+        </div>
+
+        {/* Status Indicator */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 w-fit">
+          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Global Octave:</span>
+          <span className="text-[10px] font-mono font-bold text-primary">
+            {octaveShift > 0 ? `+${octaveShift}` : octaveShift}
+          </span>
+        </div>
+
         {/* Keyboard Layout Preset */}
         <div className="space-y-3">
           <Label htmlFor="keyboard-preset" className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
@@ -57,7 +101,7 @@ export const PianoSettings = ({
             <Settings2 className="w-3 h-3 text-muted-foreground" />
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest underline decoration-primary/30 underline-offset-4">Reference Guide</span>
           </div>
-          
+
           <div className="grid grid-cols-1 gap-1.5">
             {[
               { label: 'White keys', value: 'A S D F G H J K' },

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const Navigation = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<unknown>(null);
@@ -106,19 +107,27 @@ const Navigation = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
-      <div className="container mx-auto px-4 md:px-6 pt-4">
+    <motion.nav
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed top-0 left-0 right-0 z-50 px-4 md:px-6 pt-4"
+    >
+      <div className="container mx-auto">
         <div className="relative rounded-2xl border border-white/10 bg-[#0a0a0a]/60 backdrop-blur-xl shadow-2xl px-4 md:px-6 py-2.5 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link
             to="/"
             className="relative flex items-center gap-3 hover:opacity-90 transition-opacity group"
           >
-            <img
-              src="/logo.svg"
-              alt="Guitariz Logo"
-              className="w-10 h-10 object-contain"
-            />
+            <div className="relative">
+              <img
+                src="/logo.svg"
+                alt="Guitariz Logo"
+                className="w-10 h-10 object-contain relative z-10"
+              />
+              <div className="absolute inset-0 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
             <div className="flex flex-col text-left">
               <h1 className="font-bold text-base tracking-tight text-white leading-tight">Guitariz</h1>
               <p className="text-[10px] uppercase tracking-widest text-white/60 font-medium">Studio</p>
@@ -126,20 +135,25 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1 relative">
             {navItems.map((item) => {
               const isActive = location.pathname.startsWith(item.path);
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
-                    ? "text-white bg-white/10 shadow-inner border border-white/5"
-                    : "text-muted-foreground hover:text-white hover:bg-white/5"
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all group ${isActive ? "text-white" : "text-muted-foreground hover:text-white"
                     }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-highlight"
+                      className="absolute inset-0 bg-white/10 rounded-lg border border-white/5 shadow-inner"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <item.icon className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">{item.label}</span>
                 </Link>
               );
             })}
@@ -206,7 +220,7 @@ const Navigation = () => {
           </div>
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 };
 

@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import RootChordLibrary from "@/components/RootChordLibrary";
 import { BookOpen, Music, Layers, Bot } from "lucide-react";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 const ChordsPage = () => {
   useEffect(() => {
@@ -19,9 +20,29 @@ const ChordsPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background grain effect */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+    <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
+        <div className="absolute inset-0 bg-[#060606]" />
+        <motion.div
+          animate={{
+            x: [0, 40, -20, 0],
+            y: [0, -20, 40, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-amber-500/5 top-[-5%] left-[-5%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -40, 20, 0],
+            y: [0, 40, -20, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[400px] h-[400px] bg-orange-500/5 bottom-[-5%] right-[-5%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+      </div>
 
       <Navigation />
 
@@ -37,11 +58,11 @@ const ChordsPage = () => {
             </div>
 
             <header className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                Chord <span className="text-muted-foreground">Library</span>
+              <h1 className="text-4xl md:text-5xl font-light tracking-tighter text-white font-display">
+                Chord <span className="text-muted-foreground font-thin italic">Library</span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed text-pretty">
-                A definitive collection of voicings and intervals. Filter by root, quality, or complexity to find the perfect color for your sound.
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+                A definitive collection of voicings and intervals. Filter by root, quality, or complexity to find the <span className="text-white/80">perfect color</span> for your sound.
               </p>
             </header>
           </div>

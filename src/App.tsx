@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 const Index = lazy(() => import("./pages/Index"));
 const FretboardPage = lazy(() => import("./pages/FretboardPage"));
@@ -25,90 +26,124 @@ const RouteFallback = () => (
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <Analytics />
-    <SpeedInsights />
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <Index />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/fretboard"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <FretboardPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/chords"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <ChordsPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/scales"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <ScalesPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/metronome"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <MetronomePage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/chord-ai"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <ChordAIPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/vocal-splitter"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <VocalSplitterPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/theory"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <TheoryPage />
-            </Suspense>
-          }
-        />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route
-          path="*"
-          element={
-            <Suspense fallback={<RouteFallback />}>
-              <NotFound />
-            </Suspense>
-          }
-        />
-      </Routes>
-    </TooltipProvider>
-  </QueryClientProvider>
+const PageWrapper = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+  >
+    {children}
+  </motion.div>
 );
+
+const App = () => {
+  const location = useLocation();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Analytics />
+      <SpeedInsights />
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <Index />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/fretboard"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <FretboardPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/chords"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <ChordsPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/scales"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <ScalesPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/metronome"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <MetronomePage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/chord-ai"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <ChordAIPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/vocal-splitter"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <VocalSplitterPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/theory"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <TheoryPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <NotFound />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

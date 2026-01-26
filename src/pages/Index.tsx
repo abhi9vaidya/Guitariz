@@ -19,11 +19,27 @@ const toolCards = [
 const Index = () => {
   return (
     <div className="min-h-screen relative bg-background overflow-x-hidden selection:bg-white/10">
-      {/* Dynamic Background Layout */}
-      <div className="fixed inset-0 pointer-events-none">
+      {/* Premium Dynamic Background */}
+      <div className="mesh-container">
         <div className="absolute inset-0 bg-[#060606]" />
-        <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-white/[0.03] to-transparent" />
-        <div className="home-noise absolute inset-0 opacity-40 mix-blend-overlay" />
+        <motion.div
+          animate={{
+            x: [0, 100, -50, 0],
+            y: [0, -50, 100, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[600px] h-[600px] bg-blue-500/10 top-[-10%] left-[-10%]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -100, 50, 0],
+            y: [0, 100, -50, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="mesh-blob w-[500px] h-[500px] bg-purple-500/10 bottom-[-10%] right-[-10%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
       </div>
 
       <Navigation />
@@ -42,11 +58,11 @@ const Index = () => {
               </div>
 
               <div className="space-y-6">
-                <h1 className="text-7xl md:text-9xl font-light tracking-tighter text-white">
+                <h1 className="text-7xl md:text-9xl font-light tracking-tighter text-white font-display">
                   Design <span className="text-muted-foreground font-thin italic">Sound.</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-                  A high-fidelity technical suite for the modern guitarist. Neural audio analysis meets architectural music theory.
+                  A high-fidelity technical suite for the modern guitarist. Neural audio analysis meets <span className="text-white/80">architectural music theory</span>.
                 </p>
               </div>
 
@@ -90,27 +106,33 @@ const Index = () => {
                       transition: {
                         type: "spring",
                         stiffness: 50,
-                        damping: 15 // Smooth, premium feel
+                        damping: 15
                       }
                     }
                   }}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    e.currentTarget.style.setProperty("--x", `${e.clientX - rect.left}px`);
+                    e.currentTarget.style.setProperty("--y", `${e.clientY - rect.top}px`);
+                  }}
+                  className="spotlight-card group"
                 >
                   <Link
                     to={tool.to}
-                    className="group block p-8 rounded-[2rem] glass-card hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden"
+                    className="block p-8 rounded-[2rem] glass-card transition-all duration-500 relative"
                   >
+                    <div className="spotlight-glow" />
                     <div className="relative z-10 space-y-4">
                       <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-500">
                         <tool.icon className="w-6 h-6 text-white" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl font-medium text-white">{tool.title}</h3>
+                        <h3 className="text-xl font-medium text-white font-display">{tool.title}</h3>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                           {tool.desc}
                         </p>
                       </div>
                     </div>
-                    {/* Subtle hover reveal */}
                     <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
                       <ArrowRight className="w-10 h-10 text-white" />
                     </div>

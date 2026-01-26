@@ -69,14 +69,6 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
 
     const key = e.key.toLowerCase();
 
-    // Handle strum key - Enter and NumpadEnter
-    if (e.key === 'Enter' || e.code === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
-      strumDown();
-      return;
-    }
-
     // Handle octave shift
     if (key === '=') {
       e.preventDefault();
@@ -113,7 +105,7 @@ export const useKeyboardFretboard = (options: KeyboardFretboardOptions) => {
       }
       return;
     }
-  }, [enabled, keymap, chordMode, onNoteOn, strumDown]);
+  }, [enabled, keymap, chordMode, onNoteOn]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
