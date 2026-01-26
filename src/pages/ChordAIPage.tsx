@@ -29,11 +29,11 @@ const ChordAIPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Chord AI - Neural Audio Transcription & Harmonic Mapping | Guitariz";
+    document.title = "Chord AI Free - Neural Audio Transcription & Harmonic Mapping | Guitariz";
     // Also meta description if possible
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Advanced Chord AI: Extract chords, tempo, and scales from any audio file using neural networks. High-precision harmonic transcription for guitarists.");
+      metaDescription.setAttribute("content", "The best Chord AI Free: Extract chords, tempo, and scales from any audio file using neural networks. High-precision harmonic transcription with no subscription.");
     }
     // Canonical link for this route (preferred domain)
     try {
@@ -285,7 +285,7 @@ const ChordAIPage = () => {
                 </p>
                 <div className="mt-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 max-w-2xl">
                   <p className="text-xs text-amber-200/90">
-                    <strong className="text-amber-100">Beta Feature:</strong> Chord detection is approximate and works best with simple acoustic songs. <strong className="text-amber-100">Vocal Filter</strong> separates instrumentals for better accuracy (takes 3-5 minutes). You can download the instrumental track after analysis.
+                    <strong className="text-amber-100">Chord AI Free:</strong> This tool is completely free with no subscription required. Chord detection is approximate and works best with simple acoustic songs. <strong className="text-amber-100">Vocal Filter</strong> separates instrumentals for better accuracy (takes 3-5 minutes). You can download the instrumental track after analysis.
                   </p>
                 </div>
               </div>
