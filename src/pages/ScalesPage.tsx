@@ -2,19 +2,38 @@ import Navigation from "@/components/Navigation";
 import ScaleExplorer from "@/components/ScaleExplorer";
 import { Disc, Music, Bot, Layers } from "lucide-react";
 import { useEffect } from "react";
-import { motion } from "framer-motion";
 
 const ScalesPage = () => {
   useEffect(() => {
-    document.title = "Scale Explorer | Guitariz - Musical Modes & Intervals";
+    document.title = "Interactive Scale Explorer | Guitariz - Music Modes & Intervals";
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
       canonical.setAttribute("href", "https://guitariz.studio/scales");
     }
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Visualize musical scales and modal relationships. Map intervals to the circle of fifths or directly to the interactive fretboard.");
+      metaDesc.setAttribute("content", "Visualize 100+ musical scales and modal relationships. Map intervals to the circle of fifths or directly to the virtual guitar fretboard for free.");
     }
+
+    // JSON-LD Structured Data
+    const ldId = 'ld-scales-page';
+    let ld = document.getElementById(ldId) as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = ldId;
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Guitariz Scale Explorer",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "Web",
+      "description": "Mathematical approach to musical scales and modal synthesis.",
+      "url": "https://guitariz.studio/scales",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    });
   }, []);
 
   return (

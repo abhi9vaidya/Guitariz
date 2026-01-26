@@ -2,11 +2,10 @@ import Navigation from "@/components/Navigation";
 import RootChordLibrary from "@/components/RootChordLibrary";
 import { BookOpen, Music, Layers, Bot } from "lucide-react";
 import { useEffect } from "react";
-import { motion } from "framer-motion";
 
 const ChordsPage = () => {
   useEffect(() => {
-    document.title = "Chord Library | Guitariz - Interactive Chord Voicings";
+    document.title = "Chord Library & Voicings | Guitariz - Free Chord Identifier";
     // Update canonical
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
@@ -15,8 +14,28 @@ const ChordsPage = () => {
     // Update meta description
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Explore a definitive collection of chord voicings and intervals. Filter by root, quality, and complexity with high-fidelity piano previews.");
+      metaDesc.setAttribute("content", "Explore a definitive collection of 1,000+ chord voicings. The best free chord library for guitar and piano with interactive diagrams and interval mapping.");
     }
+
+    // JSON-LD Structured Data
+    const ldId = 'ld-chords-page';
+    let ld = document.getElementById(ldId) as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = ldId;
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Guitariz Chord Library",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "Web",
+      "description": "Definitive collection of 1,000+ chord voicings and intervals with piano previews.",
+      "url": "https://guitariz.studio/chords",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    });
   }, []);
 
   return (

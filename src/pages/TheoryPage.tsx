@@ -2,19 +2,38 @@ import Navigation from "@/components/Navigation";
 import CircleOfFifths from "@/components/CircleOfFifths";
 import { Disc, Layers } from "lucide-react";
 import { useEffect } from "react";
-import { motion } from "framer-motion";
 
 const TheoryPage = () => {
   useEffect(() => {
-    document.title = "Circle of Fifths | Guitariz - Music Theory Lab";
+    document.title = "Interactive Circle of Fifths | Guitariz - Free Music Theory Lab";
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
       canonical.setAttribute("href", "https://guitariz.studio/theory");
     }
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Master music theory with our interactive Circle of Fifths. Visualize key relationships, chord families, and harmonic modulation.");
+      metaDesc.setAttribute("content", "Master music theory with our interactive Circle of Fifths. Free harmonic analysis: visualize key relationships, chord families, and modulation.");
     }
+
+    // JSON-LD Structured Data
+    const ldId = 'ld-theory-page';
+    let ld = document.getElementById(ldId) as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = ldId;
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Guitariz Theory Lab",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "Web",
+      "description": "Interactive music theory tools featuring the Circle of Fifths.",
+      "url": "https://guitariz.studio/theory",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    });
   }, []);
 
   return (

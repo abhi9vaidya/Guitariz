@@ -12,15 +12,35 @@ import { ChordAISkeleton } from "@/components/ui/SkeletonLoader";
 
 const VocalSplitterPage = () => {
   useEffect(() => {
-    document.title = "AI Vocal Splitter | Guitariz - Stem Separation";
+    document.title = "Free AI Vocal Splitter | Guitariz - Stem Separation & Karaoke";
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
       canonical.setAttribute("href", "https://guitariz.studio/vocal-splitter");
     }
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Separate vocals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.");
+      metaDesc.setAttribute("content", "Free Vocal Splitter: Separate vocals and instrumentals with advanced AI. High-fidelity stem extraction for karaoke, practice, and remixing.");
     }
+
+    // JSON-LD Structured Data
+    const ldId = 'ld-vocal-splitter-page';
+    let ld = document.getElementById(ldId) as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = ldId;
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Guitariz Vocal Splitter",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "Web",
+      "description": "AI-powered vocal and instrumental separation tool.",
+      "url": "https://guitariz.studio/vocal-splitter",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    });
   }, []);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);

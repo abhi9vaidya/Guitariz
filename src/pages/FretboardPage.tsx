@@ -2,19 +2,38 @@ import Navigation from "@/components/Navigation";
 import Fretboard from "@/components/Fretboard";
 
 import { useEffect } from "react";
-import { motion } from "framer-motion";
 
 const FretboardPage = () => {
   useEffect(() => {
-    document.title = "Virtual Fretboard & Piano | Guitariz - Interactive Instrument";
+    document.title = "Free Virtual Fretboard & Piano | Guitariz - Instrument Simulator";
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
       canonical.setAttribute("href", "https://guitariz.studio/fretboard");
     }
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Interactive high-fidelity instrument sandbox. Explore chord voicings, scale patterns, and interval relationships on virtual guitar and piano.");
+      metaDesc.setAttribute("content", "Interactive high-fidelity instrument sandbox. Explore chord patterns and scales on a free virtual guitar fretboard and piano.");
     }
+
+    // JSON-LD Structured Data
+    const ldId = 'ld-fretboard-page';
+    let ld = document.getElementById(ldId) as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = ldId;
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Guitariz Virtual Fretboard",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "Web",
+      "description": "Interactive instrument sandbox for guitar and piano with real-time feedback.",
+      "url": "https://guitariz.studio/fretboard",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    });
   }, []);
 
   return (
