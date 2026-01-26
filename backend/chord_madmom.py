@@ -69,7 +69,7 @@ def _load_from_cache(cache_file: Path) -> Optional[any]:
         try:
             with open(cache_file, 'r') as f:
                 return json.load(f)
-        except:
+        except Exception:
             return None
     return None
 
@@ -79,7 +79,7 @@ def _save_to_cache(cache_file: Path, data: any) -> None:
     try:
         with open(cache_file, 'w') as f:
             json.dump(data, f)
-    except:
+    except Exception:
         pass
 
 
@@ -170,7 +170,7 @@ def detect_tempo_madmom(file_path: Path) -> float:
     if cache_file.exists():
         try:
             return float(cache_file.read_text().strip())
-        except:
+        except Exception:
             pass
     
     # Process with madmom

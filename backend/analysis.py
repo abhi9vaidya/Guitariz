@@ -356,7 +356,7 @@ def _estimate_meter(y: np.ndarray, sr: int, tempo: float) -> int:
         if score3 > score4 * 1.1: # Significant bias to 3
             return 3
         return 4
-    except:
+    except Exception:
         return 4
 
 
