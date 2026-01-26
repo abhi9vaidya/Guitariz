@@ -1,122 +1,146 @@
 <div align="center">
-  <img src="public/logo.svg" alt="Guitariz Logo" width="120" height="120" />
-  <h1>Guitariz Studio</h1>
-  <p><strong>The ultimate interactive workbench for guitarists, songwriters, and music theory students.</strong></p>
+  <img src="public/images/readme_hero.png" alt="Guitariz Studio Hero" width="100%" />
 
-  [![Version](https://img.shields.io/badge/version-1.6.1-blue.svg?style=for-the-badge)](https://github.com/abhi9vaidya/guitariz)
-  [![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](./LICENSE)
-  [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+  <br />
 
-  [**Live Demo**](https://guitariz.studio) • [**Report Bug**](https://github.com/abhi9vaidya/guitariz/issues) • [**Request Feature**](https://github.com/abhi9vaidya/guitariz/issues)
+  <h1>🎸 Guitariz Studio</h1>
+  <p><em>The Next-Generation Digital Workbench for Modern Musicians</em></p>
+
+  <p align="center">
+    <img src="https://img.shields.io/badge/Release-v1.6.1-4A90E2?style=for-the-badge&logo=github" alt="Release" />
+    <img src="https://img.shields.io/badge/License-MIT-45B8D1?style=for-the-badge" alt="License" />
+    <img src="https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript" alt="TS" />
+    <img src="https://img.shields.io/badge/Maintained%20by-Abhinav%20Vaidya-white?style=for-the-badge" alt="Author" />
+  </p>
+
+  <p align="center">
+    <a href="#-quick-start">Quick Start</a> •
+    <a href="#-core-architecture">Architecture</a> •
+    <a href="#-features">Features</a> •
+    <a href="#-deployment">Deployment</a> •
+    <a href="https://guitariz.studio">Live Studio</a>
+  </p>
 </div>
 
 ---
 
-## 🎸 Overview
+## 📖 Introduction
 
-**Guitariz** is a high-performance, full-stack music platform designed to bridge the gap between theory and practice. Whether you're decoding a complex solo or exploring new harmonic landscapes, Guitariz provides the tools to visualize, analyze, and play with precision.
-
-### Why Guitariz?
-- **Low-Latency Audio**: Built on the Web Audio API for an immediate, tactile playing experience.
-- **AI-Powered Insights**: Integrated source separation and chord detection.
-- **Academic Rigor**: Comprehensive mapping of Western and Eastern musical systems.
-- **Studio Aesthetics**: A premium, motion-heavy dark UI designed for focus.
+**Guitariz Studio** is a sophisticated, full-stack ecosystem designed for musicians who demand professional-grade tools within a web-based environment. By combining an ultra-low-latency instrument sandbox with cutting-edge AI for source separation and harmonic detection, Guitariz empowers songwriters and theorists to dissect, analyze, and create with unprecedented clarity.
 
 ---
 
-## ✨ Key Features
+## ⚡ Core Architecture
 
-### 🛠️ Interactive Instrument Engine
-- **Virtual Fretboard & Piano**: High-fidelity sound engines with multi-octave support and real-time interval labeling.
-- **Smart Chord Detection**: Instantly identifies any group of notes played across the instruments.
-- **Modal Explorer**: Visualize every musical scale, from standard Major/Minor to complex Eastern Ragas.
-- **Precision Metronome**: Sample-accurate timing (40–300 BPM) with visual pulse cues and tap-tempo.
+Guitariz is engineered for performance and scalability, utilizing a decoupled architecture that separates high-frequency UI interactions from intensive AI computations.
 
-### 🧠 AI-Powered Song Analysis
-- **Vocal/Instrumental Splitter**: Leverages SOTA models (Demucs) to isolate stems for karaoke or transcription.
-- **Chord AI Timeline**: Automatically detect chords, key, and tempo from any uploaded audio file.
-- **High-Fidelity Waveform Preview**: Interactive seeking and synchronized playback for analysis.
+```mermaid
+graph TD
+    subgraph "Client Tier (React/TS)"
+        UI["Modern Glassmorphism UI"] --> Engine["Web Audio API Engine"]
+        Engine --> Theory["Harmonic Matrix (Tonal.js)"]
+    end
+    
+    subgraph "Service Tier (FastAPI/PyTorch)"
+        API["FastAPI Entrypoint"] --> Demucs["Meta Demucs (Source Separation)"]
+        API --> Madmom["Hidden Markov Models (Chord AI)"]
+    end
+    
+    UI <-->|HTTPS/XHR| API
+    UI -->|PWA| LocalStorage["Persistent State"]
+```
+
+---
+
+## 🌟 Features
+
+### 🎹 High-Fidelity Instrument Engine
+*   **Virtual Fretboard**: 24-fret guitar simulation with real-time interval labeling and custom tuning support.
+*   **Piano Matrix**: 88-key responsive keyboard featuring polyphonic MIDI-style playback.
+*   **Tactile Controls**: Comprehensive QWERTY mapping for fluid, instrument-like input.
+
+### 🔬 AI Harmonic Laboratory
+*   **Source Separation**: Isolate vocals, bass, and drums from any track using industry-standard **Demucs** models.
+*   **Intelligent Chord AI**: Automated harmonic analysis providing a time-synced chord progression from raw audio.
+*   **Live Waveform Analysis**: High-precision Peak-detection and visualization for detailed audio study.
+
+### 🎼 Music Theory Toolkit
+*   **Modal Explorer**: Visualize Western and Eastern modal systems across the circle of fifths.
+*   **Precision Metronome**: Sample-accurate pulse engine with tap-tempo and complex signature support.
+*   **Interactive Theory Maps**: Real-time visualization of harmonic relationships as you play.
 
 ---
 
 ## 🚀 Quick Start
 
-### Frontend Development
-
-Ensure you have [Node.js](https://nodejs.org/) installed.
+### 1. Developer Environment (Frontend)
+Ensure you have Node.js 18+ and npm installed.
 
 ```bash
 # Clone the repository
 git clone https://github.com/abhi9vaidya/guitariz.git
 cd guitariz
 
-# Install dependencies
+# Install & Run
 npm install
-
-# Start the development server
 npm run dev
 ```
 
-### AI Backend (Optional)
-
-The backend enables Demucs stem separation and advanced ML chord analysis.
+### 2. AI Intelligence Layer (Backend)
+Required for source separation and ML chord detection.
 
 ```bash
 cd backend
-
-# Setup virtual environment
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-# Install requirements & start
+# Windows: .venv/Scripts/activate | MacOS: source .venv/bin/activate
 pip install -r requirements.txt
 python main.py
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## � Project Structure
 
-| Frontend | Backend | DevOps |
-| :--- | :--- | :--- |
-| **Framework**: React 18 (Vite) | **API**: FastAPI (Python) | **Deployment**: Vercel (FE) |
-| **Logic**: TypeScript | **ML**: PyTorch + Demucs | **CI/CD**: GitHub Actions |
-| **Styling**: Tailwind CSS | **Audio**: Librosa + Madmom | **Linting**: ESLint + Ruff |
-| **Motion**: Framer Motion | **Server**: Uvicorn | **Standard**: shadcn/ui |
-
----
-
-## 🗺️ Project Roadmap
-- [x] Version 1.6.1: Full Linting Compliance & Performance Audit.
-- [ ] Adaptive MIDI Input Support.
-- [ ] User Cloud Profiles for Saved Chords/Scales.
-- [ ] Mobile PWA Optimization.
+| Directory | Responsibility |
+| :-- | :-- |
+| `src/components/` | Reusable React components & UI Atomic units. |
+| `src/hooks/` | Custom hooks for Audio Context & State Management. |
+| `src/lib/` | Core logic for harmonic analysis and audio processing. |
+| `backend/` | Python-based AI microservice and ML models. |
+| `public/` | Static assets, icons, and PWA manifests. |
 
 ---
 
-## 🤝 Contributing
+## �️ Tech Stack & Standards
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+*   **Design**: Glassmorphism, Tailwind CSS, shadcn/ui.
+*   **State**: React Hooks, Context API.
+*   **Audio**: Web Audio API (Client side), Librosa (Server side).
+*   **ML**: PyTorch, Meta Demucs, Hidden Markov Models.
+*   **Quality**: ESLint v9, TypeScript 5.8, Vitest for Unit Testing.
 
 ---
 
-## 📄 License
+## 🤝 Community & Contributing
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Guitariz is an open-source project and thrives on community feedback.
 
-## 👥 Author
+1.  **Fork** the project.
+2.  Create your **Feature Branch** (`git checkout -b feature/NewInstrument`).
+3.  **Commit** your changes (`git commit -m 'feat: Add Cello support'`).
+4.  **Push** to the branch (`git push origin feature/NewInstrument`).
+5.  Open a **Pull Request**.
 
-**Abhinav Vaidya**  
-- GitHub: [@abhi9vaidya](https://github.com/abhi9vaidya)  
-- Project Link: [Guitariz Studio](https://guitariz.studio)
+---
+
+## � License & Author
+
+Distributed under the **MIT License**. Created and maintained by **Abhinav Vaidya**.
 
 <div align="center">
-  <p>Built for musicians everywhere :))</p>
+  <p><b>Guitariz Studio — Harmonizing Technology & Music.</b></p>
+  <a href="https://github.com/abhi9vaidya">GitHub</a> • 
+  <a href="https://guitariz.studio">Website</a> • 
+  <a href="mailto:abhinav@guitariz.studio">Contact</a>
 </div>
