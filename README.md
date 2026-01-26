@@ -7,7 +7,7 @@
   <p><em>The Next-Generation Digital Workbench for Modern Musicians</em></p>
 
   <p align="center">
-    <img src="https://img.shields.io/badge/Release-v1.6.1-4A90E2?style=for-the-badge&logo=github" alt="Release" />
+    <img src="https://img.shields.io/badge/Release-v1.6.33-4A90E2?style=for-the-badge&logo=github" alt="Release" />
     <img src="https://img.shields.io/badge/License-MIT-45B8D1?style=for-the-badge" alt="License" />
     <img src="https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript" alt="TS" />
@@ -132,9 +132,18 @@ Guitariz is an open-source project and thrives on community feedback.
 4.  **Push** to the branch (`git push origin feature/NewInstrument`).
 5.  Open a **Pull Request**.
 
+## 🎖️ Acknowledgements & Credits
+
+Guitariz Studio stands on the shoulders of giants in the music information retrieval (MIR) community. Special thanks to the authors of these pivotal libraries:
+
+*   **[Librosa](https://librosa.org/)**: For providing the technical foundation for server-side audio analysis and feature extraction.
+*   **[Madmom](https://github.com/CPJKU/madmom)**: For the high-level Hidden Markov Model implementations used in our Chord AI engine.
+*   **[Meta Demucs](https://github.com/facebookresearch/demucs)**: For the state-of-the-art source separation models that power our Vocal Splitter.
+*   **[Tonal.js](https://github.com/tonaljs/tonal)**: For providing the comprehensive harmonic matrix and interval logic on the client tier.
+
 ---
 
-## � License & Author
+## 📜 License & Author
 
 Distributed under the **MIT License**. Created and maintained by **Abhinav Vaidya**.
 
