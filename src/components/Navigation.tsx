@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const Navigation = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<unknown>(null);
@@ -135,24 +136,27 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1 relative">
+          <div className="hidden lg:flex items-center gap-1.5 p-1 bg-white/[0.03] rounded-xl border border-white/5 backdrop-blur-md">
             {navItems.map((item) => {
               const isActive = location.pathname.startsWith(item.path);
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all group ${isActive ? "text-white" : "text-muted-foreground hover:text-white"
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 group ${isActive ? "text-white" : "text-white/40 hover:text-white/70"
                     }`}
                 >
                   {isActive && (
                     <motion.div
-                      layoutId="nav-highlight"
-                      className="absolute inset-0 bg-white/10 rounded-lg border border-white/5 shadow-inner"
+                      layoutId="nav-pill"
+                      className="absolute inset-0 bg-white/10 rounded-lg border border-white/10 shadow-inner"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <item.icon className="w-4 h-4 relative z-10" />
+                  <item.icon className={cn(
+                    "w-3.5 h-3.5 relative z-10 transition-transform duration-300 group-hover:scale-110",
+                    isActive ? "text-primary" : "text-current"
+                  )} />
                   <span className="relative z-10">{item.label}</span>
                 </Link>
               );

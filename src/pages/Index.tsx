@@ -18,29 +18,7 @@ const toolCards = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen relative bg-background overflow-x-hidden selection:bg-white/10">
-      {/* Premium Dynamic Background */}
-      <div className="mesh-container">
-        <div className="absolute inset-0 bg-[#060606]" />
-        <motion.div
-          animate={{
-            x: [0, 100, -50, 0],
-            y: [0, -50, 100, 0],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="mesh-blob w-[600px] h-[600px] bg-blue-500/10 top-[-10%] left-[-10%]"
-        />
-        <motion.div
-          animate={{
-            x: [0, -100, 50, 0],
-            y: [0, 100, -50, 0],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="mesh-blob w-[500px] h-[500px] bg-purple-500/10 bottom-[-10%] right-[-10%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
-      </div>
+    <div className="min-h-screen relative bg-transparent overflow-x-hidden selection:bg-white/10">
 
       <Navigation />
 

@@ -38,7 +38,8 @@
   /* Premium Design Tokens */
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shine: rgba(255, 255, 255, 0.03);
-  --accent-glow: hsla(0, 0%, 100%, 0.1);
+  --accent-glow: hsla(210, 100%, 50%, 0.15);
+  --studio-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
 }
 
 @layer base {
@@ -200,6 +201,19 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+/* Premium High-Fidelity Utilities */
+.perspective-container {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.glass-pill {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full shadow-lg;
 }
 
 html {

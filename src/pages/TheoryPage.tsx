@@ -18,29 +18,7 @@ const TheoryPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden selection:bg-white/10">
-      {/* Premium Dynamic Background */}
-      <div className="mesh-container">
-        <div className="absolute inset-0 bg-[#060606]" />
-        <motion.div
-          animate={{
-            x: [0, 20, -10, 0],
-            y: [0, -10, 20, 0],
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="mesh-blob w-[600px] h-[600px] bg-rose-500/5 top-[-10%] left-[-10%]"
-        />
-        <motion.div
-          animate={{
-            x: [0, -20, 10, 0],
-            y: [0, 10, -20, 0],
-          }}
-          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-          className="mesh-blob w-[500px] h-[500px] bg-blue-500/5 bottom-[-10%] right-[-10%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
-      </div>
+    <div className="min-h-screen bg-transparent relative overflow-hidden selection:bg-white/10">
 
       <Navigation />
 

@@ -6,7 +6,7 @@ const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="relative z-10 border-t border-white/5 bg-[#0a0a0a] pt-16 pb-8">
+        <footer className="relative z-10 border-t border-white/5 bg-[#0a0a0a]/60 backdrop-blur-xl pt-16 pb-8">
             <div className="container mx-auto max-w-5xl px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-16">
                     {/* Brand Column */}
@@ -45,10 +45,10 @@ const Footer = () => {
                     <div>
                         <h4 className="font-semibold text-white mb-4">Connect</h4>
                         <div className="flex gap-4">
-                            <a href="https://github.com/abhi9vaidya" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-white transition-colors">
+                            <a href="https://github.com/abhi9vaidya/Guitariz" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-white transition-colors">
                                 <Github className="w-5 h-5" />
                             </a>
-                            <a href="https://twitter.com/abhi9_1535" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-white transition-colors">
+                            <a href="https://x.com/GuitarizStudio" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-white transition-colors">
                                 <Twitter className="w-5 h-5" />
                             </a>
                             <a href="mailto:guitariz.studio@gmail.com" className="text-muted-foreground hover:text-white transition-colors">
@@ -59,17 +59,10 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-xs text-muted-foreground">
+                <div className="pt-8 border-t border-white/5 flex justify-center">
+                    <p className="text-xs text-muted-foreground text-center">
                         © {currentYear} Guitariz Studio. MIT License.
                     </p>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Designed & Built by</span>
-                        <a href="https://linkedin.com/in/abhi9vaidya15" target="_blank" rel="noreferrer" className="text-white hover:underline flex items-center gap-1">
-                            Abhinav Vaidya
-                        </a>
-                    </div>
                 </div>
             </div>
         </footer>

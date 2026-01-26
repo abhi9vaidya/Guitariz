@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Keyboard, Info, Music, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useKeyboardFretboard } from "@/hooks/useKeyboardFretboard";
@@ -17,6 +17,7 @@ import { playNote, playChord } from "@/lib/chordAudio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const NOTES = ["E", "A", "D", "G", "B", "E"];
 const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -58,6 +59,39 @@ interface FretNote {
 
 const Fretboard = () => {
   const [highlightedNotes, setHighlightedNotes] = useState<FretNote[]>([]);
+  const instrumentRef = useRef<HTMLDivElement>(null);
+
+  // Motion values for 3D Tilt
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!instrumentRef.current) return;
+    const rect = instrumentRef.current.getBoundingClientRect();
+
+    const width = rect.width;
+    const height = rect.height;
+
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
 
   // Safe localStorage helpers (prevents crashes on malformed/corrupted values)
   const readJson = <T,>(key: string, fallback: T): T => {
@@ -469,28 +503,52 @@ const Fretboard = () => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-transparent p-0">
+    <div className="relative overflow-visible bg-transparent p-0 perspective-container">
       <div className="relative z-10 p-4 md:p-8">
         {/* Modern Control Panel */}
-        <div className="flex flex-wrap items-center justify-between gap-6 mb-8 bg-white/[0.03] border border-white/5 p-4 rounded-2xl backdrop-blur-md">
-          <div className="flex items-center gap-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center justify-between gap-6 mb-8 bg-white/[0.03] border border-white/5 p-4 rounded-2xl backdrop-blur-md shadow-2xl"
+        >
+          <div className="flex items-center p-1.5 bg-black/40 rounded-xl border border-white/5 backdrop-blur-sm self-start">
             <button
               onClick={() => setPianoMode(false)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!pianoMode
-                ? "bg-white/10 text-white shadow-inner border border-white/10"
-                : "text-muted-foreground hover:text-white hover:bg-white/5"
-                }`}
+              className={cn(
+                "relative px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                !pianoMode ? "text-white" : "text-white/40 hover:text-white/70"
+              )}
             >
-              Guitar Fretboard
+              {!pianoMode && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="absolute inset-0 bg-white/10 rounded-lg border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Music className="w-3.5 h-3.5" />
+                Guitar
+              </span>
             </button>
             <button
               onClick={() => setPianoMode(true)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${pianoMode
-                ? "bg-white/10 text-white shadow-inner border border-white/10"
-                : "text-muted-foreground hover:text-white hover:bg-white/5"
-                }`}
+              className={cn(
+                "relative px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                pianoMode ? "text-white" : "text-white/40 hover:text-white/70"
+              )}
             >
-              Piano Keys
+              {pianoMode && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="absolute inset-0 bg-white/10 rounded-lg border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Keyboard className="w-3.5 h-3.5" />
+                Piano
+              </span>
             </button>
           </div>
 
@@ -546,7 +604,7 @@ const Fretboard = () => {
               <Info className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Keyboard Help Overlay */}
         <KeyboardHelpOverlay
@@ -566,375 +624,431 @@ const Fretboard = () => {
         </div>
 
         {/* Main instrument display */}
-        <div className="bg-black/40 border border-white/5 rounded-[2rem] p-4 md:p-12 mb-8 backdrop-blur-md shadow-2xl overflow-hidden ring-1 ring-white/10">
-          {pianoMode ? (
-            <div className="w-full flex flex-col items-center">
-              {/* Piano Play Area */}
-              <div className="w-full overflow-x-auto pb-6 custom-scrollbar">
-                <div className="flex justify-center min-w-max px-4">
-                  <div className="relative">
-                    {/* Background glow for active notes */}
-                    {(pianoNotes.length > 0 || pianoActiveNotes.length > 0) && (
-                      <div className="absolute -inset-4 bg-primary/20 blur-[80px] opacity-40 z-0 animate-pulse"></div>
-                    )}
-                    <div className="relative z-10">
-                      <PianoKeyboard
-                        startOctave={pianoOctaveShift + 4}
-                        numOctaves={2}
-                        activeNotes={[...new Set([...pianoNotes, ...pianoActiveNotes.map(entry => entry[0])])]}
-                        onNoteClick={handlePianoNoteClick}
-                      />
+        <motion.div
+          ref={instrumentRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+          }}
+          className="bg-black/40 border border-white/5 rounded-[2rem] p-4 md:p-12 mb-8 backdrop-blur-md shadow-2xl overflow-hidden ring-1 ring-white/10 group transition-all duration-500 ease-out"
+        >
+          <AnimatePresence mode="wait">
+            {pianoMode ? (
+              <motion.div
+                key="piano"
+                initial={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 1.02, filter: "blur(10px)" }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full flex flex-col items-center"
+              >
+                {/* Piano Play Area */}
+                <div className="w-full overflow-x-auto pb-6 custom-scrollbar">
+                  <div className="flex justify-center min-w-max px-4">
+                    <div className="relative">
+                      {/* Background glow for active notes */}
+                      {(pianoNotes.length > 0 || pianoActiveNotes.length > 0) && (
+                        <div className="absolute -inset-4 bg-primary/20 blur-[80px] opacity-40 z-0 animate-pulse"></div>
+                      )}
+                      <div className="relative z-10">
+                        <PianoKeyboard
+                          startOctave={pianoOctaveShift + 4}
+                          numOctaves={2}
+                          activeNotes={[...new Set([...pianoNotes, ...pianoActiveNotes.map(entry => entry[0])])]}
+                          onNoteClick={handlePianoNoteClick}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Quick Controls */}
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-6 p-5 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm shadow-xl">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-all duration-300",
-                    sustained ? "bg-primary shadow-[0_0_10px_var(--primary)]" : "bg-white/10"
-                  )} />
-                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Sustain</span>
-                  <Switch checked={sustained} onCheckedChange={setSustained} />
-                </div>
+                {/* Quick Controls */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-10 flex flex-wrap items-center justify-center gap-6 p-5 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-2xl relative overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                <div className="h-4 w-px bg-white/10" />
-
-                <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Octave Shift</span>
-                  <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
-                    <button
-                      onClick={() => setPianoOctaveShift(prev => Math.max(-2, prev - 1))}
-                      className="w-9 h-9 flex items-center justify-center hover:bg-white/10 active:bg-white/20 rounded-lg transition-all text-white font-bold"
-                    >−</button>
-                    <span className="px-4 py-1 text-sm font-mono font-bold text-primary min-w-[3.5rem] text-center">
-                      {pianoOctaveShift > 0 ? `+${pianoOctaveShift}` : pianoOctaveShift}
-                    </span>
-                    <button
-                      onClick={() => setPianoOctaveShift(prev => Math.min(2, prev + 1))}
-                      className="w-9 h-9 flex items-center justify-center hover:bg-white/10 active:bg-white/20 rounded-lg transition-all text-white font-bold"
-                    >+</button>
+                  <div className="flex items-center gap-3 relative z-10">
+                    <div className={cn(
+                      "w-2.5 h-2.5 rounded-full transition-all duration-500",
+                      sustained ? "bg-primary shadow-[0_0_15px_var(--primary)]" : "bg-white/10"
+                    )} />
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Sustain</span>
+                    <Switch checked={sustained} onCheckedChange={setSustained} className="scale-90" />
                   </div>
+
+                  <div className="h-5 w-px bg-white/10 hidden sm:block" />
+
+                  <div className="flex items-center gap-5 relative z-10">
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Octave Map</span>
+                    <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10 shadow-lg">
+                      <motion.button
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setPianoOctaveShift(prev => Math.max(-2, prev - 1))}
+                        className="w-10 h-10 flex items-center justify-center rounded-lg transition-all text-white font-black text-lg"
+                      >−</motion.button>
+                      <div className="px-6 py-1 bg-white/5 rounded-md mx-1 border border-white/5">
+                        <span className="text-sm font-mono font-black text-primary min-w-[3.5rem] text-center drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]">
+                          {pianoOctaveShift > 0 ? `+${pianoOctaveShift}` : pianoOctaveShift}
+                        </span>
+                      </div>
+                      <motion.button
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setPianoOctaveShift(prev => Math.min(2, prev + 1))}
+                        className="w-10 h-10 flex items-center justify-center rounded-lg transition-all text-white font-black text-lg"
+                      >+</motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="guitar"
+                initial={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 1.02, filter: "blur(10px)" }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="relative overflow-x-auto custom-scrollbar"
+              >
+                <div className="md:hidden text-[10px] text-center text-muted-foreground/50 mb-2 animate-pulse font-mono tracking-widest uppercase">
+                  ← Scroll Fretboard →
                 </div>
-              </div>
-            </div>
-          ) : (
-            <div className="relative overflow-x-auto custom-scrollbar">
-              <div className="md:hidden text-[10px] text-center text-muted-foreground/50 mb-2 animate-pulse font-mono tracking-widest uppercase">
-                ← Scroll Fretboard →
-              </div>
-              <div className="min-w-[800px] py-4">
-                {/* Fret markers */}
-                <div className="absolute top-0 left-0 right-0 flex px-12 h-6 items-center">
-                  {/* Markers aligned to the same flex grid as the frets */}
-                  <div className="w-10" />
-                  {Array.from({ length: FRETS }).map((_, fretIdx) => {
-                    const fretNumber = fretIdx + 1;
-                    return (
-                      <div key={fretNumber} className="flex-1 flex justify-center">
-                        {fretNumber === 12 ? (
-                          <div className="flex flex-col gap-1">
-                            <div className="w-1 h-1 rounded-full bg-white/30" />
-                            <div className="w-1 h-1 rounded-full bg-white/30" />
+                <div className="min-w-[800px] py-4">
+                  {/* Fret markers */}
+                  <div className="absolute top-0 left-0 right-0 flex px-12 h-6 items-center">
+                    {/* Markers aligned to the same flex grid as the frets */}
+                    <div className="w-10" />
+                    {Array.from({ length: FRETS }).map((_, fretIdx) => {
+                      const fretNumber = fretIdx + 1;
+                      return (
+                        <div key={fretNumber} className="flex-1 flex justify-center">
+                          {fretNumber === 12 ? (
+                            <div className="flex flex-col gap-1">
+                              <div className="w-1 h-1 rounded-full bg-white/30" />
+                              <div className="w-1 h-1 rounded-full bg-white/30" />
+                            </div>
+                          ) : MARKER_FRETS.has(fretNumber) ? (
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Fretboard */}
+                  <div className="space-y-4 mt-8">
+                    {NOTES.map((openNote, stringIndex) => (
+                      <div key={stringIndex} className="flex items-center gap-2">
+                        {/* Open string note */}
+                        <div className="w-10 text-center font-bold text-xs text-muted-foreground/50 italic">
+                          {openNote}
+                        </div>
+
+                        {/* Frets */}
+                        <div className="flex-1 flex items-center relative h-10">
+                          {/* String line */}
+                          <div
+                            className="absolute left-0 right-0 h-[1.5px] bg-white/10"
+                            style={{ top: "50%" }}
+                          />
+
+                          {/* Nut (fret 0) */}
+                          <div className="relative w-10 h-10 flex items-center justify-center">
+                            {(() => {
+                              const note = getNoteAtFret(stringIndex, 0);
+                              const scaleLabel = getScaleLabelForNote(note);
+                              const isInScale = getScaleContext.enabled && !!scaleLabel;
+                              const isRoot = isInScale && note === scaleRoot;
+                              const isDimmed = getScaleContext.enabled && focusScale && !isInScale;
+                              const isActive = isKeyboardActive(stringIndex, 0);
+                              const isHighlighted = isNoteHighlighted(stringIndex, 0);
+                              const isHovered = isNoteHovered(stringIndex, 0);
+
+                              return (
+                                <motion.button
+                                  whileHover={{ scale: 1.15, shadow: "0 0 20px rgba(255,255,255,0.2)" }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => toggleNote(stringIndex, 0)}
+                                  onMouseEnter={() => {
+                                    setHovered({ string: stringIndex, fret: 0 });
+                                    if (!pianoMode && hoverPreviewEnabled) previewNote(stringIndex, 0);
+                                  }}
+                                  onMouseLeave={() => setHovered(null)}
+                                  className={cn(
+                                    "relative w-9 h-9 rounded-full border-2 transition-all duration-300 group z-10",
+                                    isHighlighted
+                                      ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+                                      : isActive
+                                        ? "bg-primary border-primary text-primary-foreground shadow-[0_0_20px_hsla(var(--primary),0.5)]"
+                                        : isInScale
+                                          ? isRoot
+                                            ? "border-primary bg-primary/30 text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                                            : "border-accent/60 bg-accent/20 text-white hover:border-accent"
+                                          : isDimmed
+                                            ? "border-white/5 opacity-20 filter grayscale"
+                                            : "border-white/10 hover:border-white/30 bg-white/5 text-white/70",
+                                    isHovered && !isDimmed ? "ring-2 ring-white/20 ring-offset-2 ring-offset-black/50" : ""
+                                  )}
+                                >
+                                  <motion.span
+                                    layout
+                                    className={cn(
+                                      "text-[11px] font-black transition-opacity",
+                                      isDimmed ? "opacity-0" : "opacity-100",
+                                      isHighlighted ? "text-black" : ""
+                                    )}
+                                  >
+                                    {getScaleContext.enabled && showIntervals ? (scaleLabel ?? note) : note}
+                                  </motion.span>
+                                  {isActive && (
+                                    <motion.span
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-black text-primary uppercase tracking-tighter bg-black/90 px-1.5 rounded shadow-xl border border-primary/20"
+                                    >
+                                      {getActiveKey(stringIndex, 0)}
+                                    </motion.span>
+                                  )}
+                                </motion.button>
+                              );
+                            })()}
                           </div>
-                        ) : MARKER_FRETS.has(fretNumber) ? (
-                          <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                        ) : null}
-                      </div>
-                    );
-                  })}
-                </div>
 
-                {/* Fretboard */}
-                <div className="space-y-4 mt-8">
-                  {NOTES.map((openNote, stringIndex) => (
-                    <div key={stringIndex} className="flex items-center gap-2">
-                      {/* Open string note */}
-                      <div className="w-10 text-center font-bold text-xs text-muted-foreground/50 italic">
-                        {openNote}
-                      </div>
-
-                      {/* Frets */}
-                      <div className="flex-1 flex items-center relative h-10">
-                        {/* String line */}
-                        <div
-                          className="absolute left-0 right-0 h-[1.5px] bg-white/10"
-                          style={{ top: "50%" }}
-                        />
-
-                        {/* Nut (fret 0) */}
-                        <div className="relative w-10 h-10 flex items-center justify-center">
-                          {(() => {
-                            const note = getNoteAtFret(stringIndex, 0);
+                          {/* Frets 1-12 */}
+                          {Array.from({ length: FRETS }).map((_, fret) => {
+                            const fretNumber = fret + 1;
+                            const note = getNoteAtFret(stringIndex, fretNumber);
                             const scaleLabel = getScaleLabelForNote(note);
                             const isInScale = getScaleContext.enabled && !!scaleLabel;
                             const isRoot = isInScale && note === scaleRoot;
                             const isDimmed = getScaleContext.enabled && focusScale && !isInScale;
-                            const isActive = isKeyboardActive(stringIndex, 0);
-                            const isHighlighted = isNoteHighlighted(stringIndex, 0);
-                            const isHovered = isNoteHovered(stringIndex, 0);
+                            const isActive = isKeyboardActive(stringIndex, fretNumber);
+                            const isHighlighted = isNoteHighlighted(stringIndex, fretNumber);
+                            const isHovered = isNoteHovered(stringIndex, fretNumber);
 
                             return (
-                              <button
-                                onClick={() => toggleNote(stringIndex, 0)}
-                                onMouseEnter={() => {
-                                  setHovered({ string: stringIndex, fret: 0 });
-                                  if (!pianoMode && hoverPreviewEnabled) previewNote(stringIndex, 0);
-                                }}
-                                onMouseLeave={() => setHovered(null)}
-                                className={cn(
-                                  "relative w-8 h-8 rounded-full border-2 transition-all duration-200 group z-10",
-                                  isHighlighted
-                                    ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.4)]"
-                                    : isActive
-                                      ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_hsla(var(--primary),0.4)]"
-                                      : isInScale
-                                        ? isRoot
-                                          ? "border-primary bg-primary/30 text-primary-foreground shadow-[0_0_10px_rgba(var(--primary),0.2)]"
-                                          : "border-accent/60 bg-accent/20 text-white hover:border-accent"
-                                        : isDimmed
-                                          ? "border-white/5 opacity-20 filter grayscale"
-                                          : "border-white/10 hover:border-white/30 bg-white/5 text-white/70",
-                                  isHovered && !isDimmed ? "ring-2 ring-white/15" : ""
-                                )}
-                              >
-                                <span className={cn(
-                                  "text-[10px] font-bold transition-opacity",
-                                  isDimmed ? "opacity-0" : "opacity-100",
-                                  isHighlighted ? "text-black" : ""
-                                )}>
-                                  {getScaleContext.enabled && showIntervals ? (scaleLabel ?? note) : note}
-                                </span>
-                                {isActive && (
-                                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-black text-primary uppercase tracking-tighter bg-black/80 px-1 rounded">
-                                    {getActiveKey(stringIndex, 0)}
-                                  </span>
-                                )}
-                              </button>
+                              <div key={fretNumber} className="relative flex-1 flex items-center justify-center h-10">
+                                {/* Fret wire */}
+                                <div className="absolute left-0 w-[1.5px] h-10 bg-white/10" />
+
+                                <motion.button
+                                  whileHover={{ scale: 1.15, shadow: "0 0 20px rgba(255,255,255,0.2)" }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => toggleNote(stringIndex, fretNumber)}
+                                  onMouseEnter={() => {
+                                    setHovered({ string: stringIndex, fret: fretNumber });
+                                    if (!pianoMode && hoverPreviewEnabled) previewNote(stringIndex, fretNumber);
+                                  }}
+                                  onMouseLeave={() => setHovered(null)}
+                                  className={cn(
+                                    "relative w-9 h-9 rounded-full border-2 transition-all duration-300 group z-10",
+                                    isHighlighted
+                                      ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+                                      : isActive
+                                        ? "bg-primary border-primary text-primary-foreground shadow-[0_0_20px_hsla(var(--primary),0.5)]"
+                                        : isInScale
+                                          ? isRoot
+                                            ? "border-primary bg-primary/30 text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                                            : "border-accent/60 bg-accent/20 text-white hover:border-accent"
+                                          : isDimmed
+                                            ? "border-white/5 opacity-20 filter grayscale"
+                                            : "border-white/10 hover:border-white/30 bg-white/5 text-white/70",
+                                    isHovered && !isDimmed ? "ring-2 ring-white/20 ring-offset-2 ring-offset-black/50" : ""
+                                  )}
+                                >
+                                  <motion.span
+                                    layout
+                                    className={cn(
+                                      "text-[11px] font-black transition-opacity",
+                                      isDimmed ? "opacity-0" : "opacity-100",
+                                      isHighlighted ? "text-black" : ""
+                                    )}
+                                  >
+                                    {getScaleContext.enabled && showIntervals ? (scaleLabel ?? note) : note}
+                                  </motion.span>
+                                  {isActive && (
+                                    <motion.span
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-black text-primary uppercase tracking-tighter bg-black/90 px-1.5 rounded shadow-xl border border-primary/20"
+                                    >
+                                      {getActiveKey(stringIndex, fretNumber)}
+                                    </motion.span>
+                                  )}
+                                </motion.button>
+                              </div>
                             );
-                          })()}
+                          })}
                         </div>
-
-                        {/* Frets 1-12 */}
-                        {Array.from({ length: FRETS }).map((_, fret) => {
-                          const fretNumber = fret + 1;
-                          const note = getNoteAtFret(stringIndex, fretNumber);
-                          const scaleLabel = getScaleLabelForNote(note);
-                          const isInScale = getScaleContext.enabled && !!scaleLabel;
-                          const isRoot = isInScale && note === scaleRoot;
-                          const isDimmed = getScaleContext.enabled && focusScale && !isInScale;
-                          const isActive = isKeyboardActive(stringIndex, fretNumber);
-                          const isHighlighted = isNoteHighlighted(stringIndex, fretNumber);
-                          const isHovered = isNoteHovered(stringIndex, fretNumber);
-
-                          return (
-                            <div key={fretNumber} className="relative flex-1 flex items-center justify-center h-10">
-                              {/* Fret wire */}
-                              <div className="absolute left-0 w-[1.5px] h-10 bg-white/10" />
-
-                              <button
-                                onClick={() => toggleNote(stringIndex, fretNumber)}
-                                onMouseEnter={() => {
-                                  setHovered({ string: stringIndex, fret: fretNumber });
-                                  if (!pianoMode && hoverPreviewEnabled) previewNote(stringIndex, fretNumber);
-                                }}
-                                onMouseLeave={() => setHovered(null)}
-                                className={cn(
-                                  "relative w-8 h-8 rounded-full border-2 transition-all duration-200 group z-10",
-                                  isHighlighted
-                                    ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.4)]"
-                                    : isActive
-                                      ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_hsla(var(--primary),0.4)]"
-                                      : isInScale
-                                        ? isRoot
-                                          ? "border-primary bg-primary/30 text-primary-foreground shadow-[0_0_10px_rgba(var(--primary),0.2)]"
-                                          : "border-accent/60 bg-accent/20 text-white hover:border-accent"
-                                        : isDimmed
-                                          ? "border-white/5 opacity-20 filter grayscale"
-                                          : "border-white/5 hover:border-white/20 bg-white/[0.02] text-white/70",
-                                  isHovered && !isDimmed ? "ring-2 ring-white/15" : ""
-                                )}
-                              >
-                                <span className={cn(
-                                  "text-[10px] font-bold transition-opacity",
-                                  isDimmed ? "opacity-0" : "opacity-100",
-                                  isHighlighted ? "text-black" : ""
-                                )}>
-                                  {getScaleContext.enabled && showIntervals ? (scaleLabel ?? note) : note}
-                                </span>
-                                {isActive && (
-                                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-black text-primary uppercase tracking-tighter bg-black/80 px-1 rounded">
-                                    {getActiveKey(stringIndex, fretNumber)}
-                                  </span>
-                                )}
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Fret numbers */}
-                  <div className="flex items-center gap-2 mt-6 pl-12">
-                    <div className="w-10 text-center text-[10px] font-bold text-muted-foreground/30">0</div>
-                    {Array.from({ length: FRETS }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 text-center text-[10px] font-bold text-muted-foreground/30"
-                      >
-                        {i + 1}
                       </div>
                     ))}
+
+                    {/* Fret numbers */}
+                    <div className="flex items-center gap-2 mt-6 pl-12">
+                      <div className="w-10 text-center text-[10px] font-bold text-muted-foreground/30">0</div>
+                      {Array.from({ length: FRETS }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex-1 text-center text-[10px] font-bold text-muted-foreground/30"
+                        >
+                          {i + 1}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
-          {/* Dynamic Status/Detection Bar */}
-          {(highlightedNotes.length > 0 || pianoNotes.length > 0) && (
-            <div className="mt-8 pt-6 border-t border-white/5 mb-8">
-              <ChordDetectionPanel
-                candidates={chordDetectionResult.candidates}
-                selectedNotes={chordDetectionResult.noteNames}
+        {/* Dynamic Status/Detection Bar */}
+        {(highlightedNotes.length > 0 || pianoNotes.length > 0) && (
+          <div className="mt-8 pt-6 border-t border-white/5 mb-8">
+            <ChordDetectionPanel
+              candidates={chordDetectionResult.candidates}
+              selectedNotes={chordDetectionResult.noteNames}
+            />
+          </div>
+        )}
+
+        {/* Modern Settings Panel (Moved to bottom) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
+          {/* Mode-specific settings */}
+          {pianoMode ? (
+            <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl">
+              <PianoSettings
+                keyboardPreset={pianoKeyboardPreset}
+                onKeyboardPresetChange={setPianoKeyboardPreset}
+                sustained={sustained}
+                onSustainChange={toggleSustain}
+                onClear={clearHighlights}
+                octaveShift={pianoOctaveShift}
+              />
+            </div>
+          ) : (
+            <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl" role="region" aria-label="Keyboard settings">
+              <KeyboardSettings
+                keymap={keymap}
+                strumSpeed={strumSpeed}
+                velocityProfile={velocityProfile}
+                chordMode={chordMode}
+                onKeymapChange={setKeymap}
+                onStrumSpeedChange={setStrumSpeed}
+                onVelocityProfileChange={setVelocityProfile}
+                onChordModeChange={setChordMode}
               />
             </div>
           )}
 
-          {/* Modern Settings Panel (Moved to bottom) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
-            {/* Mode-specific settings */}
-            {pianoMode ? (
-              <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl">
-                <PianoSettings
-                  keyboardPreset={pianoKeyboardPreset}
-                  onKeyboardPresetChange={setPianoKeyboardPreset}
-                  sustained={sustained}
-                  onSustainChange={toggleSustain}
-                  onClear={clearHighlights}
-                  octaveShift={pianoOctaveShift}
-                />
+          {/* Scale Theory Settings */}
+          <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Search className="w-5 h-5 text-primary" />
               </div>
-            ) : (
-              <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl" role="region" aria-label="Keyboard settings">
-                <KeyboardSettings
-                  keymap={keymap}
-                  strumSpeed={strumSpeed}
-                  velocityProfile={velocityProfile}
-                  chordMode={chordMode}
-                  onKeymapChange={setKeymap}
-                  onStrumSpeedChange={setStrumSpeed}
-                  onVelocityProfileChange={setVelocityProfile}
-                  onChordModeChange={setChordMode}
-                />
-              </div>
-            )}
+              <h3 className="text-xl font-semibold text-white tracking-tight">Theory & Visuals</h3>
+            </div>
 
-            {/* Scale Theory Settings */}
-            <div className="glass-card rounded-2xl p-6 border-primary/30 shadow-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Search className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-white tracking-tight">Theory & Visuals</h3>
-              </div>
-
-              <div className="space-y-6">
-                {/* UX settings (fretboard mode) */}
-                {!pianoMode ? (
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                      <div className="space-y-0.5">
-                        <Label className="text-sm font-semibold text-white">Scale overlay</Label>
-                        <p className="text-[11px] text-muted-foreground">Highlight scale tones across the fretboard.</p>
-                      </div>
-                      <Switch checked={scaleOverlayEnabled} onCheckedChange={setScaleOverlayEnabled} />
+            <div className="space-y-6">
+              {/* UX settings (fretboard mode) */}
+              {!pianoMode ? (
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-semibold text-white">Scale overlay</Label>
+                      <p className="text-[11px] text-muted-foreground">Highlight scale tones across the fretboard.</p>
                     </div>
+                    <Switch checked={scaleOverlayEnabled} onCheckedChange={setScaleOverlayEnabled} />
+                  </div>
 
-                    {scaleOverlayEnabled && (
-                      <div className="space-y-5 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Scale root</Label>
-                            <Select value={scaleRoot} onValueChange={setScaleRoot}>
-                              <SelectTrigger className="bg-white/5 border-white/10 hover:border-white/20 transition-colors h-10">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {CHROMATIC.map(n => (
-                                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Scale type</Label>
-                            <Select value={scaleType} onValueChange={setScaleType}>
-                              <SelectTrigger className="bg-white/5 border-white/10 hover:border-white/20 transition-colors h-10">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.keys(SCALE_DEFS).map(name => (
-                                  <SelectItem key={name} value={name}>{name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                  {scaleOverlayEnabled && (
+                    <div className="space-y-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Scale root</Label>
+                          <Select value={scaleRoot} onValueChange={setScaleRoot}>
+                            <SelectTrigger className="bg-white/5 border-white/10 hover:border-white/20 transition-colors h-10">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CHROMATIC.map(n => (
+                                <SelectItem key={n} value={n}>{n}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3">
-                          <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-white/90">Show intervals</p>
-                              <p className="text-[10px] text-muted-foreground">Display R, b3, 5… instead of note names.</p>
-                            </div>
-                            <Switch checked={showIntervals} onCheckedChange={setShowIntervals} />
-                          </div>
-
-                          <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-white/90">Highlight mode</p>
-                              <p className="text-[10px] text-muted-foreground">Dim notes that are not in the selected scale.</p>
-                            </div>
-                            <Switch checked={focusScale} onCheckedChange={setFocusScale} />
-                          </div>
-
-                          <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-white/90">Hover preview</p>
-                              <p className="text-[10px] text-muted-foreground">Hover a fret to preview its sound.</p>
-                            </div>
-                            <Switch checked={hoverPreviewEnabled} onCheckedChange={setHoverPreviewEnabled} />
-                          </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Scale type</Label>
+                          <Select value={scaleType} onValueChange={setScaleType}>
+                            <SelectTrigger className="bg-white/5 border-white/10 hover:border-white/20 transition-colors h-10">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(SCALE_DEFS).map(name => (
+                                <SelectItem key={name} value={name}>{name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 opacity-50">
-                    <Music className="w-12 h-12 text-muted-foreground/20" />
-                    <p className="text-sm text-muted-foreground max-w-[200px]">Theory overlays are optimized for Fretboard mode.</p>
-                  </div>
-                )}
-              </div>
+
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
+                          <div>
+                            <p className="text-sm font-medium text-white/90">Show intervals</p>
+                            <p className="text-[10px] text-muted-foreground">Display R, b3, 5… instead of note names.</p>
+                          </div>
+                          <Switch checked={showIntervals} onCheckedChange={setShowIntervals} />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
+                          <div>
+                            <p className="text-sm font-medium text-white/90">Highlight mode</p>
+                            <p className="text-[10px] text-muted-foreground">Dim notes that are not in the selected scale.</p>
+                          </div>
+                          <Switch checked={focusScale} onCheckedChange={setFocusScale} />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
+                          <div>
+                            <p className="text-sm font-medium text-white/90">Hover preview</p>
+                            <p className="text-[10px] text-muted-foreground">Hover a fret to preview its sound.</p>
+                          </div>
+                          <Switch checked={hoverPreviewEnabled} onCheckedChange={setHoverPreviewEnabled} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 opacity-50">
+                  <Music className="w-12 h-12 text-muted-foreground/20" />
+                  <p className="text-sm text-muted-foreground max-w-[200px]">Theory overlays are optimized for Fretboard mode.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {showDebug && (
-          <div className="mb-8 p-6 rounded-2xl bg-red-950/10 border border-red-500/20 animate-in fade-in slide-in-from-top-4">
-            <ChordDebugPanel
-              midiNotes={chordDetectionResult.midiNotes}
-              candidates={chordDetectionResult.candidates}
-              mode={pianoMode ? 'piano' : 'fretboard'}
-            />
-          </div>
-        )}
       </div>
+
+      {showDebug && (
+        <div className="mb-8 p-6 rounded-2xl bg-red-950/10 border border-red-500/20 animate-in fade-in slide-in-from-top-4">
+          <ChordDebugPanel
+            midiNotes={chordDetectionResult.midiNotes}
+            candidates={chordDetectionResult.candidates}
+            mode={pianoMode ? 'piano' : 'fretboard'}
+          />
+        </div>
+      )}
     </div>
   );
 };
