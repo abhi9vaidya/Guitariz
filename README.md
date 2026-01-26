@@ -142,5 +142,5 @@ Distributed under the **MIT License**. Created and maintained by **Abhinav Vaidy
   <p><b>Guitariz Studio — Harmonizing Technology & Music.</b></p>
   <a href="https://github.com/abhi9vaidya">GitHub</a> • 
   <a href="https://guitariz.studio">Website</a> • 
-  <a href="mailto:abhinav@guitariz.studio">Contact</a>
+  <a href="mailto:guitariz.studio@gmail.com">Contact</a>
 </div>
