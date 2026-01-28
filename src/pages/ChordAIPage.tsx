@@ -15,7 +15,7 @@ import { findChordByName, chordLibraryData } from "@/data/chordData";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
-import { Bot, Upload, Pause, Play, Activity, Settings2, Sparkles, Wand2, Download, History, Trash2, Music2 } from "lucide-react";
+import { Bot, Upload, Pause, Play, Activity, Settings2, Sparkles, Wand2, Download, History, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChordAISkeleton } from "@/components/ui/SkeletonLoader";
 import { transposeChord, transposeKey } from "@/lib/transposition";
@@ -452,8 +452,8 @@ const ChordAIPage = () => {
                     )}
 
                     {/* Controls Interface */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-6">
+                    <div className="flex flex-wrap items-center justify-between gap-6">
+                      <div className="flex items-center gap-6 min-w-fit">
                         <Button
                           size="icon"
                           className="w-16 h-16 rounded-3xl bg-white text-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -494,87 +494,89 @@ const ChordAIPage = () => {
                         </div>
                       </div>
 
-                      {/* Audio Controls */}
-                      <div className="flex items-center gap-4">
-                        {/* Transposition Control */}
-                        <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
-                          <div className="flex flex-col items-center gap-1 min-w-[3rem]">
-                            <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
-                              Transpose
-                            </Label>
-                            <span className={cn(
-                              "text-xs font-mono font-bold",
-                              transpose > 0 ? "text-green-400" : transpose < 0 ? "text-red-400" : "text-white"
-                            )}>
-                              {transpose > 0 ? "+" : ""}{transpose}
-                            </span>
+                      <div className="flex flex-wrap items-center gap-4">
+                        {/* Audio Controls */}
+                        <div className="flex items-center gap-3">
+                          {/* Transposition Control */}
+                          <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
+                            <div className="flex flex-col items-center gap-1 min-w-[3rem]">
+                              <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
+                                Transpose
+                              </Label>
+                              <span className={cn(
+                                "text-xs font-mono font-bold",
+                                transpose > 0 ? "text-green-400" : transpose < 0 ? "text-red-400" : "text-white"
+                              )}>
+                                {transpose > 0 ? "+" : ""}{transpose}
+                              </span>
+                            </div>
+                            <div className="w-20 sm:w-24">
+                              <Slider
+                                defaultValue={[0]}
+                                value={[transpose]}
+                                min={-6}
+                                max={6}
+                                step={1}
+                                onValueChange={(vals) => setTranspose(vals[0])}
+                                className="cursor-pointer"
+                              />
+                            </div>
                           </div>
-                          <div className="w-24">
-                            <Slider
-                              defaultValue={[0]}
-                              value={[transpose]}
-                              min={-6}
-                              max={6}
-                              step={1}
-                              onValueChange={(vals) => setTranspose(vals[0])}
-                              className="cursor-pointer"
-                            />
+
+                          {/* Tempo Control */}
+                          <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
+                            <div className="flex flex-col items-center gap-1 min-w-[3rem]">
+                              <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
+                                Tempo
+                              </Label>
+                              <span className="text-xs font-mono font-bold text-white">
+                                {tempo.toFixed(2)}x
+                              </span>
+                            </div>
+                            <div className="w-20 sm:w-24">
+                              <Slider
+                                defaultValue={[1.0]}
+                                value={[tempo]}
+                                min={0.5}
+                                max={1.5}
+                                step={0.05}
+                                onValueChange={(vals) => setTempo(vals[0])}
+                                className="cursor-pointer"
+                              />
+                            </div>
                           </div>
                         </div>
 
-                        {/* Tempo Control */}
-                        <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
-                          <div className="flex flex-col items-center gap-1 min-w-[3rem]">
-                            <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
-                              Tempo
-                            </Label>
-                            <span className="text-xs font-mono font-bold text-white">
-                              {tempo.toFixed(2)}x
-                            </span>
-                          </div>
-                          <div className="w-24">
-                            <Slider
-                              defaultValue={[1.0]}
-                              value={[tempo]}
-                              min={0.5}
-                              max={1.5}
-                              step={0.05}
-                              onValueChange={(vals) => setTempo(vals[0])}
-                              className="cursor-pointer"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        {/* Upload new file button */}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-9 px-3 rounded-xl bg-white/[0.03] border-white/10 hover:bg-white/[0.05] text-xs"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Upload className="w-3.5 h-3.5 mr-2" />
-                          New File
-                        </Button>
-
-                        {/* Download instrumental button - show as soon as URL is available */}
-                        {instrumentalUrl && (
+                        <div className="flex items-center gap-3">
+                          {/* Upload new file button */}
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-9 px-3 rounded-xl bg-white/[0.03] border-white/10 hover:bg-white/[0.05] text-xs"
-                            onClick={() => {
-                              const a = document.createElement('a');
-                              a.href = instrumentalUrl;
-                              a.download = 'instrumental.wav';
-                              a.click();
-                            }}
+                            onClick={() => fileInputRef.current?.click()}
                           >
-                            <Download className="w-3.5 h-3.5 mr-2" />
-                            Instrumental
+                            <Upload className="w-3.5 h-3.5 mr-2" />
+                            New File
                           </Button>
-                        )}
+
+                          {/* Download instrumental button - show as soon as URL is available */}
+                          {instrumentalUrl && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-9 px-3 rounded-xl bg-white/[0.03] border-white/10 hover:bg-white/[0.05] text-xs"
+                              onClick={() => {
+                                const a = document.createElement('a');
+                                a.href = instrumentalUrl;
+                                a.download = 'instrumental.wav';
+                                a.click();
+                              }}
+                            >
+                              <Download className="w-3.5 h-3.5 mr-2" />
+                              Instrumental
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
