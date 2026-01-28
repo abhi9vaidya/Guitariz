@@ -19,6 +19,8 @@ export type UseAudioPlayer = {
   isPlaying: boolean;
   fileInfo: AudioFileInfo | null;
   error: string | null;
+  transpose: number;
+  setTranspose: (semitones: number) => void;
 };
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
@@ -54,6 +56,14 @@ export const useAudioPlayer = (): UseAudioPlayer => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [fileInfo, setFileInfo] = useState<AudioFileInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [transpose, setTranspose] = useState<number>(0);
+
+  // Update detune in real-time when transpose changes
+  useEffect(() => {
+    if (sourceRef.current) {
+      sourceRef.current.detune.setValueAtTime(transpose * 100, audioCtxRef.current?.currentTime || 0);
+    }
+  }, [transpose]);
 
   const stopRaf = () => {
     if (rafRef.current) {
@@ -106,6 +116,7 @@ export const useAudioPlayer = (): UseAudioPlayer => {
 
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
+    source.detune.value = transpose * 100;
     const gain = gainRef.current || ctx.createGain();
     gainRef.current = gain;
     source.connect(gain);
@@ -124,7 +135,7 @@ export const useAudioPlayer = (): UseAudioPlayer => {
         setCurrentTime(duration);
       }
     };
-  }, [audioBuffer, duration]);
+  }, [audioBuffer, duration, transpose]);
 
   const seek = useCallback(
     (time: number) => {
@@ -139,6 +150,7 @@ export const useAudioPlayer = (): UseAudioPlayer => {
         const ctx = audioCtxRef.current!;
         const source = ctx.createBufferSource();
         source.buffer = audioBuffer;
+        source.detune.value = transpose * 100;
         const gain = gainRef.current || ctx.createGain();
         gainRef.current = gain;
         source.connect(gain);
@@ -157,7 +169,7 @@ export const useAudioPlayer = (): UseAudioPlayer => {
         };
       }
     },
-    [audioBuffer, duration, isPlaying],
+    [audioBuffer, duration, isPlaying, transpose],
   );
 
   const loadFile = useCallback(async (file: File | null, buffer?: AudioBuffer) => {
@@ -212,6 +224,13 @@ export const useAudioPlayer = (): UseAudioPlayer => {
     return () => stopRaf();
   }, [isPlaying, updateClock]);
 
+  // Update detune when transpose changes while playing
+  useEffect(() => {
+    if (sourceRef.current) {
+      sourceRef.current.detune.value = transpose * 100;
+    }
+  }, [transpose]);
+
   useEffect(() => {
     return () => {
       stopRaf();
@@ -234,6 +253,8 @@ export const useAudioPlayer = (): UseAudioPlayer => {
     isPlaying,
     fileInfo,
     error,
+    transpose,
+    setTranspose,
   };
 };
 

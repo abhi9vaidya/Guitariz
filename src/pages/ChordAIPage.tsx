@@ -15,9 +15,11 @@ import { findChordByName, chordLibraryData } from "@/data/chordData";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
-import { Bot, Upload, Pause, Play, Activity, Settings2, Sparkles, Wand2, Download, History, Trash2 } from "lucide-react";
+import { Bot, Upload, Pause, Play, Activity, Settings2, Sparkles, Wand2, Download, History, Trash2, Music2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChordAISkeleton } from "@/components/ui/SkeletonLoader";
+import { transposeChord, transposeKey } from "@/lib/transposition";
+import { Slider } from "@/components/ui/slider";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -45,7 +47,7 @@ const ChordAIPage = () => {
     }
   });
 
-  const { loadFile, play, pause, seek, audioBuffer, peaks, duration, currentTime, isPlaying, fileInfo } =
+  const { loadFile, play, pause, seek, audioBuffer, peaks, duration, currentTime, isPlaying, fileInfo, transpose, setTranspose } =
     useAudioPlayer();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showSimple, setShowSimple] = useState(false);
@@ -219,8 +221,16 @@ const ChordAIPage = () => {
   const currentChords = useMemo(() => {
     if (!result) return [];
     const base = showSimple && result.simpleChords ? result.simpleChords : result.chords;
-    return base || [];
-  }, [result, showSimple]);
+    if (!base) return [];
+    
+    // Apply transposition
+    if (transpose === 0) return base;
+    
+    return base.map(seg => ({
+      ...seg,
+      chord: transposeChord(seg.chord, transpose)
+    }));
+  }, [result, showSimple, transpose]);
 
   const { currentChord } = useMemo(() => {
     if (!currentChords.length) return { currentChord: undefined };
@@ -484,6 +494,32 @@ const ChordAIPage = () => {
                         </div>
                       </div>
 
+                      {/* Transposition Control */}
+                      <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
+                        <div className="flex flex-col items-center gap-1 min-w-[3rem]">
+                          <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
+                            Transpose
+                          </Label>
+                          <span className={cn(
+                            "text-xs font-mono font-bold",
+                            transpose > 0 ? "text-green-400" : transpose < 0 ? "text-red-400" : "text-white"
+                          )}>
+                            {transpose > 0 ? "+" : ""}{transpose}
+                          </span>
+                        </div>
+                        <div className="w-24">
+                          <Slider
+                            defaultValue={[0]}
+                            value={[transpose]}
+                            min={-12}
+                            max={12}
+                            step={1}
+                            onValueChange={(vals) => setTranspose(vals[0])}
+                            className="cursor-pointer"
+                          />
+                        </div>
+                      </div>
+
                       <div className="flex items-center gap-3">
                         {/* Upload new file button */}
                         <Button
@@ -593,7 +629,7 @@ const ChordAIPage = () => {
 
                 <AnalysisSummary
                   tempo={result?.tempo}
-                  keySignature={result ? `${result.key} ${result.scale || ""}` : null}
+                  keySignature={result ? `${transposeKey(result.key, transpose)} ${result.scale || ""}` : null}
                   confidence={0.96}
                 />
 
@@ -736,4 +772,3 @@ const ChordAIPage = () => {
 };
 
 export default ChordAIPage;
-
