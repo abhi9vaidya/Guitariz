@@ -7,7 +7,21 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "guitariz.vercel.app"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [
