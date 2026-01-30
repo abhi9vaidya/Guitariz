@@ -8,6 +8,7 @@ import { Wand2, Upload, Mic, Music2, Download, Loader2, Activity } from "lucide-
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { SEOContent, Breadcrumb } from "@/components/SEOContent";
 
 const VocalSplitterPage = () => {
   usePageMetadata({
@@ -442,6 +443,13 @@ const VocalSplitterPage = () => {
 
       <main className="container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-16 relative z-10">
         <div className="max-w-5xl mx-auto">
+          
+          {/* Breadcrumb */}
+          <Breadcrumb items={[
+            { name: "Home", url: "https://guitariz.studio/" },
+            { name: "Vocal Splitter", url: "https://guitariz.studio/vocal-splitter" }
+          ]} />
+
           {/* Header */}
           <div className="mb-16 text-center space-y-6">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-white/5 bg-white/[0.02] text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
@@ -690,6 +698,53 @@ const VocalSplitterPage = () => {
             )}
           </div>
         </div>
+
+        {/* SEO FAQ Section */}
+        <SEOContent
+          pageName="vocal-splitter"
+          faqs={[
+            {
+              question: "What is AI Vocal Splitter and how does it work?",
+              answer: "AI Vocal Splitter uses advanced neural networks to separate vocals from instrumental tracks in any song. It analyzes the audio frequency spectrum and uses machine learning models trained on thousands of songs to isolate vocal and instrumental stems with high accuracy. Perfect for karaoke, remixing, sampling, and music production.",
+            },
+            {
+              question: "Is the Vocal Splitter free to use?",
+              answer: "Yes! Guitariz Vocal Splitter is completely free with no subscription or credits required. You can separate as many songs as you want without any limitations. We believe in making music production tools accessible to everyone.",
+            },
+            {
+              question: "What audio formats are supported?",
+              answer: "Vocal Splitter supports all common audio formats including MP3, WAV, FLAC, M4A, OGG, AAC, and more. Files up to 15MB are supported. For best separation quality, use high-quality audio files (320kbps MP3 or lossless formats like WAV/FLAC).",
+            },
+            {
+              question: "How accurate is the vocal separation?",
+              answer: "Separation accuracy is typically 85-95% for modern pop, rock, and electronic music. Results depend on the original mix quality, stereo separation, and production style. Songs with heavily processed vocals or complex arrangements may have some artifacts. The AI model continuously improves with each update.",
+            },
+            {
+              question: "How long does vocal separation take?",
+              answer: "Processing time is typically 3-5 minutes for a standard 3-4 minute song. This includes uploading, AI stem separation, and preparing both vocal and instrumental tracks for download. Processing is done on our servers, so no powerful computer or GPU is needed on your end.",
+            },
+            {
+              question: "Can I download the separated tracks?",
+              answer: "Absolutely! After separation completes, you can download both the isolated vocals and instrumental tracks as high-quality WAV files. These can be imported into any DAW (Ableton, FL Studio, Logic Pro, etc.) for further production, remixing, or practice.",
+            },
+            {
+              question: "What can I use the separated tracks for?",
+              answer: "Common use cases include: creating karaoke tracks, making remixes and mashups, sampling for beat production, practicing vocals over isolated instrumentals, learning song arrangements, creating cover versions, podcast and video production, and audio restoration projects.",
+            },
+            {
+              question: "Does it work with copyrighted music?",
+              answer: "The tool can technically separate any audio file, but you are responsible for ensuring you have the legal rights to use the separated stems. Respect copyright laws and only use separated audio for personal practice, fair use, or with proper licensing. Do not redistribute copyrighted material.",
+            },
+            {
+              question: "Can I adjust the volume of each track?",
+              answer: "Yes! After separation, you can independently control the volume of vocals and instrumental tracks using the built-in sliders. This lets you create custom mixes, like reducing vocals for practice or isolating instrumentals for analysis. You can also preview both tracks synchronized together.",
+            },
+            {
+              question: "Does it work on mobile devices?",
+              answer: "Yes! Vocal Splitter works on all modern mobile browsers (Safari, Chrome, Firefox). The interface is touch-optimized and fully responsive. However, uploading and processing large files may be slower on mobile connections. For best experience, use Wi-Fi and a desktop browser when possible.",
+            },
+          ]}
+        />
       </main>
     </div>
   );

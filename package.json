@@ -33,8 +33,10 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:prerender": "vite build && node scripts/prerender.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
+    "prerender": "npm run build:prerender",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "prepare": "husky"

@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { ChordAISkeleton } from "@/components/ui/SkeletonLoader";
 import { transposeChord, transposeKey } from "@/lib/transposition";
 import { Slider } from "@/components/ui/slider";
+import { SEOContent, Breadcrumb } from "@/components/SEOContent";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -268,6 +269,13 @@ const ChordAIPage = () => {
 
       <main className="container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-16 relative z-10">
         <div className="max-w-6xl mx-auto">
+          
+          {/* Breadcrumb */}
+          <Breadcrumb items={[
+            { name: "Home", url: "https://guitariz.studio/" },
+            { name: "Chord AI", url: "https://guitariz.studio/chord-ai" }
+          ]} />
+
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
             <div className="space-y-6">
@@ -803,6 +811,53 @@ const ChordAIPage = () => {
             </div>
           </div>
         </div>
+
+        {/* SEO FAQ Section */}
+        <SEOContent
+          pageName="chord-ai"
+          faqs={[
+            {
+              question: "What is Chord AI and how does it work?",
+              answer: "Chord AI is a neural network-powered tool that analyzes audio files to automatically detect chords, tempo, and key signatures. It uses advanced machine learning models (Madmom and Librosa) to transcribe harmonic progressions from any song, making it perfect for musicians learning songs, creating covers, or analyzing music theory.",
+            },
+            {
+              question: "Is Guitariz Chord AI really free?",
+              answer: "Yes! Guitariz Chord AI is completely free with no subscription required. Unlike other chord detection services, we provide unlimited analyses with no paywall or credits system. You can analyze as many songs as you want without any cost.",
+            },
+            {
+              question: "What does the Vocal Filter feature do?",
+              answer: "The Vocal Filter uses AI-powered stem separation to isolate instrumental tracks from vocal tracks. This significantly improves chord detection accuracy on songs with vocals, as the algorithm can focus purely on the instrumental elements. The separated instrumental track can also be downloaded for practice or remixing.",
+            },
+            {
+              question: "Which audio formats are supported?",
+              answer: "Chord AI supports all common audio formats including MP3, WAV, FLAC, M4A, OGG, and more. Files up to 15MB are supported for optimal processing speed. For best results, use high-quality audio files with minimal compression.",
+            },
+            {
+              question: "How accurate is the chord detection?",
+              answer: "Chord detection accuracy varies based on audio quality and complexity. Simple acoustic songs typically achieve 85-95% accuracy, while complex multi-instrument arrangements may be 70-85% accurate. Enabling the Vocal Filter and using the more accurate engine (Librosa) improves results significantly.",
+            },
+            {
+              question: "What's the difference between Fast and Accurate mode?",
+              answer: "Fast mode (Madmom) provides results in 30-60 seconds and works well for most songs. Accurate mode (Librosa) takes 2-3 minutes but offers more detailed harmonic analysis and better handles complex chord voicings and jazz harmonies. Try Fast mode first, then switch to Accurate if needed.",
+            },
+            {
+              question: "Can I transpose the detected chords?",
+              answer: "Yes! After analysis, you can transpose chords up or down by 6 semitones using the transpose slider. This is perfect for matching your vocal range or adapting songs to different instruments. The key signature updates automatically with transposition.",
+            },
+            {
+              question: "How long does chord analysis take?",
+              answer: "Fast mode (Madmom): 30-60 seconds. Accurate mode (Librosa): 2-3 minutes. Vocal Filter mode: 3-5 minutes (includes stem separation). Processing time depends on song length and server load. All analyses run on our servers, so no local GPU is needed.",
+            },
+            {
+              question: "Can I download the chord progressions?",
+              answer: "While direct chord export isn't available yet, you can use the detailed chord timeline to manually transcribe progressions. If you enable Vocal Filter, you can download the separated instrumental track as a WAV file for practice or further production.",
+            },
+            {
+              question: "Does Chord AI work on mobile devices?",
+              answer: "Yes! Guitariz Chord AI works on all modern browsers including mobile Safari, Chrome, and Firefox. The interface is fully responsive and touch-optimized. However, for the best experience with large waveform visualizations, we recommend desktop browsers.",
+            },
+          ]}
+        />
       </main>
     </div>
   );
