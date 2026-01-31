@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { analyzeTrack } from "@/lib/analyzeAudio";
 import { analyzeRemote } from "@/lib/api/analyzeClient";
+import { getCachedAnalysis, setCachedAnalysis, isExpired } from "@/lib/analysisCache";
 import { AnalysisResult } from "@/types/chordAI";
 
 export type UseChordAnalysisState = {
@@ -29,14 +30,46 @@ export const useChordAnalysis = (
   const requestIdRef = useRef<number>(0);
 
   useEffect(() => {
-    // If we have a cached result for this file+settings combo, use it
-    if (cachedResult && cacheKey) {
-      setResult(cachedResult.result);
-      setInstrumentalUrl(cachedResult.instrumentalUrl);
-      setLoading(false);
-      setError(null);
-      return;
-    }
+    // compute a fallback cache key if not provided
+    const computeKey = () => {
+      if (cacheKey) return cacheKey;
+      if (!file) return undefined;
+      try {
+        // Use stable file metadata as cache key: name|size|lastModified plus settings
+        const parts = [file.name, String(file.size), String(file.lastModified), String(separateVocals), String(useMadmom)];
+        return parts.join("::");
+      } catch (err) {
+        return undefined;
+      }
+    };
+
+    const resolvedKey = computeKey();
+
+    // If we have a cached result passed in props or in IndexedDB, use it
+    (async () => {
+      if (cachedResult && cacheKey) {
+        setResult(cachedResult.result);
+        setInstrumentalUrl(cachedResult.instrumentalUrl);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+
+        if (resolvedKey && typeof indexedDB !== "undefined") {
+          try {
+            const cached = await getCachedAnalysis(resolvedKey);
+            if (cached && !isExpired(cached)) {
+              setResult(cached.result as AnalysisResult);
+              setInstrumentalUrl(cached.instrumentalUrl);
+              setLoading(false);
+              setError(null);
+              return;
+            }
+          } catch (err) {
+            console.warn("useChordAnalysis: cache read error", err);
+          }
+        }
+    })();
 
     // Only run analysis when file changes
     if (!file) return;
@@ -85,6 +118,16 @@ export const useChordAnalysis = (
                 const fullUrl = apiUrl + remote.instrumentalUrl;
                 setInstrumentalUrl(fullUrl);
               }
+
+              // persist to cache if key resolved
+              if (resolvedKey) {
+                try {
+                  await setCachedAnalysis(resolvedKey, { result: remote, instrumentalUrl: remote.instrumentalUrl });
+                } catch (e) {
+                  console.warn("useChordAnalysis: cache write error", e);
+                }
+              }
+
               return;
             }
           } catch (remoteErr) {
@@ -94,12 +137,20 @@ export const useChordAnalysis = (
             if (audioBuffer && thisRequestId === requestIdRef.current) {
               const local = await analyzeTrack(audioBuffer);
               if (thisRequestId === requestIdRef.current) setResult(local);
+              if (resolvedKey) {
+                try {
+                  await setCachedAnalysis(resolvedKey, { result: local });
+                } catch (e) { console.warn("useChordAnalysis: cache write error", e); }
+              }
             }
           }
         } else if (audioBuffer) {
           // Only use local analysis as fallback or if useRemote is false
           const local = await analyzeTrack(audioBuffer);
           if (thisRequestId === requestIdRef.current) setResult(local);
+          if (resolvedKey) {
+            try { await setCachedAnalysis(resolvedKey, { result: local }); } catch (e) { console.warn("useChordAnalysis: cache write error", e); }
+          }
         } else if (thisRequestId === requestIdRef.current) {
           setError("No audio available for analysis.");
         }
