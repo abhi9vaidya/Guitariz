@@ -17,7 +17,7 @@ import { playNote, playChord } from "@/lib/chordAudio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
 
 const NOTES = ["E", "A", "D", "G", "B", "E"];
 const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -76,38 +76,6 @@ const Fretboard = ({ initialChordVoicing }: FretboardProps) => {
         setIsMeasured(true);
     }
   }, []); // Only run once after mount, as pianoMode is undefined here
-
-  // Motion values for 3D Tilt
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!instrumentRef.current) return;
-    const rect = instrumentRef.current.getBoundingClientRect();
-
-    const width = rect.width;
-    const height = rect.height;
-
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
 
   // Safe localStorage helpers (prevents crashes on malformed/corrupted values)
   const readJson = <T,>(key: string, fallback: T): T => {
@@ -718,14 +686,7 @@ const Fretboard = ({ initialChordVoicing }: FretboardProps) => {
         {/* Main instrument display */}
         <motion.div
           ref={instrumentRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{
-            rotateX,
-            rotateY,
-            transformStyle: "preserve-3d",
-          }}
-          className="bg-black/40 border border-white/5 rounded-[2rem] p-4 md:p-12 mb-8 backdrop-blur-md shadow-2xl overflow-hidden ring-1 ring-white/10 group transition-all duration-500 ease-out"
+          className="bg-black/40 border border-white/5 rounded-[2rem] p-4 md:p-12 mb-8 backdrop-blur-md shadow-2xl overflow-hidden ring-1 ring-white/10 group"
         >
           <AnimatePresence mode="wait">
             {pianoMode ? (

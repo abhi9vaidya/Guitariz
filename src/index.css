@@ -49,10 +49,62 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: "Inter", sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1, "ss02" 1;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Typography Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    @apply text-5xl md:text-7xl;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+  }
+
+  h2 {
+    @apply text-3xl md:text-5xl;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+    font-weight: 500;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+
+  /* Accessibility: Focus States */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-white/20 ring-offset-2 ring-offset-background;
+    transition: all 0.2s ease;
+  }
+
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Selection Styling */
+  ::selection {
+    @apply bg-white/10 text-white;
   }
 }
 
@@ -97,6 +149,216 @@
 
 .mesh-blob {
   @apply absolute rounded-full filter blur-[120px] opacity-20 mix-blend-screen animate-mesh;
+}
+
+/* Premium Animations & Micro-interactions */
+@layer utilities {
+  /* Smooth Transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-premium {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-smooth;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .hover-glow {
+    @apply transition-smooth;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+  }
+
+  .hover-scale {
+    @apply transition-smooth;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply bg-white/5 animate-pulse;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+  }
+
+  /* Page Transitions */
+  .page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.4s ease-out;
+  }
+
+  .page-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .page-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in;
+  }
+
+  /* Stagger Animations */
+  .stagger-item {
+    animation: fade-in-up 0.5s ease-out backwards;
+  }
+
+  .stagger-item:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-item:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-item:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-item:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-item:nth-child(5) { animation-delay: 0.5s; }
+  .stagger-item:nth-child(6) { animation-delay: 0.6s; }
+
+  /* Text Effects */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.6) 100%
+    );
+  }
+
+  .text-gradient-premium {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(200, 200, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0.6) 100%
+    );
+  }
+
+  /* Button Effects */
+  .btn-premium {
+    @apply relative overflow-hidden transition-smooth;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  }
+
+  .btn-premium::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .btn-premium:hover::before {
+    opacity: 1;
+  }
+
+  .btn-premium:active {
+    transform: scale(0.98);
+  }
+
+  /* Card Interactions */
+  .card-interactive {
+    @apply transition-premium cursor-pointer;
+  }
+
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+
+  .card-interactive:active {
+    transform: translateY(-2px);
+  }
+
+  /* Responsive Text Sizes for Accessibility */
+  .text-readable {
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    line-height: 1.6;
+  }
+
+  .heading-responsive {
+    font-size: clamp(2rem, 1.5rem + 2vw, 4rem);
+    line-height: 1.1;
+  }
+
+  /* Focus Indicators for Accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Reduced Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @keyframes mesh {
