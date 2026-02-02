@@ -14,6 +14,7 @@ const MetronomePage = lazy(() => import("./pages/MetronomePage"));
 const ChordAIPage = lazy(() => import("./pages/ChordAIPage"));
 const VocalSplitterPage = lazy(() => import("./pages/VocalSplitterPage"));
 const TheoryPage = lazy(() => import("./pages/TheoryPage"));
+const TunerPage = lazy(() => import("./pages/TunerPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 import GuitarizLoader from "@/components/ui/loader";
@@ -142,6 +143,16 @@ const App = () => {
                 <Suspense fallback={<RouteFallback />}>
                   <PageWrapper>
                     <TheoryPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/tuner"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <TunerPage />
                   </PageWrapper>
                 </Suspense>
               }

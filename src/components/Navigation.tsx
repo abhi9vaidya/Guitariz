@@ -1,4 +1,4 @@
-import { Guitar, Layers, Disc, BookOpen, Music, Bot, Wand2, Download, Menu, Activity } from "lucide-react";
+import { Guitar, Layers, Disc, BookOpen, Music, Bot, Wand2, Download, Menu, Activity, GaugeCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -103,6 +103,7 @@ const Navigation = () => {
     { icon: Disc, label: "Scales", path: "/scales" },
     { icon: Music, label: "Metronome", path: "/metronome" },
     { icon: Wand2, label: "Vocal Splitter", path: "/vocal-splitter" },
+    { icon: GaugeCircle, label: "Tuner", path: "/tuner" },
     { icon: BookOpen, label: "Theory", path: "/theory" },
     { icon: Bot, label: "Chord AI", path: "/chord-ai" },
   ];
@@ -117,7 +118,7 @@ const Navigation = () => {
       className="fixed top-0 left-0 right-0 z-50 px-4 md:px-6 pt-3"
     >
       <div className="container mx-auto">
-        <div className="relative rounded-2xl border border-white/10 bg-[#0a0a0a]/60 backdrop-blur-xl shadow-2xl px-4 md:px-6 py-2 flex items-center justify-between gap-4">
+        <div className="relative rounded-2xl border border-white/10 bg-[#0a0a0a]/60 backdrop-blur-xl shadow-2xl px-4 md:px-6 py-1.5 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-4">
             <Link
@@ -158,7 +159,7 @@ const Navigation = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-bold transition-all duration-300 group ${isActive ? "text-white" : "text-white/40 hover:text-white/70"
+                  className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-bold transition-all duration-300 group whitespace-nowrap ${isActive ? "text-white" : "text-white/40 hover:text-white/70"
                     }`}
                 >
                   {isActive && (
