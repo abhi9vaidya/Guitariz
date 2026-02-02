@@ -1,11 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Music2, Layers, Disc, Music, BookOpen, Bot, Wand2, Headphones, Guitar, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import Footer from "@/components/Footer";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
-import Lenis from "lenis";
+
 
 const toolCards = [
   { title: "Fretboard", desc: "Interactive neck with adaptive note labeling.", icon: Music2, to: "/fretboard", color: "from-emerald-500/20 to-teal-500/20" },
@@ -21,8 +21,7 @@ const toolCards = [
 
 const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+
 
   usePageMetadata({
     title: "Chord AI Free & Music Theory Studio | Guitariz",
@@ -38,59 +37,101 @@ const Index = () => {
     }
   });
 
-  // Initialize Lenis smooth scrolling
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+
+  const titleContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.06,
+        delayChildren: 0.5,
+      }
     }
+  };
 
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
+  const charVariants = {
+    hidden: {
+      opacity: 0,
+      y: 40,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 100
+      }
+    }
+  };
 
   return (
     <div ref={containerRef} className="min-h-screen relative bg-[#050505] overflow-x-hidden selection:bg-white/10">
 
       {/* Aesthetic Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        {/* Gradient orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <svg className="invisible absolute size-0">
+          <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="noise" />
+            <feComposite operator="in" in2="SourceGraphic" result="composite" />
+            <feBlend mode="overlay" in="noise" in2="SourceGraphic" />
+          </filter>
+        </svg>
+
+        {/* Base */}
+        <div className="absolute inset-0 bg-[#030303]" />
+
+        {/* Animated Orbs */}
         <motion.div
-          style={{ y: backgroundY }}
-          className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-emerald-900/20 blur-[150px] rounded-full"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-emerald-900/30 blur-[120px] rounded-full mix-blend-screen"
         />
         <motion.div
-          style={{ y: backgroundY }}
-          className="absolute top-[20%] right-[-15%] w-[40%] h-[40%] bg-purple-900/15 blur-[150px] rounded-full"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3],
+            x: [0, -70, 0],
+            y: [0, 50, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute top-[10%] right-[-10%] w-[50%] h-[50%] bg-purple-900/30 blur-[120px] rounded-full mix-blend-screen"
         />
         <motion.div
-          style={{ y: backgroundY }}
-          className="absolute bottom-[-10%] left-[20%] w-[45%] h-[45%] bg-blue-900/10 blur-[150px] rounded-full"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+            x: [0, 50, 0],
+            y: [0, 50, 0],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+          className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] bg-blue-900/20 blur-[120px] rounded-full mix-blend-screen"
         />
 
-        {/* Noise texture overlay */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
+        {/* Noise Overlay using SVG Filter */}
+        <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay" style={{ filter: 'url(#noiseFilter)' }} />
 
-        {/* Grid pattern */}
+        {/* Fine Grain Texture Image (additional layer for detail) */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+
+        {/* Grid Pattern */}
         <div
-          className="absolute inset-0 opacity-[0.015]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+            backgroundSize: '100px 100px'
           }}
         />
 
-        {/* Radial gradient from center */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.5)_100%)]" />
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
       </div>
 
       <main className="pt-12 pb-24 relative z-10">
@@ -103,9 +144,9 @@ const Index = () => {
               className="space-y-10 text-center py-20"
             >
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
                 className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm text-muted-foreground text-[10px] font-bold tracking-[0.3em] uppercase"
               >
                 <Headphones className="w-3 h-3" />
@@ -113,12 +154,40 @@ const Index = () => {
               </motion.div>
 
               <div className="space-y-6">
-                <h1 className="text-7xl md:text-9xl font-light tracking-tighter text-white font-display">
-                  Design <span className="text-transparent bg-clip-text bg-gradient-to-r from-white/60 to-white/30 font-thin italic">Sound.</span>
-                </h1>
-                <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
+                <motion.h1
+                  variants={titleContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="text-7xl md:text-9xl font-light tracking-tighter text-white font-display flex flex-wrap justify-center gap-x-[0.2em] relative"
+                  style={{ perspective: "1000px" }}
+                >
+                  <span className="flex">
+                    {Array.from("Design").map((char, i) => (
+                      <motion.span
+                        key={i}
+                        variants={charVariants}
+                        className="inline-block"
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </span>
+                  <motion.span
+                    variants={charVariants}
+                    className="inline-block text-transparent bg-clip-text bg-gradient-to-tr from-emerald-400 via-cyan-300 to-indigo-500 font-thin italic drop-shadow-[0_0_15px_rgba(34,211,238,0.3)] pr-8"
+                    style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                  >
+                    Sound.
+                  </motion.span>
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.5, duration: 1, ease: "easeOut" }}
+                  className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light"
+                >
                   A high-fidelity technical suite for the modern guitarist. Neural audio analysis meets <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">architectural music theory</span>.
-                </p>
+                </motion.p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10">
