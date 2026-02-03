@@ -125,10 +125,11 @@ const Navigation = () => {
             <Link
               to="/"
               className="relative flex items-center gap-3 hover:opacity-90 transition-opacity group"
+              aria-label="Guitariz Studio Home"
             >
               <div className="relative">
                 <img
-                  src="/logo.png"
+                  src="/logo2.png"
                   alt="Guitariz Logo"
                   className="w-8 h-8 object-contain relative z-10"
                 />
@@ -160,6 +161,7 @@ const Navigation = () => {
                 <Link
                   key={item.path}
                   to={item.path}
+                  aria-label={`Open ${item.label} tool`}
                   className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-bold transition-all duration-300 group whitespace-nowrap ${isActive ? "text-white" : "text-white/40 hover:text-white/70"
                     }`}
                 >
@@ -213,7 +215,7 @@ const Navigation = () => {
               >
                 <SheetHeader className="pb-6 border-b border-white/10">
                   <SheetTitle className="flex items-center gap-3 text-white">
-                    <img src="/logo.png" alt="Guitariz" className="w-8 h-8" />
+                    <img src="/logo2.png" alt="Guitariz Logo" className="w-8 h-8" />
                     <span>Guitariz Studio</span>
                   </SheetTitle>
                 </SheetHeader>

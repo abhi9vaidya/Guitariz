@@ -9,6 +9,8 @@ const TunerPage = () => {
         title: "Online Guitar Tuner | Guitariz - Chromatic & Precision",
         description: "Free online chromatic tuner for guitar, bass, ukulele, and more. Precise real-time pitch detection using your microphone.",
         canonicalUrl: "https://guitariz.studio/tuner",
+        ogImage: "https://guitariz.studio/logo2.png",
+        ogType: "website",
         jsonLd: {
             "@context": "https://schema.org",
             "@type": "WebApplication",

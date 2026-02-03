@@ -28,13 +28,24 @@ const Index = () => {
     description: "The ultimate free music studio: Chord AI, vocal splitter, interactive fretboard, Circle of Fifths, and more. No subscription required.",
     keywords: "chord ai, chord ai free, music theory, guitar chords, vocal splitter, fretboard, scale explorer, music studio, free music tools",
     canonicalUrl: "https://guitariz.studio",
+    ogUrl: "https://guitariz.studio",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Guitariz Studio",
       "description": "Professional music theory and AI analysis tools for musicians.",
       "applicationCategory": "MusicApplication",
-      "operatingSystem": "Any"
+      "operatingSystem": "Any",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://guitariz.studio/search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
     }
   });
 
@@ -135,13 +146,13 @@ const Index = () => {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10">
                 <Button size="lg" className="h-16 px-10 rounded-2xl bg-white text-black hover:bg-white/90 text-lg font-semibold group transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)]" asChild>
-                  <Link to="/fretboard">
-                    Get Started
+                  <Link to="/fretboard" aria-label="Start using the interactive fretboard lab">
+                    Launch Fretboard
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-16 px-10 rounded-2xl border-white/10 bg-white/[0.02] text-white hover:bg-white/[0.05] hover:border-white/20 text-lg font-medium transition-all duration-300" asChild>
-                  <Link to="/theory">View Theory</Link>
+                  <Link to="/theory" aria-label="Explore music theory and the circle of fifths">Master Theory</Link>
                 </Button>
               </div>
             </motion.div>
@@ -187,6 +198,7 @@ const Index = () => {
                 >
                   <Link
                     to={tool.to}
+                    aria-label={`Open the ${tool.title} tool: ${tool.desc}`}
                     className="block p-7 rounded-[1.75rem] glass-card transition-all duration-500 relative overflow-hidden"
                   >
                     {/* Gradient hover effect */}

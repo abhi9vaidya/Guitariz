@@ -6,6 +6,8 @@ interface PageMetadata {
     keywords?: string;
     canonicalUrl: string;
     ogUrl?: string;
+    ogImage?: string;
+    ogType?: "website" | "article" | "music.song" | "music.album" | "music.playlist";
     jsonLd?: Record<string, unknown>;
 }
 
@@ -15,6 +17,8 @@ export const usePageMetadata = ({
     keywords,
     canonicalUrl,
     ogUrl,
+    ogImage,
+    ogType = "website",
     jsonLd,
 }: PageMetadata) => {
     useEffect(() => {
@@ -59,6 +63,24 @@ export const usePageMetadata = ({
         }
         ogUrlElement.content = ogUrl || canonicalUrl;
 
+        // Set OpenGraph Image
+        let ogImageElement = document.querySelector('meta[property="og:image"]') as HTMLMetaElement | null;
+        if (!ogImageElement) {
+            ogImageElement = document.createElement("meta");
+            ogImageElement.setAttribute("property", "og:image");
+            document.head.appendChild(ogImageElement);
+        }
+        ogImageElement.content = ogImage || "https://guitariz.studio/logo2.png";
+
+        // Set OpenGraph Type
+        let ogTypeElement = document.querySelector('meta[property="og:type"]') as HTMLMetaElement | null;
+        if (!ogTypeElement) {
+            ogTypeElement = document.createElement("meta");
+            ogTypeElement.setAttribute("property", "og:type");
+            document.head.appendChild(ogTypeElement);
+        }
+        ogTypeElement.content = ogType;
+
         // Set JSON-LD
         if (jsonLd) {
             const ldId = "ld-json-metadata";
@@ -77,7 +99,7 @@ export const usePageMetadata = ({
             const ld = document.getElementById("ld-json-metadata");
             if (ld) ld.remove();
         };
-    }, [title, description, keywords, canonicalUrl, ogUrl, jsonLd]);
+    }, [title, description, keywords, canonicalUrl, ogUrl, ogImage, ogType, jsonLd]);
 };
 
 export default usePageMetadata;

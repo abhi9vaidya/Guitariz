@@ -16,6 +16,8 @@ const VocalSplitterPage = () => {
     description: "Separate vocals and instrumentals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.",
     keywords: "vocal splitter, vocal remover, instrumental extractor, stem separation, karaoke maker, music ai, audio splitter",
     canonicalUrl: "https://guitariz.studio/vocal-splitter",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",

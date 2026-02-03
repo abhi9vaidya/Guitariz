@@ -11,6 +11,8 @@ const TheoryPage = () => {
     description: "Master functional harmony with our interactive Circle of Fifths. Visualize key relationships, modulations, and chord families.",
     keywords: "circle of fifths, music theory, functional harmony, key modulation, chord families, music theory lab",
     canonicalUrl: "https://guitariz.studio/theory",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",

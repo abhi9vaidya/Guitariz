@@ -9,6 +9,8 @@ const MetronomePage = () => {
     title: "Free Precision Metronome | Guitariz - Pro Rhythm Tools",
     description: "Professional grade metronome with sample-accurate playback. Pro rhythm tools for free: poly-meters, tap-tempo, and visual pulse feedback.",
     canonicalUrl: "https://guitariz.studio/metronome",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",

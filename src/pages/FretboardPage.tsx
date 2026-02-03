@@ -12,6 +12,8 @@ const FretboardPage = () => {
     description: "Master guitar theory with our interactive fretboard. Visualize scales, chords, and notes across the neck. Perfect for guitarists of all levels.",
     keywords: "guitar fretboard, virtual piano, music theory, chord patterns, scale patterns, instrument simulator, interactive fretboard",
     canonicalUrl: "https://guitariz.studio/fretboard",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",

@@ -22,6 +22,8 @@ const ChordsPage = () => {
     title: "Chord Library & Voicings | Guitariz - Free Chord Identifier",
     description: "Explore a definitive collection of 1,000+ chord voicings. The best free chord library for guitar and piano with interactive diagrams and interval mapping.",
     canonicalUrl: "https://guitariz.studio/chords",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",

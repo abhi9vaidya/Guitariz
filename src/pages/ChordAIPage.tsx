@@ -40,6 +40,8 @@ const ChordAIPage = () => {
     description: "Extract chords, tempo, and scales from any song for free. Advanced AI chord recognition and harmonic transcription with no subscription.",
     keywords: "chord ai, chord recognition, chord identifier, extract chords from audio, music ai, guitar chords, audio analysis",
     canonicalUrl: "https://guitariz.studio/chord-ai",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebPage",

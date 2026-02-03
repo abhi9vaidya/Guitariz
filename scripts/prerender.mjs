@@ -14,7 +14,15 @@ const routes = [
       url: 'https://guitariz.studio/',
       description: 'Professional music theory and AI analysis tools for musicians.',
       applicationCategory: 'MusicApplication',
-      operatingSystem: 'Web'
+      operatingSystem: 'Web',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: 'https://guitariz.studio/search?q={search_term_string}'
+        },
+        'query-input': 'required name=search_term_string'
+      }
     })
   },
   {
@@ -191,6 +199,11 @@ for (const r of routes) {
   }
   if (/property="og:description"/i.test(html)) {
     html = html.replace(/<meta property="og:description"[\s\S]*?>/i, `<meta property="og:description" content="${r.description}" />`);
+  }
+  if (/property="og:type"/i.test(html)) {
+    html = html.replace(/<meta property="og:type"[\s\S]*?>/i, `<meta property="og:type" content="website" />`);
+  } else {
+    html = html.replace('</head>', `  <meta property="og:type" content="website" />\n</head>`);
   }
 
   // Insert page-specific JSON-LD before </head>

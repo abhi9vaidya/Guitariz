@@ -10,6 +10,8 @@ const ScalesPage = () => {
     description: "Explore guitar scales and modes visually. Interactive patterns for major, minor, pentatonic, and exotic scales. Master improvisation and soloing.",
     keywords: "guitar scales, music modes, scale explorer, pentatonic scale, blues scale, major scale, minor scale, modal relationships",
     canonicalUrl: "https://guitariz.studio/scales",
+    ogImage: "https://guitariz.studio/logo2.png",
+    ogType: "website",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
