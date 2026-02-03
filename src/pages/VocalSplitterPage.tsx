@@ -12,8 +12,9 @@ import { SEOContent, Breadcrumb } from "@/components/SEOContent";
 
 const VocalSplitterPage = () => {
   usePageMetadata({
-    title: "AI Vocal Splitter | Guitariz - Stem Separation",
-    description: "Separate vocals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.",
+    title: "AI Vocal Splitter - Stem Separation for Karaoke & Practice | Guitariz",
+    description: "Separate vocals and instrumentals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.",
+    keywords: "vocal splitter, vocal remover, instrumental extractor, stem separation, karaoke maker, music ai, audio splitter",
     canonicalUrl: "https://guitariz.studio/vocal-splitter",
     jsonLd: {
       "@context": "https://schema.org",

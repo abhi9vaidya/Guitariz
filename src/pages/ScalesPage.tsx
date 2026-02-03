@@ -5,8 +5,9 @@ import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 const ScalesPage = () => {
   usePageMetadata({
-    title: "Interactive Scale Explorer | Guitariz - Music Modes & Intervals",
-    description: "Visualize 100+ musical scales and modal relationships. Map intervals to the circle of fifths or directly to the virtual guitar fretboard for free.",
+    title: "Guitar Scale Explorer - Interactive Scale Patterns & Modes | Guitariz",
+    description: "Explore guitar scales and modes visually. Interactive patterns for major, minor, pentatonic, and exotic scales. Master improvisation and soloing.",
+    keywords: "guitar scales, music modes, scale explorer, pentatonic scale, blues scale, major scale, minor scale, modal relationships",
     canonicalUrl: "https://guitariz.studio/scales",
     jsonLd: {
       "@context": "https://schema.org",

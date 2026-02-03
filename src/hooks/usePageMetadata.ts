@@ -3,6 +3,7 @@ import { useEffect } from "react";
 interface PageMetadata {
     title: string;
     description: string;
+    keywords?: string;
     canonicalUrl: string;
     ogUrl?: string;
     jsonLd?: Record<string, unknown>;
@@ -27,6 +28,17 @@ export const usePageMetadata = ({
             document.head.appendChild(metaDescription);
         }
         metaDescription.setAttribute("content", description);
+
+        // Set meta keywords
+        if (keywords) {
+            let metaKeywords = document.querySelector('meta[name="keywords"]');
+            if (!metaKeywords) {
+                metaKeywords = document.createElement("meta");
+                metaKeywords.setAttribute("name", "keywords");
+                document.head.appendChild(metaKeywords);
+            }
+            metaKeywords.setAttribute("content", keywords);
+        }
 
         // Set canonical link
         let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -64,7 +76,7 @@ export const usePageMetadata = ({
             const ld = document.getElementById("ld-json-metadata");
             if (ld) ld.remove();
         };
-    }, [title, description, canonicalUrl, ogUrl, jsonLd]);
+    }, [title, description, keywords, canonicalUrl, ogUrl, jsonLd]);
 };
 
 export default usePageMetadata;

@@ -7,8 +7,9 @@ import { chordLibraryData } from "@/data/chordData";
 
 const FretboardPage = () => {
   usePageMetadata({
-    title: "Free Virtual Fretboard & Piano | Guitariz - Instrument Simulator",
-    description: "Interactive high-fidelity instrument sandbox. Explore chord patterns and scales on a free virtual guitar fretboard and piano.",
+    title: "Interactive Guitar Fretboard & Piano | Guitariz - Learn Guitar Theory",
+    description: "Master guitar theory with our interactive fretboard. Visualize scales, chords, and notes across the neck. Perfect for guitarists of all levels.",
+    keywords: "guitar fretboard, virtual piano, music theory, chord patterns, scale patterns, instrument simulator, interactive fretboard",
     canonicalUrl: "https://guitariz.studio/fretboard",
     jsonLd: {
       "@context": "https://schema.org",

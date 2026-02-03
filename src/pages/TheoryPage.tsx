@@ -6,8 +6,9 @@ import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 const TheoryPage = () => {
   usePageMetadata({
-    title: "Interactive Circle of Fifths | Guitariz - Free Music Theory Lab",
-    description: "Master music theory with our interactive Circle of Fifths. Free harmonic analysis: visualize key relationships, chord families, and modulation.",
+    title: "Interactive Circle of Fifths - Music Theory Lab | Guitariz",
+    description: "Master functional harmony with our interactive Circle of Fifths. Visualize key relationships, modulations, and chord families.",
+    keywords: "circle of fifths, music theory, functional harmony, key modulation, chord families, music theory lab",
     canonicalUrl: "https://guitariz.studio/theory",
     jsonLd: {
       "@context": "https://schema.org",

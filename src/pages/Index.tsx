@@ -24,15 +24,16 @@ const Index = () => {
 
 
   usePageMetadata({
-    title: "Chord AI Free & Music Theory Studio | Guitariz",
-    description: "The best Chord AI Free: Extract chords, tempo, and scales from any song. Guitariz is your high-fidelity technical suite for the modern guitarist.",
+    title: "Guitariz - Chord AI Free, Music Theory & Studio Tools",
+    description: "The ultimate free music studio: Chord AI, vocal splitter, interactive fretboard, Circle of Fifths, and more. No subscription required.",
+    keywords: "chord ai, chord ai free, music theory, guitar chords, vocal splitter, fretboard, scale explorer, music studio, free music tools",
     canonicalUrl: "https://guitariz.studio",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Guitariz Studio",
       "description": "Professional music theory and AI analysis tools for musicians.",
-      "applicationCategory": "MultimediaApplication",
+      "applicationCategory": "MusicApplication",
       "operatingSystem": "Any"
     }
   });

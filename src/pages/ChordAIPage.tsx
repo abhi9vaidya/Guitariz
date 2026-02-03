@@ -36,8 +36,9 @@ const ChordAIPage = () => {
   const { history, saveToHistory, clearHistory, removeFromHistory } = useAnalysisHistory();
 
   usePageMetadata({
-    title: "Chord AI Free - Neural Audio Transcription & Harmonic Mapping | Guitariz",
-    description: "The best Chord AI Free: Extract chords, tempo, and scales from any audio file using neural networks. High-precision harmonic transcription with no subscription.",
+    title: "Chord AI Free - Audio to Chord Recognition & Music Theory | Guitariz",
+    description: "Extract chords, tempo, and scales from any song for free. Advanced AI chord recognition and harmonic transcription with no subscription.",
+    keywords: "chord ai, chord recognition, chord identifier, extract chords from audio, music ai, guitar chords, audio analysis",
     canonicalUrl: "https://guitariz.studio/chord-ai",
     jsonLd: {
       "@context": "https://schema.org",

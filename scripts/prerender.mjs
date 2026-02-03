@@ -3,25 +3,38 @@ import path from 'path';
 
 const routes = [
   {
+    url: '/',
+    title: 'Guitariz - Chord AI Free, Music Theory & Studio Tools',
+    description: 'The ultimate free music studio: Chord AI, vocal splitter, interactive fretboard, Circle of Fifths, and more. No subscription required.',
+    canonical: 'https://guitariz.studio/',
+    jsonLd: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Guitariz Studio',
+      url: 'https://guitariz.studio/',
+      description: 'Professional music theory and AI analysis tools for musicians.',
+      applicationCategory: 'MusicApplication',
+      operatingSystem: 'Web'
+    })
+  },
+  {
     url: '/chord-ai',
-    title: 'Chord AI Free - Neural Audio Transcription & Harmonic Mapping | Guitariz',
-    description:
-      'The best Chord AI Free: Extract chords, tempo, and scales from any audio file using neural networks. High-precision harmonic transcription with no subscription.',
+    title: 'Chord AI Free - Audio to Chord Recognition & Music Theory | Guitariz',
+    description: 'Extract chords, tempo, and scales from any song for free. Advanced AI chord recognition and harmonic transcription with no subscription.',
     canonical: 'https://guitariz.studio/chord-ai',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: 'Chord AI - Guitariz',
       url: 'https://guitariz.studio/chord-ai',
-      description:
-        'Advanced Chord AI: Extract chords, tempo, and scales from audio using neural networks.',
+      description: 'Advanced Chord AI: Extract chords, tempo, and scales from audio using neural networks.',
       inLanguage: 'en-US'
     })
   },
   {
     url: '/vocal-splitter',
-    title: 'AI Vocal Splitter | Guitariz - Stem Separation',
-    description: 'Separate vocals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.',
+    title: 'AI Vocal Splitter - Stem Separation for Karaoke & Practice | Guitariz',
+    description: 'Separate vocals and instrumentals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.',
     canonical: 'https://guitariz.studio/vocal-splitter',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -36,8 +49,8 @@ const routes = [
   },
   {
     url: '/fretboard',
-    title: 'Interactive Guitar Fretboard | Guitariz - Learn Guitar Theory',
-    description: 'Master guitar theory with our interactive fretboard. Visualize scales, chords, and notes across the entire neck. Perfect for beginners and advanced players.',
+    title: 'Interactive Guitar Fretboard & Scale Explorer | Guitariz',
+    description: 'Master guitar theory with our interactive fretboard. Visualize scales, chords, and notes across the neck. Perfect for guitarists of all levels.',
     canonical: 'https://guitariz.studio/fretboard',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -50,8 +63,8 @@ const routes = [
   },
   {
     url: '/chords',
-    title: 'Guitar Chord Library | Guitariz - 1000+ Chord Diagrams',
-    description: 'Complete guitar chord library with diagrams and finger positions. Learn major, minor, 7th, sus, and advanced jazz chords. Free chord dictionary for all levels.',
+    title: 'Guitar Chord Library - 1000+ Diagrams & Voicings | Guitariz',
+    description: 'Explore a comprehensive guitar chord library. Detailed diagrams, finger positions, and interactive voicings for every level.',
     canonical: 'https://guitariz.studio/chords',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -64,8 +77,8 @@ const routes = [
   },
   {
     url: '/scales',
-    title: 'Guitar Scale Explorer | Guitariz - Interactive Scale Patterns',
-    description: 'Explore guitar scales visually. Major, minor, pentatonic, blues, modes, and exotic scales with interactive fretboard diagrams. Master improvisation and soloing.',
+    title: 'Guitar Scale Explorer - Interactive Scale Patterns & Modes | Guitariz',
+    description: 'Explore guitar scales and modes visually. Interactive patterns for major, minor, pentatonic, and exotic scales.',
     canonical: 'https://guitariz.studio/scales',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -77,9 +90,25 @@ const routes = [
     })
   },
   {
+    url: '/theory',
+    title: 'Interactive Circle of Fifths - Music Theory Lab | Guitariz',
+    description: 'Master functional harmony with our interactive Circle of Fifths. Visualize key relationships, modulations, and chord families.',
+    canonical: 'https://guitariz.studio/theory',
+    jsonLd: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Guitariz Theory Lab',
+      applicationCategory: 'MusicApplication',
+      operatingSystem: 'Web',
+      description: 'Interactive music theory tools featuring the Circle of Fifths.',
+      url: 'https://guitariz.studio/theory',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+    })
+  },
+  {
     url: '/metronome',
-    title: 'Online Metronome | Guitariz - Free Practice Tool',
-    description: 'Free online metronome for musicians. Adjustable tempo, time signatures, and sound options. Perfect for practice, recording, and building rhythm skills.',
+    title: 'Online Metronome & High-Precision Timing | Guitariz',
+    description: 'Free online metronome for precise timing. Adjustable tempo, time signatures, and visual pulse for musicians.',
     canonical: 'https://guitariz.studio/metronome',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -87,6 +116,34 @@ const routes = [
       name: 'Online Metronome - Guitariz',
       url: 'https://guitariz.studio/metronome',
       description: 'Free online metronome with adjustable tempo and time signatures.',
+      inLanguage: 'en-US'
+    })
+  },
+  {
+    url: '/tuner',
+    title: 'Online Guitar Tuner - Chromatic Tuning Precision | Guitariz',
+    description: 'Free online chromatic tuner for guitar, bass, and other instruments. High-precision pitch detection.',
+    canonical: 'https://guitariz.studio/tuner',
+    jsonLd: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Online Tuner - Guitariz',
+      url: 'https://guitariz.studio/tuner',
+      description: 'Professional online chromatic tuner with high-precision detection.',
+      inLanguage: 'en-US'
+    })
+  },
+  {
+    url: '/ear-training',
+    title: 'Ear Training - Level Up Your Musical Hearing | Guitariz',
+    description: 'Gamified ear training for intervals, chords, and pitch recognition. Improve your musicality with our interactive tools.',
+    canonical: 'https://guitariz.studio/ear-training',
+    jsonLd: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Ear Training - Guitariz',
+      url: 'https://guitariz.studio/ear-training',
+      description: 'Interactive ear training tools for musicians.',
       inLanguage: 'en-US'
     })
   }
