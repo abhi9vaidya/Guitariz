@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 import tempfile
@@ -11,6 +11,7 @@ import os
 import threading
 
 from analysis import analyze_file, separate_audio_full
+from websocket_chords import websocket_chord_endpoint
 
 # Try to import madmom, but don't fail if it's not available
 try:
@@ -307,6 +308,15 @@ async def download_separated(session_id: str, track_type: str, format: str = "wa
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.websocket("/ws/chords/{client_id}")
+async def websocket_chords(websocket: WebSocket, client_id: str):
+    """WebSocket endpoint for real-time chord detection.
+    
+    Send audio chunks as base64 PCM and receive chord detections.
+    """
+    await websocket_chord_endpoint(websocket, client_id)
 
 if __name__ == "__main__":
     import uvicorn
