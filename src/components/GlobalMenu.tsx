@@ -14,8 +14,11 @@ import {
     BookOpen,
     Trophy,
     Guitar,
+    Download,
+    Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 const menuItems = [
     { label: "Home", icon: Home, href: "/" },
@@ -33,6 +36,7 @@ const menuItems = [
 export const GlobalMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
+    const { isInstalled, isInstallable, promptInstall } = usePWAInstall();
 
     return (
         <>
@@ -133,7 +137,37 @@ export const GlobalMenu = () => {
                 </nav>
 
                 {/* Footer */}
-                <div className="p-5 border-t border-white/5">
+                <div className="p-5 border-t border-white/5 space-y-3">
+                    {/* Install Button */}
+                    {!isInstalled && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={async () => {
+                                await promptInstall();
+                            }}
+                            disabled={!isInstallable}
+                            className={cn(
+                                "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all border",
+                                isInstallable
+                                    ? "bg-white text-black hover:bg-white/90 border-white/20 font-semibold"
+                                    : "bg-white/5 text-white/40 border-white/10 cursor-not-allowed"
+                            )}
+                        >
+                            <Download className={cn("w-4 h-4", isInstallable && "animate-bounce")} />
+                            <span className="text-sm font-medium">
+                                {isInstallable ? "Install App" : "Install via Browser"}
+                            </span>
+                        </motion.button>
+                    )}
+
+                    {isInstalled && (
+                        <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                            <Check className="w-4 h-4 text-emerald-400" />
+                            <span className="text-sm font-medium text-emerald-400">App Installed</span>
+                        </div>
+                    )}
+
                     <p className="text-[11px] text-neutral-600 text-center">
                         Guitariz Studio • v1.7
                     </p>
