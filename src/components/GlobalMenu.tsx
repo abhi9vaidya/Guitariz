@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { InstallGuide } from "@/components/InstallGuide";
 
 const menuItems = [
     { label: "Home", icon: Home, href: "/" },
@@ -35,6 +36,7 @@ const menuItems = [
 
 export const GlobalMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [showInstallGuide, setShowInstallGuide] = useState(false);
     const location = useLocation();
     const { isInstalled, isInstallable, promptInstall } = usePWAInstall();
 
@@ -144,20 +146,19 @@ export const GlobalMenu = () => {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={async () => {
-                                await promptInstall();
+                                if (isInstallable) {
+                                    await promptInstall();
+                                } else {
+                                    setShowInstallGuide(true);
+                                }
                             }}
-                            disabled={!isInstallable}
                             className={cn(
                                 "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all border",
-                                isInstallable
-                                    ? "bg-white text-black hover:bg-white/90 border-white/20 font-semibold"
-                                    : "bg-white/5 text-white/40 border-white/10 cursor-not-allowed"
+                                "bg-white text-black hover:bg-white/90 border-white/20 font-semibold"
                             )}
                         >
                             <Download className={cn("w-4 h-4", isInstallable && "animate-bounce")} />
-                            <span className="text-sm font-medium">
-                                {isInstallable ? "Install App" : "Install via Browser"}
-                            </span>
+                            <span className="text-sm font-medium">Install App</span>
                         </motion.button>
                     )}
 
@@ -173,6 +174,9 @@ export const GlobalMenu = () => {
                     </p>
                 </div>
             </motion.div>
+
+            {/* Install Guide Dialog */}
+            <InstallGuide isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} />
         </>
     );
 };
