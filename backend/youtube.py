@@ -194,6 +194,24 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
         'force_ipv4': True,  # Fix for HF/Docker DNS issues
     }
     
+    # COOKIES HANDLING
+    # Check for YOUTUBE_COOKIES env var (Netscape format content)
+    cookie_path = None
+    try:
+        import os
+        import tempfile
+        cookies_content = os.environ.get("YOUTUBE_COOKIES")
+        if cookies_content:
+            print("[YouTube] Found YOUTUBE_COOKIES in env, creating temp cookie file...")
+            # Create a temp file for cookies
+            # We use delete=False so we can pass the path to yt-dlp, then delete it manually
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as cf:
+                cf.write(cookies_content)
+                cookie_path = cf.name
+            ydl_opts['cookiefile'] = cookie_path
+    except Exception as e:
+        print(f"[YouTube] ⚠️ Failed to setup cookies: {e}")
+
     if ffmpeg_path:
         ydl_opts['ffmpeg_location'] = ffmpeg_path
     
@@ -213,6 +231,12 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
         try:
             from pytubefix import YouTube
             yt = YouTube(url)
+            
+            # If cookies are available, use them for pytubefix too?
+            # pytubefix doesn't easily accept a cookiefile path in constructor?
+            # It uses 'use_oauth' or 'po_token'.
+            # But we can try 'use_oauth=False, allow_oauth_cache=False' default.
+            
             # Filter for audio only
             stream = yt.streams.get_audio_only()
             if not stream:
@@ -239,7 +263,15 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
 
         except Exception as e_py:
             print(f"[YouTube] pytubefix also failed: {e_py}")
-            raise RuntimeError(f"Download failed. yt-dlp: {e_yt}. pytubefix: {e_py}")
+            raise RuntimeError(f"Download failed.\nyt-dlp: {e_yt}.\npytubefix: {e_py}\n\nRunning in Datacenter? Try setting YOUTUBE_COOKIES env var!")
+
+    finally:
+        # Cleanup cookie file
+        if cookie_path and os.path.exists(cookie_path):
+            try:
+                os.unlink(cookie_path)
+            except:
+                pass
 
     return {
         'audio_path': str(output_path),
