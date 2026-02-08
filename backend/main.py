@@ -25,15 +25,45 @@ except ImportError:
     MADMOM_AVAILABLE = False
     print("[Startup] ℹ madmom module not found - using librosa engine only")
 
-# --- NETWORK DIAGNOSTICS ---
+# --- NETWORK DIAGNOSTICS & PATCH ---
 try:
     print("\n[DIAG] Starting Network Diagnostics...")
     import socket
     import httpx
+    import dns.resolver
+
+    # MONKEY PATCH: Force Google DNS to bypass broken OS resolver
+    print("[DNS] 🛠️ Patching socket.getaddrinfo to use Google DNS (8.8.8.8)...")
+    resolver = dns.resolver.Resolver()
+    resolver.nameservers = ['8.8.8.8', '8.8.4.4']
+    _original_getaddrinfo = socket.getaddrinfo
+
+    def patched_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+        try:
+            # If it's already an IP, pass through
+            try:
+                socket.inet_aton(host)
+                return _original_getaddrinfo(host, port, family, type, proto, flags)
+            except:
+                pass
+            
+            # Resolve against Google DNS
+            # print(f"[DNS Patch] Querying {host}...")
+            answers = resolver.resolve(host, 'A')
+            ip = answers[0].to_text()
+            # print(f"[DNS Patch] Resolved {host} -> {ip}")
+            return _original_getaddrinfo(ip, port, family, type, proto, flags)
+        except Exception as e:
+            # print(f"[DNS Patch] Fallback for {host}: {e}")
+            return _original_getaddrinfo(host, port, family, type, proto, flags)
     
-    # 1. Test DNS
+    # Apply patch
+    socket.getaddrinfo = patched_getaddrinfo
+    print("[DNS] ✓ Patch applied.")
+
+    # 1. Test DNS (Now using Patch)
     target = "www.youtube.com"
-    print(f"[DIAG] Resolving {target}...")
+    print(f"[DIAG] Resolving {target} (Patched)...")
     ip = socket.gethostbyname(target)
     print(f"[DIAG] ✓ DNS OK: {target} -> {ip}")
     

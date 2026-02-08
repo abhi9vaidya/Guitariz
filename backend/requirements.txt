@@ -19,3 +19,4 @@ httpx==0.27.0
 
 yt-dlp>=2024.4.9
 imageio-ffmpeg>=0.4.9
+dnspython>=2.6.0
