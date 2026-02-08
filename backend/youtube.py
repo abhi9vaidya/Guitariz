@@ -197,21 +197,59 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
     if ffmpeg_path:
         ydl_opts['ffmpeg_location'] = ffmpeg_path
     
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        try:
-            info = ydl.extract_info(url, download=True)
+    try:
+        # Try yt-dlp first
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([youtube_url])
+        
+        # Verify file exists
+        if not output_path.exists():
+            raise RuntimeError("yt-dlp failed to create file")
             
-            return {
-                'audio_path': str(output_path),
-                'video_id': video_id,
-                'title': info.get('title', 'Unknown'),
-                'duration': info.get('duration', 0),
-                'thumbnail': info.get('thumbnail', f'https://img.youtube.com/vi/{video_id}/maxresdefault.jpg'),
-                'channel': info.get('channel', info.get('uploader', 'Unknown')),
-                'cached': False,
-            }
-        except Exception as e:
-            raise RuntimeError(f"Failed to download audio: {str(e)}")
+        print(f"[YouTube] Audio extracted with yt-dlp: {output_path}")
+
+    except Exception as e_yt:
+        print(f"[YouTube] yt-dlp failed: {e_yt}. Trying pytubefix fallback...")
+        try:
+            from pytubefix import YouTube
+            yt = YouTube(youtube_url)
+            # Filter for audio only
+            stream = yt.streams.get_audio_only()
+            if not stream:
+                stream = yt.streams.get_highest_resolution()
+                
+            if not stream:
+                raise RuntimeError("No stream found via pytubefix")
+
+            # Pytubefix output handling
+            downloaded_path = stream.download(output_path=str(output_dir), filename=f"{video_id}.mp4") 
+            
+            # Convert to mp3
+            import subprocess
+            print(f"[YouTube] Converting pytubefix output {downloaded_path} to {output_path}...")
+            subprocess.run([
+                'ffmpeg', '-y', '-i', downloaded_path, 
+                '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
+                str(output_path)
+            ], check=True)
+            
+            # Cleanup raw extraction
+            Path(downloaded_path).unlink(missing_ok=True)
+            print(f"[YouTube] Audio extracted with pytubefix: {output_path}")
+
+        except Exception as e_py:
+            print(f"[YouTube] pytubefix also failed: {e_py}")
+            raise RuntimeError(f"Download failed. yt-dlp: {e_yt}. pytubefix: {e_py}")
+
+    return {
+        'audio_path': str(output_path),
+        'video_id': video_id,
+        'title': info.get('title', 'Unknown'),
+        'duration': info.get('duration', 0),
+        'thumbnail': info.get('thumbnail', f'https://img.youtube.com/vi/{video_id}/maxresdefault.jpg'),
+        'channel': info.get('channel', info.get('uploader', 'Unknown')),
+        'cached': False,
+    }
 
 
 def cleanup_old_files(directory: Path, max_age_hours: int = 24):
