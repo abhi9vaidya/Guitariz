@@ -16,6 +16,7 @@ import {
     Guitar,
     Download,
     Check,
+    Split,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
@@ -29,6 +30,7 @@ const menuItems = [
     { label: "Metronome", icon: Clock, href: "/metronome" },
     { label: "Chord AI", icon: Mic, href: "/chord-ai" },
     { label: "Vocal Splitter", icon: Headphones, href: "/vocal-splitter" },
+    { label: "Stem Separator", icon: Split, href: "/stem-separator" },
     { label: "Theory", icon: BookOpen, href: "/theory" },
     { label: "Tuner", icon: Guitar, href: "/tuner" },
     { label: "Ear Training", icon: Trophy, href: "/ear-training" },

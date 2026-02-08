@@ -16,6 +16,10 @@ torch.set_num_threads(num_cores)
 
 # Global model cache to avoid reloading from disk on every request
 _DEMUCS_WRAPPER = None
+_DEMUCS_6STEM_WRAPPER = None
+
+# Stem types for 6-stem separation (htdemucs_6s model)
+STEM_TYPES = ["vocals", "drums", "bass", "guitar", "piano", "other"]
 
 class DemucsSeparator:
     def __init__(self, model_name="htdemucs"):
@@ -61,6 +65,88 @@ def _get_separator():
     if _DEMUCS_WRAPPER is None:
         _DEMUCS_WRAPPER = DemucsSeparator()
     return _DEMUCS_WRAPPER
+
+
+class DemucsSeparator6Stem:
+    """6-stem separator using htdemucs_6s model.
+    
+    Separates audio into: vocals, drums, bass, guitar, piano, other.
+    """
+    def __init__(self, model_name="htdemucs_6s"):
+        from demucs.pretrained import get_model
+        print(f"[Demucs 6-Stem] Loading model {model_name} into memory...")
+        self.model = get_model(model_name)
+        self.model.cpu()
+        self.model.eval()
+        self.samplerate = self.model.samplerate
+
+    def separate_audio_file(self, path, max_duration=300):
+        from demucs.apply import apply_model
+        
+        # Load with librosa to bypass torchaudio backend issues on Windows
+        print(f"[Demucs 6-Stem] Loading audio {Path(path).name}...")
+        y, sr = librosa.load(str(path), sr=self.samplerate, mono=False, duration=max_duration)
+        
+        if len(y.shape) == 1:
+            wav = torch.from_numpy(y).unsqueeze(0)
+        else:
+            wav = torch.from_numpy(y)
+
+        if wav.shape[0] > self.model.audio_channels:
+             wav = wav[:self.model.audio_channels]
+        elif wav.shape[0] < self.model.audio_channels:
+             wav = wav.repeat(self.model.audio_channels, 1)
+
+        # Standard demucs normalization 
+        ref = wav.mean(0)
+        wav = (wav - ref.mean()) / (ref.std() + 1e-8)
+        
+        print(f"[Demucs 6-Stem] Running inference on {wav.shape[1]/sr:.1f}s of audio (CPU)... This may take 5-10 minutes.")
+        with torch.no_grad():
+            # Use overlap=0.1 and shifts=0 for maximum speed on CPU
+            sources = apply_model(self.model, wav[None], shifts=0, overlap=0.1, progress=True)[0]
+        
+        sources = sources * ref.std() + ref.mean()
+        return sr, dict(zip(self.model.sources, sources))
+
+
+def _get_separator_6stem():
+    """Get or create the 6-stem separator instance."""
+    global _DEMUCS_6STEM_WRAPPER
+    if _DEMUCS_6STEM_WRAPPER is None:
+        _DEMUCS_6STEM_WRAPPER = DemucsSeparator6Stem()
+    return _DEMUCS_6STEM_WRAPPER
+
+
+def separate_audio_stems(audio_path: Path) -> Optional[dict]:
+    """Separate audio into 6 stems: vocals, drums, bass, guitar, piano, other.
+    
+    Returns dict with stem names as keys and file paths as values.
+    Example: {"vocals": Path(...), "drums": Path(...), ...}
+    """
+    try:
+        wrapper = _get_separator_6stem()
+        sr, sources = wrapper.separate_audio_file(audio_path)
+        
+        stem_paths = {}
+        for stem_name in STEM_TYPES:
+            if stem_name in sources:
+                stem_audio = sources[stem_name].cpu().numpy().T
+                stem_path = audio_path.parent / f"{audio_path.stem}_{stem_name}.wav"
+                sf.write(str(stem_path), stem_audio, sr)
+                stem_paths[stem_name] = stem_path
+                print(f"[Demucs 6-Stem] Saved {stem_name} stem")
+        
+        print("[Demucs 6-Stem] Done. All 6 stems saved.")
+        gc.collect()
+        
+        return stem_paths
+        
+    except Exception as e:
+        print(f"6-stem audio separation failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 PITCH_CLASS_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])

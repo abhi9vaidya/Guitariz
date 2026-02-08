@@ -16,6 +16,7 @@ const ScalesPage = lazy(() => import("./pages/ScalesPage"));
 const MetronomePage = lazy(() => import("./pages/MetronomePage"));
 const ChordAIPage = lazy(() => import("./pages/ChordAIPage"));
 const VocalSplitterPage = lazy(() => import("./pages/VocalSplitterPage"));
+const StemSeparatorPage = lazy(() => import("./pages/StemSeparatorPage"));
 const TheoryPage = lazy(() => import("./pages/TheoryPage"));
 const TunerPage = lazy(() => import("./pages/TunerPage"));
 const EarTrainingPage = lazy(() => import("./pages/EarTrainingPage"));
@@ -158,6 +159,16 @@ const App = () => {
                 <Suspense fallback={<RouteFallback />}>
                   <PageWrapper>
                     <VocalSplitterPage />
+                  </PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/stem-separator"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PageWrapper>
+                    <StemSeparatorPage />
                   </PageWrapper>
                 </Suspense>
               }

@@ -267,6 +267,12 @@ const VocalSplitterPage = () => {
     setProcessing(true);
     setUploadProgress(0);
 
+    // Notify user immediately that processing has started
+    toast({
+      title: "Processing started",
+      description: "Uploading your file. Separation typically takes 2-3 minutes.",
+    });
+
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);

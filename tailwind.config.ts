@@ -148,6 +148,10 @@ export default {
         "swing": {
           "0%, 100%": { transform: "rotate(-3deg)" },
           "50%": { transform: "rotate(3deg)" }
+        },
+        "spin": {
+          "from": { transform: "rotate(0deg)" },
+          "to": { transform: "rotate(360deg)" }
         }
       },
       animation: {
@@ -156,9 +160,9 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "fade-in-up": "fade-in-up 0.6s ease-out",
         "fade-in-down": "fade-in-down 0.6s ease-out",
-        "slide-in": "slide-in 0.5s ease-out",
+        "slide-in": "slide-in 0.4s ease-out",
         "slide-in-right": "slide-in-right 0.5s ease-out",
-        "scale-in": "scale-in 0.5s ease-out",
+        "scale-in": "scale-in 0.3s ease-out",
         "scale-in-large": "scale-in-large 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
@@ -167,10 +171,7 @@ export default {
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
         "rotate-slow": "rotate-slow 20s linear infinite",
         "swing": "swing 2s ease-in-out infinite",
-        "slide-in": "slide-in 0.4s ease-out",
-        "scale-in": "scale-in 0.3s ease-out",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
-        "float": "float 3s ease-in-out infinite"
+        "spin": "spin 1s linear infinite"
       },
     },
   },

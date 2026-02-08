@@ -1,20 +1,26 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Music2, Layers, Disc, Music, BookOpen, Bot, Wand2, Headphones, Guitar, Trophy } from "lucide-react";
+import { ArrowRight, Music2, Layers, Disc, Music, BookOpen, Bot, Wand2, Headphones, Guitar, Trophy, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Footer from "@/components/Footer";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 
+// Featured AI tools (first row: 2 cards side by side)
+const featuredTools = [
+  { title: "Chord AI", desc: "Neural audio chord detection and harmonic transcription.", icon: Bot, to: "/chord-ai", color: "from-violet-500/20 to-purple-500/20" },
+  { title: "Stem Separator", desc: "AI 6-stem separation: vocals, drums, bass, guitar, piano, other.", icon: Mic, to: "/stem-separator", color: "from-pink-500/20 to-rose-500/20" },
+];
+
+// Standard tool cards (4 per row on large screens)
 const toolCards = [
+  { title: "Vocal Splitter", desc: "AI-powered vocal and instrumental separation.", icon: Wand2, to: "/vocal-splitter", color: "from-cyan-500/20 to-blue-500/20" },
   { title: "Fretboard", desc: "Interactive neck with adaptive note labeling.", icon: Music2, to: "/fretboard", color: "from-emerald-500/20 to-teal-500/20" },
   { title: "Chord Library", desc: "1,000+ voicings with interactive diagrams.", icon: Layers, to: "/chords", color: "from-blue-500/20 to-indigo-500/20" },
   { title: "Scale Explorer", desc: "Visualize modes and exotic scales instantly.", icon: Disc, to: "/scales", color: "from-purple-500/20 to-pink-500/20" },
-  { title: "Metronome", desc: "High-precision timing with visual pulse.", icon: Music, to: "/metronome", color: "from-orange-500/20 to-red-500/20" },
-  { title: "Vocal Splitter", desc: "AI-powered vocal and instrumental separation.", icon: Wand2, to: "/vocal-splitter", color: "from-cyan-500/20 to-blue-500/20" },
-  { title: "Chord AI", desc: "Neural audio chord detection and harmonic transcription.", icon: Bot, to: "/chord-ai", color: "from-violet-500/20 to-purple-500/20" },
   { title: "Theory Wheel", desc: "Interactive Circle of Fifths and key logic.", icon: BookOpen, to: "/theory", color: "from-amber-500/20 to-orange-500/20" },
+  { title: "Metronome", desc: "High-precision timing with visual pulse.", icon: Music, to: "/metronome", color: "from-orange-500/20 to-red-500/20" },
   { title: "Ear Training", desc: "Gamified interval recognition and pitch training.", icon: Trophy, to: "/ear-training", color: "from-yellow-500/20 to-amber-500/20" },
   { title: "Tuner", desc: "Real-time chromatic tuner with cent precision.", icon: Guitar, to: "/tuner", color: "from-rose-500/20 to-pink-500/20" },
 ];
@@ -191,57 +197,117 @@ const Index = () => {
               }}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-20"
+              className="mt-20 space-y-5"
             >
-              {toolCards.map((tool) => (
-                <motion.div
-                  key={tool.title}
-                  variants={{
-                    hidden: { opacity: 0, y: 40 },
-                    show: {
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        type: "spring",
-                        stiffness: 60,
-                        damping: 18
+              {/* Featured AI Tools Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {featuredTools.map((tool) => (
+                  <motion.div
+                    key={tool.title}
+                    variants={{
+                      hidden: { opacity: 0, y: 40 },
+                      show: {
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          type: "spring",
+                          stiffness: 60,
+                          damping: 18
+                        }
                       }
-                    }
-                  }}
-                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    e.currentTarget.style.setProperty("--x", `${e.clientX - rect.left}px`);
-                    e.currentTarget.style.setProperty("--y", `${e.clientY - rect.top}px`);
-                  }}
-                  className="spotlight-card group"
-                >
-                  <Link
-                    to={tool.to}
-                    aria-label={`Open the ${tool.title} tool: ${tool.desc}`}
-                    className="block p-7 rounded-[1.75rem] glass-card transition-all duration-500 relative overflow-hidden"
+                    }}
+                    whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      e.currentTarget.style.setProperty("--x", `${e.clientX - rect.left}px`);
+                      e.currentTarget.style.setProperty("--y", `${e.clientY - rect.top}px`);
+                    }}
+                    className="spotlight-card group"
                   >
-                    {/* Gradient hover effect */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                    <Link
+                      to={tool.to}
+                      aria-label={`Open the ${tool.title} tool: ${tool.desc}`}
+                      className="block p-8 rounded-[1.75rem] glass-card transition-all duration-500 relative overflow-hidden border-2 border-white/10"
+                    >
+                      {/* AI badge */}
+                      <div className="absolute top-4 right-4 z-20 px-2 py-1 rounded-full bg-white/10 text-[10px] font-bold text-white/80 uppercase tracking-widest">
+                        AI Powered
+                      </div>
+                      {/* Gradient hover effect */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-30 group-hover:opacity-60 transition-opacity duration-500`} />
 
-                    <div className="spotlight-glow" />
-                    <div className="relative z-10 space-y-4">
-                      <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-500">
-                        <tool.icon className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
+                      <div className="spotlight-glow" />
+                      <div className="relative z-10 space-y-4">
+                        <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center group-hover:bg-white/15 group-hover:border-white/25 transition-all duration-500">
+                          <tool.icon className="w-7 h-7 text-white group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-2xl font-medium text-white font-display">{tool.title}</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {tool.desc}
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-medium text-white font-display">{tool.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {tool.desc}
-                        </p>
+                      <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
+                        <ArrowRight className="w-10 h-10 text-white" />
                       </div>
-                    </div>
-                    <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
-                      <ArrowRight className="w-10 h-10 text-white" />
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Standard Tools Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {toolCards.map((tool) => (
+                  <motion.div
+                    key={tool.title}
+                    variants={{
+                      hidden: { opacity: 0, y: 40 },
+                      show: {
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          type: "spring",
+                          stiffness: 60,
+                          damping: 18
+                        }
+                      }
+                    }}
+                    whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      e.currentTarget.style.setProperty("--x", `${e.clientX - rect.left}px`);
+                      e.currentTarget.style.setProperty("--y", `${e.clientY - rect.top}px`);
+                    }}
+                    className="spotlight-card group"
+                  >
+                    <Link
+                      to={tool.to}
+                      aria-label={`Open the ${tool.title} tool: ${tool.desc}`}
+                      className="block p-6 rounded-[1.75rem] glass-card transition-all duration-500 relative overflow-hidden"
+                    >
+                      {/* Gradient hover effect */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                      <div className="spotlight-glow" />
+                      <div className="relative z-10 space-y-3">
+                        <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-500">
+                          <tool.icon className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <h3 className="text-lg font-medium text-white font-display">{tool.title}</h3>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {tool.desc}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
+                        <ArrowRight className="w-8 h-8 text-white" />
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           </div>
         </section>

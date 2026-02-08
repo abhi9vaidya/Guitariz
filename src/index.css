@@ -310,6 +310,16 @@
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Premium High-Fidelity Utilities */
 .perspective-container {
   perspective: 1200px;

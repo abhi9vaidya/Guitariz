@@ -10,7 +10,7 @@ import time
 import os
 import threading
 
-from analysis import analyze_file, separate_audio_full
+from analysis import analyze_file, separate_audio_full, separate_audio_stems, STEM_TYPES
 from websocket_chords import websocket_chord_endpoint
 
 # Try to import madmom, but don't fail if it's not available
@@ -252,6 +252,155 @@ def separate_audio(
             tmp_path.unlink(missing_ok=True)
         except Exception:
             pass
+
+
+@app.post("/api/separate-stems")
+def separate_audio_6stems(
+    file: UploadFile = File(...),
+    format: str = Form("wav"),
+):
+    """Separate audio into 6 stems: vocals, drums, bass, guitar, piano, other.
+
+    Uses the htdemucs_6s model for high-quality 6-stem separation.
+
+    Args:
+        file: Audio file upload
+        format: Output container for stems. Supported: "wav" (default), "mp3".
+
+    Returns:
+        JSON with session_id and URLs for each stem download.
+        
+    Notes:
+        - Processing takes 5-10 minutes for a 3-minute song on CPU.
+        - MP3 is smaller and faster to transfer.
+        - WAV is lossless but larger.
+    """
+    print(f"Received 6-stem separation request for file: {file.filename} (format={format})")
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="File required")
+
+    format = (format or "wav").lower().strip()
+    if format not in {"wav", "mp3"}:
+        raise HTTPException(status_code=400, detail="Invalid format. Use 'wav' or 'mp3'.")
+
+    suffix = Path(file.filename).suffix or ".tmp"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        shutil.copyfileobj(file.file, tmp)
+        tmp_path = Path(tmp.name)
+
+    try:
+        print(f"Starting 6-stem separation for {file.filename}...")
+        result = separate_audio_stems(tmp_path)
+
+        if not result:
+            raise HTTPException(status_code=500, detail="6-stem separation failed - model error")
+
+        print("6-stem separation finished, starting transcoding...")
+        session_id = str(uuid.uuid4())
+
+        stem_data = {}
+        all_paths = []
+        
+        for stem_name, stem_path in result.items():
+            stem_path = Path(stem_path)
+            
+            # Optionally transcode to MP3
+            if format == "mp3":
+                try:
+                    mp3_path = stem_path.with_suffix(".mp3")
+                    subprocess.run(
+                        [
+                            "ffmpeg",
+                            "-y",
+                            "-i",
+                            str(stem_path),
+                            "-codec:a",
+                            "libmp3lame",
+                            "-b:a",
+                            "192k",
+                            str(mp3_path),
+                        ],
+                        check=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    stem_path = mp3_path
+                except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                    print(f"MP3 conversion failed for {stem_name}, keeping WAV: {e}")
+            
+            stem_data[stem_name] = str(stem_path)
+            all_paths.append(str(stem_path))
+
+        # Store paths temporarily
+        separated_files[session_id] = {
+            **stem_data,
+            "paths": all_paths,
+            "format": format,
+            "timestamp": time.time(),
+            "type": "6stem-separation"
+        }
+
+        # Build response with download URLs for each stem
+        stem_urls = {}
+        for stem_name in STEM_TYPES:
+            if stem_name in stem_data:
+                stem_urls[f"{stem_name}Url"] = f"/api/separate-stems/download/{session_id}/{stem_name}?format={format}"
+
+        return JSONResponse(
+            {
+                "session_id": session_id,
+                "format": format,
+                "stems": list(stem_data.keys()),
+                **stem_urls,
+            }
+        )
+    except Exception as exc:
+        print(f"6-stem separation error: {exc}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"6-stem separation failed: {str(exc)}")
+    finally:
+        # Clean up original upload
+        try:
+            tmp_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+@app.get("/api/separate-stems/download/{session_id}/{stem_type}")
+async def download_stem(session_id: str, stem_type: str, format: str = "wav"):
+    """Download a specific stem from 6-stem separation.
+
+    Args:
+        session_id: Separation session
+        stem_type: One of: vocals, drums, bass, guitar, piano, other
+        format: "wav" or "mp3" (should match what was requested during /api/separate-stems)
+    """
+    if session_id not in separated_files:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if stem_type not in STEM_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid stem type. Must be one of: {', '.join(STEM_TYPES)}")
+
+    stored = separated_files[session_id]
+    
+    if stem_type not in stored:
+        raise HTTPException(status_code=404, detail=f"Stem '{stem_type}' not found in this session")
+    
+    file_path = Path(stored[stem_type])
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File no longer available")
+
+    ext = file_path.suffix.lower()
+    if ext == ".mp3":
+        media_type = "audio/mpeg"
+        filename = f"{stem_type}.mp3"
+    else:
+        media_type = "audio/wav"
+        filename = f"{stem_type}.wav"
+
+    return FileResponse(file_path, media_type=media_type, filename=filename)
 
 
 @app.get("/api/analyze/download/{file_id}/{filename}")
