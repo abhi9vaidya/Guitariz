@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from collections import defaultdict
 import threading
+import subprocess
 
 # Rate limiting: track requests per IP
 _rate_limit_lock = threading.Lock()
@@ -300,8 +301,10 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             print("[YouTube] Trying Invidious fallback (proxying)...")
             invidious_instances = [
                 "https://inv.tux.pizza",
-                "https://vid.puffyan.us", 
                 "https://invidious.projectsegfau.lt",
+                "https://inv.nadeko.net",
+                "https://invidious.nerdvpn.de",
+                "https://invidious.drgns.space",
                 "https://invidious.jing.rocks",
             ]
             
