@@ -299,12 +299,10 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             # ---------------------------------------------------------
             print("[YouTube] Trying Invidious fallback (proxying)...")
             invidious_instances = [
-                "https://yewtu.be",             # Very reliable
-                "https://invidious.flokinet.to", # Reliable
-                "https://vid.uff.uf.br",
-                "https://invidious.privacydev.net",
-                "https://invidious.projectsegfau.lt",
+                "https://yewtu.be",
+                "https://invidious.flokinet.to",
                 "https://inv.tux.pizza",
+                "https://inv.nadeko.net",
                 "https://invidious.nerdvpn.de",
                 "https://invidious.drgns.space",
                 "https://yt.artemislena.eu",
@@ -315,20 +313,20 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             success = False
             last_err = None
             
+            # --- Invidious Loop ---
             for instance in invidious_instances:
                 try:
                     # m4a audio itag=140
                     download_url = f"{instance}/latest_version?id={video_id}&itag=140"
                     print(f"[YouTube] Trying {instance}...")
                     
-                    with requests.get(download_url, stream=True, timeout=20) as r:
+                    with requests.get(download_url, stream=True, timeout=15) as r:
                          if r.status_code == 200:
                              content_type = r.headers.get('Content-Type', '')
                              if 'text/html' in content_type:
-                                 print(f"[YouTube] {instance} returned HTML (likely error page). Skipping.")
+                                 print(f"[YouTube] {instance} returned HTML. Skipping.")
                                  continue
-                                 
-                             # Save to temp file
+                             
                              temp_audio = output_dir / f"{video_id}.m4a"
                              file_size = 0
                              with open(temp_audio, 'wb') as f:
@@ -336,18 +334,12 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                                      f.write(chunk)
                                      file_size += len(chunk)
                              
-                             if file_size < 10000: # Less than 10KB
-                                 print(f"[YouTube] {instance} returned too small file ({file_size} bytes). Skipping.")
-                                 # Debug: Print first 100 chars
-                                 try:
-                                     with open(temp_audio, 'r', errors='ignore') as f:
-                                         print(f"[YouTube] File preview: {f.read(100)}")
-                                 except: pass
+                             if file_size < 10000:
+                                 print(f"[YouTube] {instance} too small ({file_size}b). Skipping.")
                                  temp_audio.unlink(missing_ok=True)
                                  continue
 
-                             # Convert to MP3
-                             print(f"[YouTube] Converting Invidious output {temp_audio} ({file_size} bytes) to {output_path}...")
+                             print(f"[YouTube] Converting Invidious output {temp_audio} to {output_path}...")
                              subprocess.run([
                                  'ffmpeg', '-y', '-i', str(temp_audio), 
                                  '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
@@ -358,14 +350,64 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                              print(f"[YouTube] Audio extracted via Invidious: {output_path}")
                              success = True
                              break
-                         else:
-                             print(f"[YouTube] {instance} returned {r.status_code}")
                 except Exception as e_inv:
                     print(f"[YouTube] {instance} failed: {e_inv}")
                     last_err = e_inv
 
+            # --- Piped Fallback (If Invidious fails) ---
             if not success:
-                raise RuntimeError(f"All methods failed.\nyt-dlp: {e_yt}\npytubefix: {e_py}\nInvidious: {last_err}\n\nRunning in Datacenter? IP is heavily blocked.")
+                 print("[YouTube] Invidious failed. Trying Piped API fallback...")
+                 piped_instances = [
+                     "https://pipedapi.kavin.rocks",
+                     "https://api.piped.privacy.com.de",
+                     "https://pipedapi.drgns.space",
+                     "https://api.piped.yt",
+                 ]
+                 
+                 for api_base in piped_instances:
+                     try:
+                         print(f"[YouTube] Trying Piped API: {api_base}...")
+                         # Get video streams
+                         resp = requests.get(f"{api_base}/streams/{video_id}", timeout=10)
+                         if resp.status_code != 200:
+                             print(f"[YouTube] Piped {api_base} returned {resp.status_code}")
+                             continue
+                         
+                         data = resp.json()
+                         audio_streams = data.get('audioStreams', [])
+                         # Find m4a stream
+                         target_stream = next((s for s in audio_streams if s.get('format') == 'M4A'), None)
+                         if not target_stream and audio_streams:
+                             target_stream = audio_streams[0] # Fallback to any
+                             
+                         if target_stream:
+                             stream_url = target_stream['url']
+                             print(f"[YouTube] Downloading from Piped stream...")
+                             
+                             # Download the stream
+                             with requests.get(stream_url, stream=True, timeout=20) as r_stream:
+                                 if r_stream.status_code == 200:
+                                     temp_audio = output_dir / f"{video_id}_piped.m4a"
+                                     with open(temp_audio, 'wb') as f:
+                                         for chunk in r_stream.iter_content(chunk_size=8192):
+                                             f.write(chunk)
+                                     
+                                     # Convert
+                                     print(f"[YouTube] Converting Piped output...")
+                                     subprocess.run([
+                                        'ffmpeg', '-y', '-i', str(temp_audio), 
+                                        '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
+                                        str(output_path)
+                                     ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                     
+                                     temp_audio.unlink(missing_ok=True)
+                                     success = True
+                                     break
+                     except Exception as e_piped:
+                         print(f"[YouTube] Piped {api_base} failed: {e_piped}")
+
+            if not success:
+                raise RuntimeError(f"All methods failed.\nyt-dlp: {e_yt}\npytubefix: {e_py}\nInvidious/Piped failed.\n\nRunning in Datacenter? IP is heavily blocked.")
 
     finally:
         # Cleanup cookie file
