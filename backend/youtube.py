@@ -85,7 +85,7 @@ def _setup_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
     # 1. Add Client Config (Try looser clients first)
     opts['extractor_args'] = {
         'youtube': {
-            'player_client': ['android_creator', 'tv_embedded', 'web']
+            'player_client': ['ios', 'web', 'android']
         }
     }
     
@@ -230,12 +230,17 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
         }],
         'quiet': True,
         'no_warnings': True,
-        'force_ipv4': True,
+        # 'force_ipv4': True, # Removed: We fixed DNS at system level, IPv6 might be less blocked
     }
     
     # Use helper for cookies & clients
     ydl_opts = _setup_ydl_opts(ydl_opts)
     cookie_path = ydl_opts.get('cookiefile')
+    
+    # Proxy Support
+    proxy_url = os.environ.get("HTTP_PROXY")
+    if proxy_url:
+        ydl_opts['proxy'] = proxy_url
 
     if ffmpeg_path:
         ydl_opts['ffmpeg_location'] = ffmpeg_path
