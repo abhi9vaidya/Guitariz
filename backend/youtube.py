@@ -410,9 +410,11 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             if not success:
                  print("[YouTube] Piped failed. Trying Cobalt API fallback...")
                  cobalt_instances = [
-                     "https://api.cobalt.tools",
+                     "https://cobalt.git.gay",
+                     "https://cobalt.maybreak.com",
+                     "https://cobalt.tools",
+                     "https://api.cobalt.tools", 
                      "https://cobalt.api.kwiatekmiki.pl",
-                     "https://cobalt.q13.io",
                  ]
                  
                  for api_base in cobalt_instances:
@@ -423,39 +425,55 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                              "Content-Type": "application/json",
                              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                          }
-                         payload = {
+                         
+                         # Try v10 payload first (POST /)
+                         payload_v10 = {
                              "url": f"https://www.youtube.com/watch?v={video_id}",
-                             "isAudioOnly": True,
-                             "aFormat": "mp3"
+                             "downloadMode": "audio",
+                             "audioFormat": "mp3"
                          }
                          
-                         resp = requests.post(f"{api_base}/api/json", json=payload, headers=headers, timeout=15)
-                         if resp.status_code != 200:
-                             print(f"[YouTube] Cobalt {api_base} returned {resp.status_code}: {resp.text}")
-                             continue
-                         
-                         data = resp.json()
-                         download_url = data.get('url')
-                         
+                         try:
+                             resp = requests.post(f"{api_base}/", json=payload_v10, headers=headers, timeout=15)
+                             if resp.status_code == 200:
+                                 data = resp.json()
+                                 download_url = data.get('url')
+                                 if download_url:
+                                     # Success with v10
+                                     pass 
+                                 else:
+                                     # Try v7 payload (POST /api/json)
+                                     raise ValueError("v10 failed")
+                             else:
+                                 raise ValueError(f"v10 returned {resp.status_code}")
+                         except Exception:
+                             # Fallback to v7 style
+                             payload_v7 = {
+                                 "url": f"https://www.youtube.com/watch?v={video_id}",
+                                 "isAudioOnly": True,
+                                 "aFormat": "mp3"
+                             }
+                             resp = requests.post(f"{api_base}/api/json", json=payload_v7, headers=headers, timeout=15)
+                             if resp.status_code != 200:
+                                 print(f"[YouTube] Cobalt {api_base} returned {resp.status_code}: {resp.text}")
+                                 continue
+                             data = resp.json()
+                             download_url = data.get('url')
+
                          if download_url:
                              print(f"[YouTube] Downloading from Cobalt stream...")
-                             # Cobalt usually returns a direct MP3 url or a stream
                              with requests.get(download_url, stream=True, timeout=30) as r_stream:
                                  if r_stream.status_code == 200:
-                                     # Directly save as MP3? Cobalt converts it?
-                                     # Let's save to temp first to be safe
                                      temp_audio = output_dir / f"{video_id}_cobalt.mp3"
                                      with open(temp_audio, 'wb') as f:
                                          for chunk in r_stream.iter_content(chunk_size=8192):
                                              f.write(chunk)
                                      
-                                     # Verify it's valid
                                      if temp_audio.stat().st_size < 10000:
                                           print("[YouTube] Cobalt download too small.")
                                           temp_audio.unlink(missing_ok=True)
                                           continue
 
-                                     # It might already be mp3, but run through ffmpeg to ensure standard format
                                      subprocess.run([
                                         'ffmpeg', '-y', '-i', str(temp_audio), 
                                         '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
