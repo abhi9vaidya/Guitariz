@@ -3,10 +3,10 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+# Configure libc to prefer IPv4 (Apply FIRST to fix apt-get hangs)
+RUN echo "precedence ::ffff:0:0/96 100" >> /etc/gai.conf
+
 # Install system dependencies (Minimal)
-# ffmpeg: processing
-# libsndfile1: soundfile
-# dnsutils/ping: diagnostics
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y \
     dnsutils \
     iputils-ping \
     && rm -rf /var/lib/apt/lists/*
-
-# Configure libc to prefer IPv4 (fixes [Errno -5] in some containers)
-RUN echo "precedence ::ffff:0:0/96 100" >> /etc/gai.conf
 
 # Create a user to avoid running as root (required by Hugging Face)
 RUN useradd -m -u 1000 user
@@ -26,7 +23,10 @@ ENV PATH="/home/user/.local/bin:$PATH"
 # Copy the requirements file into the container
 COPY --chown=user requirements.txt .
 
-# Install dependencies (no Cython/gcc needed if madmom disabled)
+# Install CPU-only Torch first (Much smaller download, prevents build timeout)
+RUN pip install --no-cache-dir torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install madmom separately with --no-build-isolation to use the installed Cython and numpy
