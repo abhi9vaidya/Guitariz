@@ -200,15 +200,29 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
     try:
         cookies_content = os.environ.get("YOUTUBE_COOKIES")
         if cookies_content:
-            print("[YouTube] Found YOUTUBE_COOKIES in env, creating temp cookie file...")
-            # Create a temp file for cookies
-            # We use delete=False so we can pass the path to yt-dlp, then delete it manually
+            # DEBUG: Check if newlines are preserved
+            line_count = cookies_content.count('\n')
+            print(f"[YouTube] Cookies loaded. Length: {len(cookies_content)}, Lines: {line_count}")
+            if line_count < 2:
+                print("[YouTube] ⚠️ Cookies look malformed (one line). Attempting to fix...")
+                # Naive fix: Add newline before .youtube.com if likely missing
+                cookies_content = cookies_content.replace(".youtube.com", "\n.youtube.com")
+                cookies_content = cookies_content.replace("# Netscape", "# Netscape") # Ensure header
+
+            print("[YouTube] Creating temp cookie file...")
             with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as cf:
                 cf.write(cookies_content)
                 cookie_path = cf.name
             ydl_opts['cookiefile'] = cookie_path
     except Exception as e:
         print(f"[YouTube] ⚠️ Failed to setup cookies: {e}")
+
+    # Add client configuration to bypass some blocks
+    ydl_opts['extractor_args'] = {
+        'youtube': {
+            'player_client': ['web', 'ios', 'android'] 
+        }
+    }
 
     if ffmpeg_path:
         ydl_opts['ffmpeg_location'] = ffmpeg_path
