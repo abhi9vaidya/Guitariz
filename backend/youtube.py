@@ -406,8 +406,73 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                      except Exception as e_piped:
                          print(f"[YouTube] Piped {api_base} failed: {e_piped}")
 
+            # --- Cobalt Fallback (The Professional Downloader) ---
             if not success:
-                raise RuntimeError(f"All methods failed.\nyt-dlp: {e_yt}\npytubefix: {e_py}\nInvidious/Piped failed.\n\nRunning in Datacenter? IP is heavily blocked.")
+                 print("[YouTube] Piped failed. Trying Cobalt API fallback...")
+                 cobalt_instances = [
+                     "https://api.cobalt.tools",
+                     "https://cobalt.api.kwiatekmiki.pl",
+                     "https://cobalt.q13.io",
+                 ]
+                 
+                 for api_base in cobalt_instances:
+                     try:
+                         print(f"[YouTube] Trying Cobalt API: {api_base}...")
+                         headers = {
+                             "Accept": "application/json",
+                             "Content-Type": "application/json",
+                             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                         }
+                         payload = {
+                             "url": f"https://www.youtube.com/watch?v={video_id}",
+                             "isAudioOnly": True,
+                             "aFormat": "mp3"
+                         }
+                         
+                         resp = requests.post(f"{api_base}/api/json", json=payload, headers=headers, timeout=15)
+                         if resp.status_code != 200:
+                             print(f"[YouTube] Cobalt {api_base} returned {resp.status_code}: {resp.text}")
+                             continue
+                         
+                         data = resp.json()
+                         download_url = data.get('url')
+                         
+                         if download_url:
+                             print(f"[YouTube] Downloading from Cobalt stream...")
+                             # Cobalt usually returns a direct MP3 url or a stream
+                             with requests.get(download_url, stream=True, timeout=30) as r_stream:
+                                 if r_stream.status_code == 200:
+                                     # Directly save as MP3? Cobalt converts it?
+                                     # Let's save to temp first to be safe
+                                     temp_audio = output_dir / f"{video_id}_cobalt.mp3"
+                                     with open(temp_audio, 'wb') as f:
+                                         for chunk in r_stream.iter_content(chunk_size=8192):
+                                             f.write(chunk)
+                                     
+                                     # Verify it's valid
+                                     if temp_audio.stat().st_size < 10000:
+                                          print("[YouTube] Cobalt download too small.")
+                                          temp_audio.unlink(missing_ok=True)
+                                          continue
+
+                                     # It might already be mp3, but run through ffmpeg to ensure standard format
+                                     subprocess.run([
+                                        'ffmpeg', '-y', '-i', str(temp_audio), 
+                                        '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
+                                        str(output_path)
+                                     ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                     
+                                     temp_audio.unlink(missing_ok=True)
+                                     success = True
+                                     break
+                         else:
+                             print(f"[YouTube] Cobalt response missing url: {data}")
+                             
+                     except Exception as e_cobalt:
+                         print(f"[YouTube] Cobalt {api_base} failed: {e_cobalt}")
+
+            if not success:
+                raise RuntimeError(f"All methods failed.\nyt-dlp: {e_yt}\npytubefix: {e_py}\nInvidious/Piped/Cobalt failed.\n\nRunning in Datacenter? IP is heavily blocked.")
 
     finally:
         # Cleanup cookie file
