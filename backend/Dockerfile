@@ -1,14 +1,15 @@
-# Use Python 3.10 Full (non-slim) to include all networking libraries
-# Note: Madmom support disabled as it requires <3.9
-FROM python:3.10
+# Use Python 3.10 Slim to reduce image size and fix build hangs
+FROM python:3.10-slim
 
-# Install system dependencies and build tools + networking fixes
+WORKDIR /app
+
+# Install system dependencies (Minimal)
+# ffmpeg: processing
+# libsndfile1: soundfile
+# dnsutils/ping: diagnostics
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
-    build-essential \
-    gcc \
-    g++ \
     ca-certificates \
     dnsutils \
     iputils-ping \
@@ -22,16 +23,11 @@ RUN useradd -m -u 1000 user
 USER user
 ENV PATH="/home/user/.local/bin:$PATH"
 
-WORKDIR /app
-
 # Copy the requirements file into the container
 COPY --chown=user requirements.txt .
 
-# Install Cython and numpy<1.24 first (required for madmom compatibility)
-RUN pip install --no-cache-dir "Cython>=0.25" "numpy<1.24.0"
-
-# Install all packages except madmom first
-RUN pip install --no-cache-dir -r requirements.txt || true
+# Install dependencies (no Cython/gcc needed if madmom disabled)
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Install madmom separately with --no-build-isolation to use the installed Cython and numpy
 # RUN pip install --no-cache-dir --no-build-isolation madmom>=0.16.1
