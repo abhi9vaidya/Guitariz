@@ -11,13 +11,18 @@ const PIPED_INSTANCES = [
     "https://api.piped.privacy.com.de",
     "https://pipedapi.drgns.space",
     "https://api.piped.yt",
-    "https://pipedapi.kavin.rocks" // Duplicate for retry
+    "https://pipedapi.kavin.rocks",
+    "https://api.piped.otp.xyz",
+    "https://api.piped.projectsegfau.lt",
+    "https://pipedapi.adminforge.de",
+    "https://api.piped.r4fo.com"
 ];
 
 const COBALT_INSTANCES = [
     "https://api.cobalt.tools",
     "https://cobalt.git.gay",
-    "https://cobalt.maybreak.com"
+    "https://cobalt.maybreak.com",
+    "https://cobalt.tools"
 ];
 
 export function extractVideoId(url: string): string | null {
@@ -43,10 +48,10 @@ export async function downloadYouTubeAudio(
     // 1. Try Piped API
     for (const api of PIPED_INSTANCES) {
         try {
-            if (onProgress) onProgress(`Fetching metadata from ${new URL(api).hostname}...`);
-
+            if (onProgress) onProgress(`Trying Piped (${new URL(api).hostname})...`);
+            // Short timeout for metadata fetch
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
 
             const resp = await fetch(`${api}/streams/${videoId}`, {
                 signal: controller.signal
@@ -56,15 +61,13 @@ export async function downloadYouTubeAudio(
             if (!resp.ok) continue;
 
             const data = await resp.json();
-            const audioStreams: AudioStream[] = data.audioStreams;
+            const audioStreams: AudioStream[] = data.audioStreams || [];
 
-            // Find M4A (usually works best with browser fetch)
+            // Find M4A (usually works best) or any audio
             const stream = audioStreams.find(s => s.format === 'M4A') || audioStreams[0];
 
             if (stream) {
-                if (onProgress) onProgress("Downloading audio stream...");
-
-                // Fetch the actual audio file
+                if (onProgress) onProgress("Downloading audio...");
                 const audioResp = await fetch(stream.url);
                 if (!audioResp.ok) throw new Error("Stream fetch failed");
 
@@ -79,50 +82,68 @@ export async function downloadYouTubeAudio(
                 };
             }
         } catch (e) {
-            console.warn(`Piped ${api} failed:`, e);
+            console.warn(`Piped ${api} failed`);
         }
     }
 
-    // 2. Try Cobalt API (Backup) -- Cobalt doesn't always return metadata
+    // 2. Try Cobalt API (Backup)
+    // We try both v7 (legacy) and v10 payload structures
     for (const api of COBALT_INSTANCES) {
         try {
-            if (onProgress) onProgress(`Trying Cobalt ${new URL(api).hostname}...`);
+            if (onProgress) onProgress(`Trying Cobalt (${new URL(api).hostname})...`);
 
-            const resp = await fetch(`${api}/api/json`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            // Payload strategies
+            const payloads = [
+                // v10 style
+                {
                     url: url,
-                    vCodec: "h264",
-                    vQuality: "720",
-                    aFormat: "mp3",
-                    isAudioOnly: true
-                })
-            });
+                    downloadMode: "audio",
+                    audioFormat: "mp3"
+                },
+                // v7 style
+                {
+                    url: url,
+                    isAudioOnly: true,
+                    aFormat: "mp3"
+                }
+            ];
 
-            if (!resp.ok) continue;
-            const data = await resp.json();
+            for (const payload of payloads) {
+                try {
+                    const resp = await fetch(`${api}/api/json`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
 
-            if (data.url) {
-                if (onProgress) onProgress("Downloading from Cobalt...");
-                const audioResp = await fetch(data.url);
-                const blob = await audioResp.blob();
-                const file = new File([blob], `${videoId}.mp3`, { type: 'audio/mpeg' });
+                    if (!resp.ok) continue;
+                    const data = await resp.json();
 
-                // Cobalt might not verify metadata in legacy mode
-                return {
-                    file,
-                    title: `YouTube Video (${videoId})`,
-                    duration: 0
-                };
+                    const downloadUrl = data.url || data.stream;
+                    if (downloadUrl) {
+                        if (onProgress) onProgress("Downloading from Cobalt...");
+                        const audioResp = await fetch(downloadUrl);
+                        const blob = await audioResp.blob();
+                        const file = new File([blob], `${videoId}.mp3`, { type: 'audio/mpeg' });
+
+                        return {
+                            file,
+                            title: `YouTube Video (${videoId})`,
+                            duration: 0,
+                            thumbnailUrl: undefined
+                        };
+                    }
+                } catch (innerE) {
+                    // try next payload
+                }
             }
         } catch (e) {
-            console.warn(`Cobalt ${api} failed:`, e);
+            console.warn(`Cobalt ${api} failed`);
         }
     }
 
-    throw new Error("All download methods failed. The video might be region-locked or private.");
+    throw new Error("All download methods failed. The video might be region-locked to your IP or protected.");
 }
