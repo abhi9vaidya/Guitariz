@@ -280,7 +280,6 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             downloaded_path = stream.download(output_path=str(output_dir), filename=f"{video_id}.mp4") 
             
             # Convert to mp3
-            import subprocess
             print(f"[YouTube] Converting pytubefix output {downloaded_path} to {output_path}...")
             subprocess.run([
                 'ffmpeg', '-y', '-i', downloaded_path, 
@@ -300,8 +299,8 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             # ---------------------------------------------------------
             print("[YouTube] Trying Invidious fallback (proxying)...")
             invidious_instances = [
-                "https://inv.tux.pizza",
                 "https://invidious.projectsegfau.lt",
+                "https://inv.tux.pizza",
                 "https://inv.nadeko.net",
                 "https://invidious.nerdvpn.de",
                 "https://invidious.drgns.space",
