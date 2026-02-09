@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from youtube import extract_audio, get_video_info
 import yt_dlp
+import pytubefix
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -17,6 +18,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def debug_youtube(url: str):
     print(f"--- Debugging YouTube Extraction for {url} ---")
     print(f"yt-dlp version: {yt_dlp.version.__version__}")
+    print(f"pytubefix version: {pytubefix.__version__}")
     
     # Check Environment Variables
     print("\n[Environment Variables]")

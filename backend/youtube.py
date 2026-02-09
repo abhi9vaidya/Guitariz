@@ -282,15 +282,20 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             
             # Prepare kwargs
             yt_kwargs = {}
-            if po_token and visitor_data:
-                print(f"[YouTube] Passing PO Token to pytubefix...")
-                yt_kwargs['use_po_token'] = True
-                yt_kwargs['po_token'] = po_token
-                yt_kwargs['visitor_data'] = visitor_data
-            else:
-                yt_kwargs['use_po_token'] = True # Try auto-generation
-            
-            yt = YouTube(url, **yt_kwargs)
+            # Attempt to init YouTube object
+            try:
+                if po_token and visitor_data:
+                    print(f"[YouTube] Passing PO Token to pytubefix...")
+                    yt_kwargs['use_po_token'] = True
+                    yt_kwargs['po_token'] = po_token
+                    yt_kwargs['visitor_data'] = visitor_data
+                    yt = YouTube(url, **yt_kwargs)
+                else:
+                    yt_kwargs['use_po_token'] = True # Try auto-generation
+                    yt = YouTube(url, **yt_kwargs)
+            except TypeError as te:
+                print(f"[YouTube] ⚠️ pytubefix init failed with args: {te}. Retrying with defaults...")
+                yt = YouTube(url, use_po_token=True)
             
             # If cookies are available, use them for pytubefix too?
             # pytubefix doesn't easily accept a cookiefile path in constructor?
