@@ -18,6 +18,13 @@ const PIPED_INSTANCES = [
     "https://pipedapi.tokhmi.xyz",
 ];
 
+// CORS Proxies to bypass browser restrictions
+const CORS_PROXIES = [
+    "https://corsproxy.io/?",
+    "https://api.allorigins.win/raw?url=",
+    // "https://cors-anywhere.herokuapp.com/", // Often rate limited
+];
+
 interface AudioExtractionResult {
     blob: Blob;
     filename: string;
@@ -28,7 +35,70 @@ interface AudioExtractionResult {
  * Returns a Blob of the audio file if successful.
  */
 export async function extractAudioFromUrl(url: string, onProgress?: (msg: string) => void): Promise<AudioExtractionResult | null> {
-    // 1. Try Cobalt Instances
+
+    // 1. Try Piped Instances (Easier to proxy as they use GET)
+    for (const instance of PIPED_INSTANCES) {
+        try {
+            // Extract Video ID
+            const videoIdMatch = url.match(/(?:v=|\/)([\w-]{11})(?:\?|&|\/|$)/);
+            if (!videoIdMatch) continue;
+            const videoId = videoIdMatch[1];
+
+            if (onProgress) onProgress(`Trying Piped instance: ${instance}...`);
+
+            // Iterate through CORS proxies for each Piped instance
+            for (const proxy of CORS_PROXIES) {
+                try {
+                    const targetUrl = `${instance}/streams/${videoId}`;
+                    const proxiedUrl = `${proxy}${encodeURIComponent(targetUrl)}`;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
+
+                    const response = await fetch(proxiedUrl, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) continue;
+
+                    const data = await response.json();
+
+                    // Find audio stream
+                    const audioStreams = data.audioStreams || [];
+                    // Prefer m4a or webm with highest bitrate
+                    const bestStream = audioStreams.find((s: { mimeType: string; url: string }) => s.mimeType.includes("audio/mp4") || s.mimeType.includes("audio/m4a"))
+                        || audioStreams[0];
+
+                    if (!bestStream) continue;
+
+                    if (onProgress) onProgress("Downloading audio from Piped...");
+
+                    // Proxy the download link too!
+                    const audioTargetUrl = bestStream.url;
+                    const proxiedAudioUrl = `${proxy}${encodeURIComponent(audioTargetUrl)}`;
+
+                    const audioRes = await fetch(proxiedAudioUrl);
+                    if (!audioRes.ok) continue;
+
+                    const blob = await audioRes.blob();
+                    const filename = `${data.title || "audio"}.mp3`;
+
+                    return { blob, filename };
+
+                } catch (e) {
+                    // Try next proxy
+                    continue;
+                }
+            }
+
+        } catch (e) {
+            console.warn(`Piped instance ${instance} failed`, e);
+        }
+    }
+
+    // 2. Try Cobalt Instances (Fallback)
+    // Cobalt uses POST, which is harder for some simple CORS proxies, but we'll try direct + proxy
     for (const instance of COBALT_INSTANCES) {
         try {
             if (onProgress) onProgress(`Trying Cobalt instance: ${instance}...`);
@@ -39,90 +109,41 @@ export async function extractAudioFromUrl(url: string, onProgress?: (msg: string
                 isAudioOnly: true,
             };
 
-            // AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+            // Direct attempt first (some instances might allow CORS)
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const response = await fetch(`${instance}/api/json`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal,
+                });
+                clearTimeout(timeoutId);
 
-            const response = await fetch(`${instance}/api/json`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                body: JSON.stringify(payload),
-                signal: controller.signal,
-            });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status !== "error" && data.url) {
+                        const audioRes = await fetch(data.url); // Try direct download
+                        if (audioRes.ok) {
+                            const blob = await audioRes.blob();
+                            const filename = data.filename || "audio.mp3";
+                            return { blob, filename };
+                        }
+                    }
+                }
+            } catch (e) {
+                // Direct failed, proceed to proxy (if possible for POST)
+            }
 
-            clearTimeout(timeoutId);
-
-            if (!response.ok) continue;
-
-            const data = await response.json();
-
-            // Some instances return different error structures
-            if (data.status === "error" || ('text' in data && !data.url)) continue;
-            if (!data.url) continue;
-
-            // Found a download URL! Now fetch the blob
-            if (onProgress) onProgress("Downloading audio file...");
-
-            // Fetch audio blob (this might tricky if CORS is strict, but usually Cobalt is open)
-            const audioRes = await fetch(data.url);
-            if (!audioRes.ok) continue;
-
-            const blob = await audioRes.blob();
-            // Filename from header or fallback
-            // Cobalt usually sends "filename" in JSON
-            const filename = data.filename || "audio.mp3";
-
-            return { blob, filename };
+            // Proxying POST requests is tricky with free proxies (often strip body or headers)
+            // Skip proxy for Cobalt for now unless we find a specific POST-friendly proxy service
 
         } catch (e) {
             console.warn(`Cobalt instance ${instance} failed`, e);
-        }
-    }
-
-    // 2. Try Piped Instances (Fallback)
-    for (const instance of PIPED_INSTANCES) {
-        try {
-            if (onProgress) onProgress(`Trying Piped instance: ${instance}...`);
-
-            // Extract Video ID
-            const videoIdMatch = url.match(/(?:v=|\/)([\w-]{11})(?:\?|&|\/|$)/);
-            if (!videoIdMatch) continue;
-            const videoId = videoIdMatch[1];
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
-
-            const response = await fetch(`${instance}/streams/${videoId}`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-
-            if (!response.ok) continue;
-
-            const data = await response.json();
-
-            // Find audio stream
-            const audioStreams = data.audioStreams || [];
-            // Prefer m4a or webm with highest bitrate
-            const bestStream = audioStreams.find((s: { mimeType: string; url: string }) => s.mimeType.includes("audio/mp4") || s.mimeType.includes("audio/m4a"))
-                || audioStreams[0];
-
-            if (!bestStream) continue;
-
-            if (onProgress) onProgress("Downloading audio from Piped...");
-            const audioRes = await fetch(bestStream.url);
-            if (!audioRes.ok) continue;
-
-            const blob = await audioRes.blob();
-            const filename = `${data.title || "audio"}.mp3`; // Piped doesn't give exact filename, we make one
-
-            return { blob, filename };
-
-        } catch (e) {
-            console.warn(`Piped instance ${instance} failed`, e);
         }
     }
 
