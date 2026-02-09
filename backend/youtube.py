@@ -108,6 +108,7 @@ def _setup_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
     try:
         cookies_content = os.environ.get("YOUTUBE_COOKIES")
         if cookies_content:
+            print("[YouTube] 🍪 Found YOUTUBE_COOKIES environment variable. loaded successfully.")
             line_count = cookies_content.count('\n')
             if line_count < 2:
                 # Naive fix for mangled secrets
@@ -117,6 +118,8 @@ def _setup_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
             with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as cf:
                 cf.write(cookies_content)
                 opts['cookiefile'] = cf.name
+        else:
+            print("[YouTube] ❌ No YOUTUBE_COOKIES found in environment.")
     except Exception as e:
         print(f"[YouTube] ⚠️ Failed to setup cookies: {e}")
         
