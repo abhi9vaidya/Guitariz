@@ -101,8 +101,8 @@ def _setup_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
         # Format: client+visitor_data+po_token
         # Note: PO Token is bound to the 'web' client usually
         opts['extractor_args']['youtube']['po_token'] = [f"web+{visitor_data}+{po_token}"]
-        # Ensure 'web' is the first client when using PO Token
-        opts['extractor_args']['youtube']['player_client'] = ['web', 'ios', 'android']
+        # Ensure 'web' is the first client when using PO Token, but add others
+        opts['extractor_args']['youtube']['player_client'] = ['web', 'android', 'ios', 'mweb', 'tv']
 
     # 3. Add Cookies
     try:
@@ -275,7 +275,22 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
         print(f"[YouTube] yt-dlp failed: {e_yt}. Trying pytubefix fallback...")
         try:
             from pytubefix import YouTube
-            yt = YouTube(url)
+            
+            # Pass PO Token to pytubefix if available
+            po_token = os.environ.get("YOUTUBE_PO_TOKEN")
+            visitor_data = os.environ.get("YOUTUBE_VISITOR_DATA")
+            
+            # Prepare kwargs
+            yt_kwargs = {}
+            if po_token and visitor_data:
+                print(f"[YouTube] Passing PO Token to pytubefix...")
+                yt_kwargs['use_po_token'] = True
+                yt_kwargs['po_token'] = po_token
+                yt_kwargs['visitor_data'] = visitor_data
+            else:
+                yt_kwargs['use_po_token'] = True # Try auto-generation
+            
+            yt = YouTube(url, **yt_kwargs)
             
             # If cookies are available, use them for pytubefix too?
             # pytubefix doesn't easily accept a cookiefile path in constructor?
