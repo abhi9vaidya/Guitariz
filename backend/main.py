@@ -9,6 +9,11 @@ import subprocess
 import time
 import os
 import threading
+import socket
+import httpx
+import dns.resolver
+from contextlib import asynccontextmanager
+import uvicorn
 
 from analysis import analyze_file, separate_audio_full, separate_audio_stems, STEM_TYPES
 from websocket_chords import websocket_chord_endpoint
@@ -28,9 +33,6 @@ except ImportError:
 # --- NETWORK DIAGNOSTICS & PATCH ---
 # --- NETWORK DIAGNOSTICS & PATCH ---
 print("\n[DIAG] Starting Network Diagnostics (v1.9.4)...")
-import socket
-import httpx
-import dns.resolver
 
 # 1. Test Upstream DNS (Google) directly
 try:
@@ -71,7 +73,7 @@ try:
             try:
                 answers = res.resolve(hostname, 'A')
                 return answers[0].to_text()
-            except:
+            except Exception:
                 pass
         return _original_gethostbyname(hostname)
 
@@ -101,7 +103,7 @@ except Exception as e:
 print("[DIAG] Diagnostics complete.\n")
 # ---------------------------
 
-from contextlib import asynccontextmanager
+
 
 # Store separated audio files temporarily (in production, use S3/cloud storage)
 # Format: { id: {"paths": [path1, path2], "timestamp": float} }
@@ -222,9 +224,9 @@ def analyze(file: UploadFile = File(...), separate_vocals: bool = Form(False), u
                 
                 print(f"Returning result with keys: {result.keys()}")
                 return JSONResponse(result)
-            except Exception as exc: 
-                print(f"[API] Analysis failed: {exc}")
-                raise HTTPException(status_code=500, detail=f"Analysis failed: {exc}")
+            except Exception: 
+                print("[API] Analysis failed")
+                raise HTTPException(status_code=500, detail="Analysis failed")
         finally:
             try:
                 if 'tmp_path' in locals():
@@ -680,8 +682,6 @@ async def websocket_chords(websocket: WebSocket, client_id: str):
     await websocket_chord_endpoint(websocket, client_id)
 
 if __name__ == "__main__":
-    import uvicorn
-    import os
     # Hugging Face Spaces uses port 7860 by default
     port = int(os.environ.get("PORT", 7860))
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -2,8 +2,6 @@
 import os
 import sys
 import logging
-import argparse
-from pathlib import Path
 
 # Add backend directory to sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

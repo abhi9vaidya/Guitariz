@@ -7,7 +7,6 @@ Handles downloading audio from YouTube URLs for chord analysis.
 import os
 import re
 import tempfile
-import hashlib
 import time
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -124,7 +123,7 @@ def _setup_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
         }
         
         if po_token and visitor_data:
-            print(f"[YouTube] 🛡️ Using PO Token and Visitor Data for authentication")
+            print("[YouTube] 🛡️ Using PO Token and Visitor Data for authentication")
             opts['extractor_args']['youtube']['po_token'] = [f"web+{visitor_data}+{po_token}"]
             opts['extractor_args']['youtube']['player_client'] = ['web', 'android', 'ios', 'mweb', 'tv']
     else:
@@ -160,8 +159,10 @@ def get_video_info(url: str) -> Dict[str, Any]:
             info = ydl.extract_info(url, download=False)
             # Clean up cookie if created
             if 'cookiefile' in ydl_opts and os.path.exists(ydl_opts['cookiefile']):
-                try: os.unlink(ydl_opts['cookiefile'])
-                except: pass
+                try: 
+                    os.unlink(ydl_opts['cookiefile'])
+                except Exception: 
+                    pass
 
             return {
                 'video_id': video_id,
@@ -173,9 +174,11 @@ def get_video_info(url: str) -> Dict[str, Any]:
         except Exception as e:
             # Cleanup on error too
             if 'cookiefile' in ydl_opts and os.path.exists(ydl_opts['cookiefile']):
-                try: os.unlink(ydl_opts['cookiefile'])
-                except: pass
-            raise RuntimeError(f"Failed to get video info: {str(e)}")
+                try: 
+                    os.unlink(ydl_opts['cookiefile'])
+                except Exception: 
+                    pass
+            raise RuntimeError(f"Failed to get video info step: {str(e)}")
 
 
 def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]:
@@ -295,7 +298,7 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             # Attempt to init YouTube object
             try:
                 if po_token and visitor_data:
-                    print(f"[YouTube] Passing PO Token to pytubefix...")
+                    print("[YouTube] Passing PO Token to pytubefix...")
                     yt_kwargs['use_po_token'] = True
                     yt_kwargs['po_token'] = po_token
                     yt_kwargs['visitor_data'] = visitor_data
@@ -329,7 +332,7 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                 'ffmpeg', '-y', '-i', downloaded_path, 
                 '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
                 str(output_path)
-            ], check=True)
+            ], check=True, capture_output=True)
             
             # Cleanup raw extraction
             Path(downloaded_path).unlink(missing_ok=True)
@@ -364,7 +367,6 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
             import requests
             
             success = False
-            last_err = None
             
             # --- Invidious Loop ---
             for instance in invidious_instances:
@@ -403,9 +405,8 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                              print(f"[YouTube] Audio extracted via Invidious: {output_path}")
                              success = True
                              break
-                except Exception as e_inv:
-                    print(f"[YouTube] {instance} failed: {e_inv}")
-                    last_err = e_inv
+                except Exception:
+                    print(f"[YouTube] {instance} failed")
 
             # --- Piped Fallback (If Invidious fails) ---
             if not success:
@@ -437,7 +438,7 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                              
                          if target_stream:
                              stream_url = target_stream['url']
-                             print(f"[YouTube] Downloading from Piped stream...")
+                             print("[YouTube] Downloading from Piped stream...")
                              
                              # Download the stream
                              with requests.get(stream_url, stream=True, timeout=20) as r_stream:
@@ -448,7 +449,7 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                                              f.write(chunk)
                                      
                                      # Convert
-                                     print(f"[YouTube] Converting Piped output...")
+                                     print("[YouTube] Converting Piped output...")
                                      subprocess.run([
                                         'ffmpeg', '-y', '-i', str(temp_audio), 
                                         '-vn', '-acodec', 'libmp3lame', '-q:a', '2', 
@@ -516,7 +517,7 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                              download_url = data.get('url')
 
                          if download_url:
-                             print(f"[YouTube] Downloading from Cobalt stream...")
+                             print("[YouTube] Downloading from Cobalt stream...")
                              with requests.get(download_url, stream=True, timeout=30) as r_stream:
                                  if r_stream.status_code == 200:
                                      temp_audio = output_dir / f"{video_id}_cobalt.mp3"
@@ -545,14 +546,14 @@ def extract_audio(url: str, output_dir: Optional[Path] = None) -> Dict[str, Any]
                          print(f"[YouTube] Cobalt {api_base} failed: {e_cobalt}")
 
             if not success:
-                raise RuntimeError(f"All methods failed.\nyt-dlp: {e_yt}\npytubefix: {e_py}\nInvidious/Piped/Cobalt failed.\n\nRunning in Datacenter? IP is heavily blocked.")
+                raise RuntimeError("All methods failed (yt-dlp, pytubefix, Invidious/Piped/Cobalt). Running in Datacenter? IP is heavily blocked.")
 
     finally:
         # Cleanup cookie file
         if cookie_path and os.path.exists(cookie_path):
             try:
                 os.unlink(cookie_path)
-            except:
+            except Exception:
                 pass
 
     return {
