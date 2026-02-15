@@ -649,100 +649,87 @@ const ChordAIPage = () => {
           ]} />
 
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-            <div className="space-y-6">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-white/5 bg-white/[0.02] text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6">
+            <div className="space-y-4">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
                 <Bot className="w-3 h-3" />
                 <span>Neural Audio Transcription</span>
               </div>
 
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-7xl font-light tracking-tighter text-white">
-                  Chord AI <span className="text-muted-foreground font-thin">Free</span>
+              <div className="space-y-2">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
+                  Chord AI <span className="text-muted-foreground font-thin italic">Free</span>
                 </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-light">
-                  Decode the architecture of any song using our <strong>Chord AI Free</strong> engine. Extract harmonic progressions, tempo clusters, and scale maps from raw audio instantly. <span className="text-white/40">Enable "Vocal Filter" for better chord accuracy on songs with vocals.</span>
+                <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+                  Decode harmonic progressions and scales from raw audio using our production-grade engine.
                 </p>
-                <div className="mt-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 max-w-2xl">
-                  <p className="text-xs text-amber-200/90">
-                    <strong className="text-amber-100">Chord AI Free:</strong> This tool is completely free with no subscription required. Chord detection is approximate and works best with simple acoustic songs. <strong className="text-amber-100">Vocal Filter</strong> separates instrumentals for better accuracy (takes 3-5 minutes). You can download the instrumental track after analysis.
-                  </p>
-                </div>
               </div>
             </div>
 
             {!audioBuffer && (
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                className="h-14 px-8 rounded-2xl bg-white text-black hover:bg-white/90 text-base font-semibold shadow-2xl"
+                className="h-12 px-6 rounded-xl bg-white text-black hover:bg-white/90 text-sm font-bold shadow-xl transition-all active:scale-95"
               >
-                <Upload className="w-5 h-5 mr-2" />
+                <Upload className="w-4 h-4 mr-2" />
                 Select Audio File
               </Button>
             )}
           </div>
 
+          {/* Alert Banner - More compact */}
+          <div className="mb-12 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 max-w-2xl">
+            <p className="text-[11px] text-amber-200/70 leading-relaxed">
+              <strong className="text-amber-100">Pro Tip:</strong> Enabling the <strong className="text-amber-100 italic">Vocal Filter</strong> significantly increases accuracy for songs with singing by isolating instrumentals.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Main Engine Room */}
-            <div className="lg:col-span-8 space-y-8">
-              {/* Analysis Settings - Always visible */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3">
-                <div className={cn(
-                  "flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5 transition-all text-right",
-                  analysisLoading ? "opacity-40 cursor-not-allowed border-amber-500/20" : "opacity-100"
-                )}>
-                  <div className="flex flex-col items-end">
-                    <Label htmlFor="engine-switch-top" className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold cursor-pointer">
-                      More Accurate
-                    </Label>
-                    {analysisLoading && <span className="text-[8px] text-amber-500/80 font-bold uppercase tracking-widest leading-none">{useMadmom ? "Switching..." : "Tuning..."}</span>}
+            <div className="lg:col-span-8 space-y-6">
+              <div className="glass-card rounded-[2rem] border border-white/5 bg-[#0d0d0d]/95 shadow-2xl overflow-hidden min-h-[500px] flex flex-col transition-all">
+                {/* Internal Settings Toolbar - Consolidated */}
+                <div className="p-4 border-b border-white/5 bg-white/[0.01] flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Studio Engine</span>
                   </div>
-                  <Switch
-                    id="engine-switch-top"
-                    checked={!useMadmom}
-                    onCheckedChange={(checked) => setUseMadmom(!checked)}
-                    disabled={analysisLoading}
-                  />
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="vocal-switch" className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter">Vocal Filter</Label>
+                      <Switch id="vocal-switch" checked={separateVocals} onCheckedChange={setSeparateVocals} disabled={analysisLoading} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="engine-switch" className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter">Accurate</Label>
+                      <Switch id="engine-switch" checked={!useMadmom} onCheckedChange={(c) => setUseMadmom(!c)} disabled={analysisLoading} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="mode-switch" className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter">Complex</Label>
+                      <Switch id="mode-switch" checked={!showSimple} onCheckedChange={(c) => setShowSimple(!c)} disabled={analysisLoading} />
+                    </div>
+                  </div>
                 </div>
 
-                <div className={cn(
-                  "flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5 transition-all text-right",
-                  analysisLoading ? "opacity-40 cursor-not-allowed border-amber-500/20" : "opacity-100"
-                )}>
-                  <div className="flex flex-col items-end">
-                    <Label htmlFor="mode-switch-top" className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold cursor-pointer">
-                      Complex Mode
-                    </Label>
-                    {analysisLoading && <span className="text-[8px] text-amber-500/80 font-bold uppercase tracking-widest leading-none">Locked</span>}
+                {/* Status Bar - Reintegrated */}
+                {(analysisLoading || (uploadProgress !== undefined && uploadProgress < 100)) && (
+                  <div className="px-4 py-2 bg-blue-500/5 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-3 h-3 text-blue-400 animate-pulse" />
+                      <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">
+                        {uploadProgress !== undefined && uploadProgress < 100 ? "Uploading" : "Analyzing"} Engine State...
+                      </span>
+                    </div>
+                    {uploadProgress !== undefined && uploadProgress < 100 && (
+                      <div className="flex items-center gap-3 w-32">
+                        <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                        </div>
+                        <span className="text-[9px] font-mono text-blue-400">{uploadProgress}%</span>
+                      </div>
+                    )}
                   </div>
-                  <Switch
-                    id="mode-switch-top"
-                    checked={!showSimple}
-                    onCheckedChange={(checked) => setShowSimple(!checked)}
-                    disabled={analysisLoading}
-                  />
-                </div>
-
-                <div className={cn(
-                  "flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5 transition-all text-right",
-                  analysisLoading ? "opacity-40 cursor-not-allowed border-amber-500/20" : "opacity-100"
-                )}>
-                  <div className="flex flex-col items-end">
-                    <Label htmlFor="vocal-switch-top" className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold cursor-pointer">
-                      Vocal Filter
-                    </Label>
-                    {analysisLoading && <span className="text-[8px] text-amber-500/80 font-bold uppercase tracking-widest leading-none">Active</span>}
-                  </div>
-                  <Switch
-                    id="vocal-switch-top"
-                    checked={separateVocals}
-                    onCheckedChange={setSeparateVocals}
-                    disabled={analysisLoading}
-                  />
-                </div>
-              </div>
-
-              <div className="glass-card rounded-[2.5rem] border border-white/5 bg-[#0d0d0d]/90 shadow-2xl overflow-hidden min-h-[500px] flex flex-col transition-all">
+                )}
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -911,188 +898,135 @@ const ChordAIPage = () => {
                       </div>
                     )}
 
-                    {/* Controls Interface */}
-                    <div className="flex flex-wrap items-center justify-between gap-6">
-                      <div className="flex items-center gap-6 min-w-fit">
+                    {/* Controls Interface - Grid Layout for stability */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center">
+                      {/* Left: Playback & Info */}
+                      <div className="flex items-center gap-5">
                         {(!isYoutubeMode || audioOnlyMode) && (
                           <Button
                             size="icon"
-                            className="w-16 h-16 rounded-3xl bg-white text-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-14 h-14 shrink-0 rounded-2xl bg-white text-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                             onClick={isPlaying ? pause : play}
                             disabled={!audioBuffer}
                           >
-                            {isPlaying ? <Pause className="fill-current w-6 h-6" /> : <Play className="fill-current w-6 h-6 ml-1" />}
+                            {isPlaying ? <Pause className="fill-current w-5 h-5" /> : <Play className="fill-current w-5 h-5 ml-1" />}
                           </Button>
                         )}
-                        <div className="space-y-1.5">
+                        <div className="space-y-1 overflow-hidden">
                           <div className="flex items-center gap-2">
-                            <div className="text-base font-medium text-white tracking-tight">{effectiveFileName}</div>
-                            {isInstrumentalLoaded && (
-                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold uppercase tracking-wider">
-                                Instrumental
-                              </span>
-                            )}
-                            {isLoadingInstrumental && (
-                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold uppercase tracking-wider animate-pulse">
-                                Loading...
-                              </span>
+                            <div className="text-sm font-bold text-white truncate max-w-[150px]">{effectiveFileName}</div>
+                            {(isInstrumentalLoaded || isLoadingInstrumental) && (
+                              <div className={cn(
+                                "w-1.5 h-1.5 rounded-full",
+                                isLoadingInstrumental ? "bg-amber-500 animate-pulse" : "bg-blue-500"
+                              )} />
                             )}
                           </div>
-                          <div className="text-xs text-muted-foreground font-mono tracking-wider">
-                            {formatTime(currentTime)} <span className="opacity-30">/</span> {formatTime(effectiveDuration)}
+                          <div className="text-[10px] text-muted-foreground font-mono tabular-nums">
+                            {formatTime(currentTime)} <span className="opacity-20">/</span> {formatTime(effectiveDuration)}
                           </div>
-                          {/* Upload Progress Indicator */}
-                          {uploadProgress !== undefined && uploadProgress < 100 && (
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-blue-500 transition-all duration-300"
-                                  style={{ width: `${uploadProgress}%` }}
-                                />
-                              </div>
-                              <span className="text-[10px] text-blue-400 font-mono">{uploadProgress}%</span>
-                            </div>
-                          )}
                         </div>
                       </div>
 
-                      {/* Live Chord Indicator */}
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => setLiveChordEnabled(!liveChordEnabled)}
-                          className={cn(
-                            "flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-xs font-medium",
-                            liveChordEnabled
-                              ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                              : "bg-white/5 border-white/10 text-white/50 hover:text-white/70"
-                          )}
-                          disabled={!audioBuffer}
-                        >
-                          <Activity className={cn("w-4 h-4", liveChordEnabled && isPlaying && "animate-pulse")} />
-                          <span>Live</span>
-                        </button>
-
-                        {liveChordEnabled && (
-                          <LiveChordIndicator
-                            chord={liveChord?.chord ?? null}
-                            confidence={liveChord?.confidence ?? 0}
-                            isConnected={isConnected}
-                            isActive={isPlaying}
-                          />
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-4">
-                        {/* Audio Controls */}
-                        <div className="flex items-center gap-3">
-                          {/* Transposition Control */}
-                          <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
-                            <div className="flex flex-col items-center gap-1 min-w-[3rem]">
-                              <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
-                                Transpose
-                              </Label>
-                              <span className={cn(
-                                "text-xs font-mono font-bold",
-                                transpose > 0 ? "text-green-400" : transpose < 0 ? "text-red-400" : "text-white"
-                              )}>
-                                {transpose > 0 ? "+" : ""}{transpose}
-                              </span>
-                            </div>
-                            <div className="w-20 sm:w-24">
-                              <Slider
-                                defaultValue={[0]}
-                                value={[transpose]}
-                                min={-6}
-                                max={6}
-                                step={1}
-                                onValueChange={(vals) => setTranspose(vals[0])}
-                                className="cursor-pointer"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Tempo Control */}
-                          <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/5">
-                            <div className="flex flex-col items-center gap-1 min-w-[3rem]">
-                              <Label className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
-                                Tempo
-                              </Label>
-                              <span className="text-xs font-mono font-bold text-white">
-                                {tempo.toFixed(2)}x
-                              </span>
-                            </div>
-                            <div className="w-20 sm:w-24">
-                              <Slider
-                                defaultValue={[1.0]}
-                                value={[tempo]}
-                                min={0.5}
-                                max={1.5}
-                                step={0.05}
-                                onValueChange={(vals) => setTempo(vals[0])}
-                                className="cursor-pointer"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {/* Upload new file button */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 px-3 rounded-xl bg-white/[0.03] border-white/10 hover:bg-white/[0.05] text-xs"
-                            onClick={() => fileInputRef.current?.click()}
+                      {/* Center: Live & Status */}
+                      <div className="flex justify-center">
+                        <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/5">
+                          <button
+                            onClick={() => setLiveChordEnabled(!liveChordEnabled)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                              liveChordEnabled ? "bg-white text-black" : "text-white/40 hover:text-white/60"
+                            )}
+                            disabled={!audioBuffer}
                           >
-                            <Upload className="w-3.5 h-3.5 mr-2" />
-                            New File
-                          </Button>
-
-                          {instrumentalUrl && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-9 px-3 rounded-xl bg-white/[0.03] border-white/10 hover:bg-white/[0.05] text-xs"
-                              onClick={() => {
-                                const a = document.createElement('a');
-                                a.href = instrumentalUrl;
-                                a.download = 'instrumental.wav';
-                                a.click();
-                              }}
-                            >
-                              <Download className="w-3.5 h-3.5 mr-2" />
-                              Instrumental
-                            </Button>
-                          )}
-
-                          {/* Share button - show when analysis is complete */}
-                          {result && effectiveFileName && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-9 px-3 rounded-xl bg-white/[0.03] border-white/10 hover:bg-white/[0.05] text-xs group"
-                              onClick={async () => {
-                                const shareUrl = generateShareUrl(effectiveFileName, result);
-                                const success = await copyToClipboard(shareUrl);
-                                if (success) {
-                                  toast({
-                                    title: "Link copied!",
-                                    description: "Share this link with anyone to show your chord chart.",
-                                  });
-                                } else {
-                                  toast({
-                                    title: "Failed to copy",
-                                    description: "Please copy the URL manually from the address bar.",
-                                    variant: "destructive",
-                                  });
-                                }
-                              }}
-                            >
-                              <Share2 className="w-3.5 h-3.5 mr-2 group-hover:text-green-400 transition-colors" />
-                              Share
-                            </Button>
+                            Live Map
+                          </button>
+                          {liveChordEnabled && (
+                            <div className="px-3">
+                              <LiveChordIndicator
+                                chord={liveChord?.chord ?? null}
+                                confidence={liveChord?.confidence ?? 0}
+                                isConnected={isConnected}
+                                isActive={isPlaying}
+                              />
+                            </div>
                           )}
                         </div>
                       </div>
+
+                      {/* Right: Audio Tuning Tools */}
+                      <div className="flex items-center justify-end gap-3">
+                        <div className="flex flex-col gap-3 w-full sm:w-auto">
+                          <div className="flex items-center gap-4 bg-white/5 px-3 py-2 rounded-xl border border-white/5">
+                            <span className="text-[10px] font-bold text-muted-foreground/60 w-8">Pitch</span>
+                            <Slider
+                              value={[transpose]}
+                              min={-6}
+                              max={6}
+                              step={1}
+                              onValueChange={(v) => setTranspose(v[0])}
+                              className="w-24"
+                            />
+                            <span className="text-[10px] font-mono text-white w-4 text-right">{transpose > 0 ? "+" : ""}{transpose}</span>
+                          </div>
+                          <div className="flex items-center gap-4 bg-white/5 px-3 py-2 rounded-xl border border-white/5">
+                            <span className="text-[10px] font-bold text-muted-foreground/60 w-8">Speed</span>
+                            <Slider
+                              value={[tempo]}
+                              min={0.5}
+                              max={1.5}
+                              step={0.05}
+                              onValueChange={(v) => setTempo(v[0])}
+                              className="w-24"
+                            />
+                            <span className="text-[10px] font-mono text-white w-8 text-right">{tempo.toFixed(1)}x</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="flex flex-wrap items-center justify-end gap-2 pt-4 border-t border-white/5">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-[10px] font-bold uppercase tracking-widest h-8 px-3 rounded-lg hover:bg-white/5"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="w-3 h-3 mr-2 text-muted-foreground" />
+                        Replace Audio
+                      </Button>
+                      {instrumentalUrl && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-[10px] font-bold uppercase tracking-widest h-8 px-3 rounded-lg hover:bg-white/5 text-blue-400"
+                          onClick={() => {
+                            const a = document.createElement('a');
+                            a.href = instrumentalUrl;
+                            a.download = 'instrumental.wav';
+                            a.click();
+                          }}
+                        >
+                          <Download className="w-3 h-3 mr-2" />
+                          Download Stems
+                        </Button>
+                      )}
+                      {result && effectiveFileName && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-[10px] font-bold uppercase tracking-widest h-8 px-3 rounded-lg hover:bg-white/5 text-emerald-400"
+                          onClick={async () => {
+                            const shareUrl = generateShareUrl(effectiveFileName, result);
+                            const success = await copyToClipboard(shareUrl);
+                            if (success) toast({ title: "Link copied!" });
+                          }}
+                        >
+                          <Share2 className="w-3 h-3 mr-2" />
+                          Share Link
+                        </Button>
+                      )}
                     </div>
 
                     {/* Technical Visualizations */}
