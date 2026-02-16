@@ -30,9 +30,9 @@ const Index = () => {
 
 
   usePageMetadata({
-    title: "Guitariz - Chord AI Free, Music Theory & Studio Tools",
-    description: "The ultimate free music studio: Chord AI, vocal splitter, interactive fretboard, Circle of Fifths, and more. No subscription required.",
-    keywords: "chord ai, chord ai free, music theory, guitar chords, vocal splitter, fretboard, scale explorer, music studio, free music tools",
+    title: "Guitariz - Chord AI Free, Stem Splitter AI & Music Studio Tools",
+    description: "The ultimate free music studio: Chord AI free, stem splitter ai, vocal remover, interactive fretboard, and more. Professional AI music tools with no subscription.",
+    keywords: "chord ai, chord ai free, stem splitter ai, vocal splitter, vocal remover, music theory, guitar chords, fretboard, scale explorer, music studio, free music tools",
     canonicalUrl: "https://guitariz.studio",
     ogUrl: "https://guitariz.studio",
     ogImage: "https://guitariz.studio/logo.png",

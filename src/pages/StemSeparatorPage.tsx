@@ -39,9 +39,9 @@ interface AudioNodes {
 
 const StemSeparatorPage = () => {
     usePageMetadata({
-        title: "AI Stem Separator - Extract Vocals, Drums, Bass, Guitar, Piano | Guitariz",
-        description: "Separate any song into 6 stems: vocals, drums, bass, guitar, piano, and other. High-quality AI stem extraction for music production, remixing, and practice.",
-        keywords: "stem separator, music splitter, extract drums, extract bass, extract guitar, extract piano, vocal remover, music ai, audio splitter, demucs",
+        title: "Stem Splitter AI - Extract Vocals, Drums, Bass, Guitar, Piano | Guitariz",
+        description: "Separate any song into 6 stems with Stem Splitter AI: vocals, drums, bass, guitar, piano, and other. High-quality AI stem extraction for music production.",
+        keywords: "stem splitter ai, stem separator, music splitter, extract drums, extract bass, extract guitar, extract piano, vocal remover, music ai, audio splitter",
         canonicalUrl: "https://guitariz.studio/stem-separator",
         ogImage: "https://guitariz.studio/logo2.png",
         ogType: "website",

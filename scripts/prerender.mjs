@@ -4,8 +4,8 @@ import path from 'path';
 const routes = [
   {
     url: '/',
-    title: 'Guitariz - Chord AI Free, Music Theory & Studio Tools',
-    description: 'The ultimate free music studio: Chord AI, vocal splitter, interactive fretboard, Circle of Fifths, and more. No subscription required.',
+    title: 'Guitariz - Chord AI Free, Stem Splitter AI & Music Studio Tools',
+    description: 'The ultimate free music studio: Chord AI free, stem splitter ai, vocal remover, interactive fretboard, and more. Professional AI music tools with no subscription.',
     canonical: 'https://guitariz.studio/',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -46,8 +46,8 @@ const routes = [
   },
   {
     url: '/chord-ai',
-    title: 'Chord AI Free - Audio to Chord Recognition & Music Theory | Guitariz',
-    description: 'Extract chords, tempo, and scales from any song for free. Advanced AI chord recognition and harmonic transcription with no subscription.',
+    title: 'Chord AI Free - Audio to Chord Recognition AI | Guitariz',
+    description: 'Extract chords, tempo, and scales from any song for free with Chord AI. Advanced AI chord recognition and harmonic transcription with no subscription.',
     canonical: 'https://guitariz.studio/chord-ai',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
@@ -79,8 +79,8 @@ const routes = [
   },
   {
     url: '/vocal-splitter',
-    title: 'AI Vocal Splitter - Stem Separation for Karaoke & Practice | Guitariz',
-    description: 'Separate vocals and instrumentals from any song using advanced AI. High-quality stem extraction for karaoke, remixing, and practice.',
+    title: 'AI Vocal Splitter & Stem Splitter AI - Free Vocal Remover | Guitariz',
+    description: 'Separate vocals and instrumentals from any song using Stem Splitter AI. High-quality vocal remover and stem extraction for karaoke and practice.',
     canonical: 'https://guitariz.studio/vocal-splitter',
     jsonLd: JSON.stringify({
       '@context': 'https://schema.org',
