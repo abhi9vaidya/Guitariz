@@ -1,16 +1,34 @@
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { Box, Layers } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 import Fretboard from "@/components/Fretboard";
+import Fretboard3DWrapper from "@/components/fretboard/Fretboard3DWrapper";
+import type { FretNote } from "@/components/fretboard/Fretboard3D";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 import { chordLibraryData } from "@/data/chordData";
 import { SEOContent, Breadcrumb } from "@/components/SEOContent";
 
+const NOTES = ["E", "A", "D", "G", "B", "E"];
+const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+function getNoteAtFret(stringIndex: number, fret: number): string {
+  const openNote = NOTES[stringIndex];
+  const openNoteIndex = CHROMATIC.indexOf(openNote);
+  const noteIndex = (openNoteIndex + fret) % 12;
+  return CHROMATIC[noteIndex];
+}
+
 const FretboardPage = () => {
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
+  const [highlightedNotes3D, setHighlightedNotes3D] = useState<FretNote[]>([]);
+
   usePageMetadata({
     title: "Interactive Guitar Fretboard & Piano | Guitariz - Learn Guitar Theory",
     description: "Master guitar theory with our interactive fretboard. Visualize scales, chords, and notes across the neck. Perfect for guitarists of all levels.",
-    keywords: "guitar fretboard, virtual piano, music theory, chord patterns, scale patterns, instrument simulator, interactive fretboard",
+    keywords: "guitar fretboard, virtual piano, music theory, chord patterns, scale patterns, instrument simulator, interactive fretboard, 3d fretboard",
     canonicalUrl: "https://guitariz.studio/fretboard",
     ogImage: "https://guitariz.studio/logo2.png",
     ogType: "website",
@@ -42,7 +60,6 @@ const FretboardPage = () => {
     const chordVariant = rootData.variants.find(v => v.name === variant);
     if (!chordVariant || !chordVariant.voicings.length) return null;
 
-    // Use the voicing index from URL, or default to 0 (first voicing)
     const index = voicingIndex ? parseInt(voicingIndex, 10) : 0;
     const validIndex = index >= 0 && index < chordVariant.voicings.length ? index : 0;
     const selectedVoicing = chordVariant.voicings[validIndex];
@@ -55,11 +72,30 @@ const FretboardPage = () => {
     };
   }, [root, variant, voicingIndex]);
 
+  // When a chord is selected, pre-populate 3D highlighted notes too
+  useMemo(() => {
+    if (!selectedChord?.voicingFrets) return;
+    const notes: FretNote[] = [];
+    selectedChord.voicingFrets.forEach((fret: number, stringIndex: number) => {
+      if (fret < 0) return;
+      notes.push({ string: stringIndex, fret, note: getNoteAtFret(stringIndex, fret) });
+    });
+    setHighlightedNotes3D(notes);
+  }, [selectedChord]);
+
+  const handleNoteClick3D = useCallback((stringIndex: number, fret: number) => {
+    const note = getNoteAtFret(stringIndex, fret);
+    setHighlightedNotes3D(prev => {
+      const exists = prev.some(n => n.string === stringIndex && n.fret === fret);
+      if (exists) {
+        return prev.filter(n => !(n.string === stringIndex && n.fret === fret));
+      }
+      return [...prev, { string: stringIndex, fret, note }];
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-transparent relative overflow-hidden selection:bg-white/10">
-
-
-
       <main className="container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-16 relative z-10">
         {/* Breadcrumb */}
         <Breadcrumb items={[
@@ -97,11 +133,111 @@ const FretboardPage = () => {
               </p>
             </header>
           </div>
+
+          {/* 2D / 3D View Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-black/60 rounded-xl border border-white/5 self-start md:self-end">
+            <button
+              onClick={() => setViewMode("2d")}
+              className={cn(
+                "relative px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                viewMode === "2d" ? "text-white" : "text-white/40 hover:text-white/70"
+              )}
+            >
+              {viewMode === "2d" && (
+                <motion.div
+                  layoutId="view-mode-pill"
+                  className="absolute inset-0 bg-white/10 rounded-lg border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Layers className="w-3.5 h-3.5" />
+                2D
+              </span>
+            </button>
+            <button
+              onClick={() => setViewMode("3d")}
+              className={cn(
+                "relative px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                viewMode === "3d" ? "text-white" : "text-white/40 hover:text-white/70"
+              )}
+            >
+              {viewMode === "3d" && (
+                <motion.div
+                  layoutId="view-mode-pill"
+                  className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-lg border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Box className="w-3.5 h-3.5" />
+                3D
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-black tracking-wider">BETA</span>
+              </span>
+            </button>
+          </div>
         </div>
 
-        <div className="glass-card rounded-[2rem] border border-white/5 bg-[#0a0a0a]/80 shadow-2xl overflow-hidden min-h-[600px]">
-          <Fretboard initialChordVoicing={selectedChord?.voicingFrets} />
-        </div>
+        {/* Main Content Area */}
+        <AnimatePresence mode="wait">
+          {viewMode === "2d" ? (
+            <motion.div
+              key="2d-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="glass-card rounded-[2rem] border border-white/5 bg-[#0a0a0a]/80 shadow-2xl overflow-hidden min-h-[600px]">
+                <Fretboard initialChordVoicing={selectedChord?.voicingFrets} />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="3d-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="glass-card rounded-[2rem] border border-white/5 bg-[#0a0a0a]/80 shadow-2xl overflow-hidden">
+                <div className="p-4 md:p-8">
+                  {/* Feature in Progress Banner */}
+                  <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                    </span>
+                    <p className="text-[12px] text-amber-200/70 font-medium">
+                      <span className="text-amber-400 font-bold">3D Fretboard</span> — This feature is under active development. More interactions, textures, and visual enhancements coming soon.
+                    </p>
+                  </div>
+
+                  <Fretboard3DWrapper
+                    highlightedNotes={highlightedNotes3D}
+                    onNoteClick={handleNoteClick3D}
+                  />
+
+                  {/* 3D Controls hint */}
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-[11px] text-white/30">
+                    <span className="inline-flex items-center gap-1.5">
+                      <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono">Drag</kbd>
+                      Rotate
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono">Scroll</kbd>
+                      Zoom
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono">Click</kbd>
+                      Toggle notes
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
