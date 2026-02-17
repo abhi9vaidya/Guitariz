@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -70,6 +71,14 @@ const App = () => {
       <Analytics />
       <SpeedInsights />
       <TooltipProvider>
+        {/* Skip to content for accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[10000] px-3 py-2 rounded bg-white text-black shadow"
+        >
+          Skip to content
+        </a>
+
         {/* Global Sliding Menu */}
         <GlobalMenu />
 
@@ -81,140 +90,168 @@ const App = () => {
 
         <Toaster />
         <Sonner />
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route
-              path="/"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <Index />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/fretboard"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <FretboardPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/fretboard/:root/:variant/:voicingIndex?"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <FretboardPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/chords"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <ChordsPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/scales"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <ScalesPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/metronome"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <MetronomePage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/chord-ai"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <ChordAIPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/vocal-splitter"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <VocalSplitterPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/stem-separator"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <StemSeparatorPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/theory"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <TheoryPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/tuner"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <TunerPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/ear-training"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <EarTrainingPage />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <Suspense fallback={<RouteFallback />}>
-                  <PageWrapper>
-                    <NotFound />
-                  </PageWrapper>
-                </Suspense>
-              }
-            />
-          </Routes>
-        </AnimatePresence>
+        <ErrorBoundary>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route
+                path="/"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <Index />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/fretboard"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <FretboardPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/fretboard/:root/:variant/:voicingIndex?"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <FretboardPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/chords"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <ChordsPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/scales"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <ScalesPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/metronome"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <MetronomePage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/chord-ai"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <ChordAIPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/vocal-splitter"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <VocalSplitterPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/stem-separator"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <StemSeparatorPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/theory"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <TheoryPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/tuner"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <TunerPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/ear-training"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <EarTrainingPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <NotFound />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+            </Routes>
+          </AnimatePresence>
+        </ErrorBoundary>
       </TooltipProvider>
     </QueryClientProvider>
   );
