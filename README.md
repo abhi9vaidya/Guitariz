@@ -1,183 +1,338 @@
 <div align="center">
-  <img src="public/images/readme_hero.png" alt="Guitariz Studio Hero" width="80%" />
+  <img src="public/images/readme_hero.png" alt="Guitariz Studio" width="85%" />
 
   <br />
 
   <h1>🎸 Guitariz Studio</h1>
-  <p><em>The Open Source Digital Workbench for Modern Musicians</em></p>
+  <p><strong>The Open-Source Digital Workbench for Modern Musicians</strong></p>
+  <p><em>AI-powered chord detection · Stem isolation · Interactive theory tools · All in one place.</em></p>
 
-  <p align="center">
+  <br />
+
+  <p>
     <img src="https://img.shields.io/badge/Release-v1.7.0-4A90E2?style=for-the-badge&logo=github" alt="Release" />
-    <img src="https://img.shields.io/badge/License-MIT-45B8D1?style=for-the-badge" alt="License" />
-    <img src="https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react" alt="React" />
-    <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript" alt="TS" />
-    <img src="https://img.shields.io/badge/Maintained%20by-Abhinav%20Vaidya-white?style=for-the-badge" alt="Author" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-45B8D1?style=for-the-badge" alt="License" /></a>
+    <img src="https://img.shields.io/badge/CI-passing-00C853?style=for-the-badge&logo=github-actions&logoColor=white" alt="CI" />
+    <a href="https://guitariz.studio"><img src="https://img.shields.io/badge/Live-guitariz.studio-00C853?style=for-the-badge&logo=vercel&logoColor=white" alt="Live" /></a>
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white" alt="PyTorch" />
   </p>
 
-  <p align="center">
-    <a href="#-quick-start">Quick Start</a> •
-    <a href="#-features">Features</a> •
-    <a href="#-architecture">Architecture</a> •
-    <a href="#-contributing">Contributing</a> •
-    <a href="https://guitariz.studio">Live Studio</a>
+  <p>
+    <a href="https://guitariz.studio">🌐 Live Demo</a> · 
+    <a href="https://github.com/Guitariz/Guitariz/issues/new?template=bug_report.md">🐛 Report Bug</a> · 
+    <a href="https://github.com/Guitariz/Guitariz/issues/new?template=feature_request.md">✨ Request Feature</a>
   </p>
 </div>
 
----
-
-## 📖 Introduction
-
-**Guitariz Studio** is a professional-grade, open-source music platform designed to bridge the gap between traditional theory and modern technology. It combines specific tools—like a low-latency instrument sandbox, AI-powered source separation, and gamified ear training—into a single, cohesive web application.
-
-Whether you are a songwriter analyzing harmonies, a student mastering intervals, or a developer looking to contribute to the future of music tech, Guitariz provides the tools you need.
+<br />
 
 ---
 
-## 🌟 Features
+## 📖 About
 
-### 🎧 Audio Intelligence & Tools
+**Guitariz Studio** is a full-stack, professional-grade music platform that bridges the gap between traditional music theory and modern AI. It brings together AI-powered source separation, real-time chord recognition, interactive instrument simulations, and gamified ear training—all within a single, beautifully crafted web application.
 
-*   **Stem Splitter**: Isolate vocals, bass, drums, and other instruments from any track using industry-standard **Demucs** models.
-*   **Smart Proxy System**: Built-in custom Vite proxy middleware to bypass CORS restrictions for seamless external API integration.
-*   **Precision Tuner**: Advanced chromatic tuner with cent-level accuracy, suitable for Guitar, Bass, and Vocals.
-*   **Chord AI**: Real-time harmonic analysis engine (YouTube integration currently Work in Progress).
+Whether you're a songwriter dissecting harmonies, a student mastering intervals, a producer isolating stems, or a developer pushing the boundaries of music tech—Guitariz is built for you.
+
+> **🎯 Try it now →** [guitariz.studio](https://guitariz.studio)
+
+---
+
+## ✨ Features
+
+### 🤖 Audio Intelligence
+
+| Feature | Description |
+|:--|:--|
+| **Chord AI** | Upload any audio file and get real-time chord recognition powered by Hidden Markov Models via **Madmom**. |
+| **Stem Separator** | Isolate vocals, drums, bass, and other instruments using Meta's state-of-the-art **Demucs** deep learning model. |
+| **Vocal Splitter** | One-click vocal extraction for creating instrumentals or acapellas from any track. |
+| **Precision Tuner** | Advanced chromatic tuner with cent-level accuracy for guitar, bass, ukulele, and vocals. |
 
 ### 🎮 Interactive Learning
 
-*   **Ear Training Arcade**: Gamified modules to master **Intervals**, **Chord Identification**, and **Perfect Pitch**.
-*   **Scale Explorer**: Comprehensive visualization of Western and Eastern scales across the circle of fifths.
-*   **Virtual Fretboard & Piano**: 24-fret guitar and 88-key piano simulations with real-time interval mapping.
+| Feature | Description |
+|:--|:--|
+| **Ear Training Arcade** | Gamified modules for **interval recognition**, **chord identification**, and **perfect pitch** training with streak tracking. |
+| **Scale Explorer** | Visualize 50+ Western and Eastern scales across the Circle of Fifths, with modal breakdowns and theory context. |
+| **Virtual Fretboard** | Fully interactive 24-fret guitar simulation with real-time interval mapping, note highlighting, and 3D view. |
+| **Virtual Piano** | 88-key piano with chord/scale overlays and keyboard shortcut support. |
 
-### 🛠️ Developer Experience
+### 🛠️ Platform & DX
 
-*   **PWA Support**: Fully installable as a native-like app on desktop and mobile.
-*   **Dark Mode First**: sleek, "Deep Black" aesthetic optimized for creative environments.
-*   **Modular Architecture**: Decoupled AI microservice and React frontend for scalable development.
+| Feature | Description |
+|:--|:--|
+| **Progressive Web App** | Fully installable on desktop and mobile with offline-ready service worker support. |
+| **Dark-Mode-First UI** | Sleek glassmorphism aesthetic with Framer Motion micro-animations, designed for creative environments. |
+| **Configurable Navbar** | Switch between horizontal and vertical navigation layouts to match your workflow. |
+| **Metronome** | Professional metronome with adjustable BPM, time signatures, and visual beat indicator. |
+| **CI/CD Pipeline** | Automated linting, testing, and build validation via GitHub Actions. |
 
 ---
 
 ## ⚡ Architecture
 
-Guitariz uses a hybrid architecture to balance interactive performance with heavy AI computation.
+Guitariz uses a **hybrid architecture** to balance interactive client-side performance with heavy server-side AI computation.
 
 ```mermaid
 graph TD
-    subgraph "Client Tier (Vite/React)"
-        UI["Glassmorphism UI (Tailwind)"] --> State["TanStack Query & Context"]
-        State --> Audio["Web Audio API Engine"]
-        Audio --> Proxy["Vite CORS Proxy"]
+    subgraph Client ["🖥️ Client — React / Vite"]
+        UI["Glassmorphism UI<br/>(Tailwind + Framer Motion)"]
+        State["TanStack Query + Context API"]
+        AudioEngine["Web Audio API Engine"]
+        Proxy["Vite CORS Proxy Middleware"]
+
+        UI --> State --> AudioEngine
+        AudioEngine --> Proxy
     end
-    
-    subgraph "AI Service Tier (Python/FastAPI)"
-        API["FastAPI Entrypoint"] --> Demucs["Demucs (Source Separation)"]
-        API --> Madmom["Madmom (Chord Recognition)"]
+
+    subgraph Server ["🧠 AI Service — Python / FastAPI"]
+        API["FastAPI + WebSocket Server"]
+        Demucs["Meta Demucs<br/>(Source Separation)"]
+        Madmom["Madmom HMM<br/>(Chord Recognition)"]
+        Librosa["Librosa<br/>(Feature Extraction)"]
+
+        API --> Demucs
+        API --> Madmom
+        API --> Librosa
     end
-    
-    UI <-->|JSON/Blob| API
-    Proxy <-->|Fetch| External["External APIs (YouTube/Metadata)"]
+
+    UI <-->|"REST / WebSocket<br/>(JSON + Audio Blobs)"| API
+    Proxy <-->|"Fetch"| External["External APIs"]
+
+    style Client fill:#0d1117,stroke:#30363d,color:#c9d1d9
+    style Server fill:#0d1117,stroke:#30363d,color:#c9d1d9
 ```
 
 ---
 
 ## 📂 Project Structure
 
-| Directory | Responsibility |
-| :-- | :-- |
-| `src/components/` | Reusable React components & UI Atomic units. |
-| `src/hooks/` | Custom hooks for Audio Context & State Management. |
-| `src/lib/` | Core logic for harmonic analysis and audio processing. |
-| `src/pages/` | Main Application Views (Fretboard, Chord AI, etc). |
-| `backend/` | Python-based AI microservice and ML models. |
-| `public/` | Static assets, icons, and PWA manifests. |
+```
+guitariz/
+├── src/
+│   ├── components/          # Reusable UI components (Fretboard, Piano, Tuner, etc.)
+│   │   ├── ui/              # shadcn/ui primitives (Button, Dialog, Toast, etc.)
+│   │   ├── chord-ai/        # Chord AI feature components
+│   │   ├── ear-training/    # Ear Training game components
+│   │   ├── fretboard/       # Fretboard + 3D view components
+│   │   └── piano/           # Virtual Piano components
+│   ├── hooks/               # Custom React hooks (audio, WebSocket, PWA, etc.)
+│   ├── lib/                 # Core logic — harmonic analysis, audio processing
+│   ├── pages/               # Route-level page components
+│   └── main.tsx             # Application entrypoint
+├── backend/
+│   ├── main.py              # FastAPI server + REST endpoints
+│   ├── analysis.py          # Audio feature extraction pipeline
+│   ├── chord_madmom.py      # Madmom-based chord recognition
+│   ├── websocket_chords.py  # Real-time WebSocket chord streaming
+│   ├── youtube.py           # YouTube audio download utilities
+│   ├── Dockerfile           # Container build for AI service
+│   └── requirements.txt     # Python dependencies
+├── .github/
+│   ├── workflows/ci.yml     # GitHub Actions CI pipeline
+│   └── ISSUE_TEMPLATE/      # Bug report & feature request templates
+├── public/                  # Static assets, PWA manifest, sitemap
+├── vite.config.ts           # Vite config with custom CORS proxy
+├── tailwind.config.ts       # Tailwind CSS theme configuration
+└── package.json             # Project metadata & scripts
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-*   **Frontend**: React 18, TypeScript 5.8, Vite 5
-*   **State Management**: TanStack Query (React Query), React Context
-*   **Styling**: Tailwind CSS 4, shadcn/ui, Framer Motion
-*   **Audio Processing**: Web Audio API (Client), Librosa (Server)
-*   **AI/ML**: Python, PyTorch, Meta Demucs, Madmom
-*   **Testing**: Vitest, React Testing Library
+<table>
+  <tr>
+    <th>Layer</th>
+    <th>Technology</th>
+  </tr>
+  <tr>
+    <td><strong>Frontend</strong></td>
+    <td>React 18 · TypeScript 5.8 · Vite 5 · React Router 6</td>
+  </tr>
+  <tr>
+    <td><strong>UI</strong></td>
+    <td>Tailwind CSS · shadcn/ui · Radix Primitives · Framer Motion · Lucide Icons</td>
+  </tr>
+  <tr>
+    <td><strong>3D</strong></td>
+    <td>Three.js · React Three Fiber · Drei</td>
+  </tr>
+  <tr>
+    <td><strong>State</strong></td>
+    <td>TanStack Query (React Query) · React Context</td>
+  </tr>
+  <tr>
+    <td><strong>Audio</strong></td>
+    <td>Web Audio API · FFT.js (Client) · Librosa (Server)</td>
+  </tr>
+  <tr>
+    <td><strong>AI / ML</strong></td>
+    <td>Python · PyTorch · Meta Demucs · Madmom · FastAPI</td>
+  </tr>
+  <tr>
+    <td><strong>Music Theory</strong></td>
+    <td>Tonal.js — harmonic matrix, intervals, scales, chords</td>
+  </tr>
+  <tr>
+    <td><strong>Testing</strong></td>
+    <td>Vitest · React Testing Library · Ruff (Python linting)</td>
+  </tr>
+  <tr>
+    <td><strong>Infra</strong></td>
+    <td>Vercel (Frontend) · Docker (Backend) · GitHub Actions CI · Husky + lint-staged</td>
+  </tr>
+</table>
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### 1. Frontend Setup
+### Prerequisites
 
-Ensure you have Node.js 18+ and npm installed.
+| Tool | Version |
+|:--|:--|
+| Node.js | `>= 18.0` |
+| npm | `>= 9.0` |
+| Python *(optional — for AI features)* | `>= 3.10` |
+
+### 1. Clone & Install
 
 ```bash
-# Clone the repository
-git clone https://github.com/abhi9vaidya/guitariz.git
+git clone https://github.com/Guitariz/Guitariz.git
 cd guitariz
-
-# Install dependencies
 npm install
+```
 
-# Start Development Server
+### 2. Configure Environment
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your backend URL if running AI features locally.
+
+### 3. Run the Dev Server
+
+```bash
 npm run dev
 ```
 
-> **Note**: Create a `.env.local` file based on `.env.example` if you plan to connect to a local backend instance.
+The app will be available at **`http://localhost:5173`**.
 
-### 2. Backend Setup (Optional)
+### 4. Backend Setup *(Optional)*
 
-Required only for AI features like Stem Separation and Chord AI.
+Required only for **Chord AI**, **Stem Separator**, and **Vocal Splitter** features.
 
 ```bash
 cd backend
+
+# Create and activate a virtual environment
 python -m venv .venv
 
-# Activate Virtual Environment
-# Windows:
+# Windows
 .venv\Scripts\activate
-# MacOS/Linux:
+# macOS / Linux
 source .venv/bin/activate
 
-# Install Python dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# Run the API Server
+# Start the FastAPI server
 python main.py
 ```
+
+> **Note:** First launch will download the Demucs model (~300 MB). Subsequent starts are instant.
+
+### Available Scripts
+
+| Command | Description |
+|:--|:--|
+| `npm run dev` | Start Vite dev server with HMR |
+| `npm run build` | Production build |
+| `npm run build:prerender` | Build + SEO pre-rendering |
+| `npm run lint` | Run ESLint across the codebase |
+| `npm run test` | Run Vitest test suite |
+| `npm run test:ui` | Run tests with Vitest UI |
+| `npm run preview` | Preview the production build locally |
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions from the community! Whether it's fixing a bug, adding a new scale, or improving the UI, your help is appreciated.
+Contributions are what make the open-source community such an incredible place to learn, inspire, and create. **Any contributions you make are greatly appreciated.**
 
-Please read our [**Contributing Guide**](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Please read the [**Contributing Guide**](CONTRIBUTING.md) and our [**Code of Conduct**](CODE_OF_CONDUCT.md) before getting started.
 
-1.  **Fork** the project.
-2.  **Create** your feature branch (`git checkout -b feature/AmazingFeature`).
-3.  **Commit** your changes (`git commit -m 'feat: Add AmazingFeature'`).
-4.  **Push** to the branch (`git push origin feature/AmazingFeature`).
-5.  **Open** a Pull Request.
+```
+1. Fork the repository
+2. Create your feature branch    →  git checkout -b feature/amazing-feature
+3. Commit your changes           →  git commit -m 'feat: add amazing feature'
+4. Push to the branch            →  git push origin feature/amazing-feature
+5. Open a Pull Request
+```
+
+Looking for a place to start? Check out issues tagged [`good first issue`](https://github.com/abhi9vaidya/guitariz/labels/good%20first%20issue) or [`help wanted`](https://github.com/abhi9vaidya/guitariz/labels/help%20wanted).
 
 ---
 
-## 🎖️ Acknowledgements & Credits
+## 🗺️ Roadmap
 
-Guitariz Studio stands on the shoulders of giants in the music information retrieval (MIR) community. Special thanks to the authors of these pivotal libraries:
+- [ ] Real-time YouTube audio chord analysis
+- [ ] MIDI export from Chord AI detections
+- [ ] Collaborative jam rooms via WebRTC
+- [ ] Mobile-native app (React Native / Capacitor)
+- [ ] Additional instrument support (Ukulele, Bass tablature)
+- [ ] User accounts with progress tracking
 
-*   **[Librosa](https://librosa.org/)**: For providing the technical foundation for server-side audio analysis and feature extraction.
-*   **[Madmom](https://github.com/CPJKU/madmom)**: For the high-level Hidden Markov Model implementations used in our Chord AI engine.
-*   **[Meta Demucs](https://github.com/facebookresearch/demucs)**: For the state-of-the-art source separation models that power our Vocal Splitter.
-*   **[Tonal.js](https://github.com/tonaljs/tonal)**: For providing the comprehensive harmonic matrix and interval logic on the client tier.
+> See the [open issues](https://github.com/abhi9vaidya/guitariz/issues) for a full list of proposed features and known issues.
+
+---
+
+## 🎖️ Acknowledgements
+
+Guitariz Studio stands on the shoulders of giants in the Music Information Retrieval (MIR) community. Special thanks to the authors of these pivotal libraries:
+
+- **[Meta Demucs](https://github.com/facebookresearch/demucs)** — State-of-the-art deep learning source separation powering our Stem Separator.
+- **[Madmom](https://github.com/CPJKU/madmom)** — High-performance Hidden Markov Model implementations for chord recognition.
+- **[Librosa](https://librosa.org/)** — The backbone of server-side audio analysis and feature extraction.
+- **[Tonal.js](https://github.com/tonaljs/tonal)** — Comprehensive music theory library for client-side harmonic analysis.
+- **[shadcn/ui](https://ui.shadcn.com/)** — Beautiful, accessible component primitives built on Radix UI.
 
 ---
 
 ## 📜 License
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+
+---
 
 <div align="center">
-  <p><b>Guitariz Studio — Harmonizing Technology & Music.</b></p>
-  <a href="https://github.com/abhi9vaidya">GitHub</a> • 
-  <a href="https://guitariz.studio">Website</a> • 
+
+  **Guitariz Studio — Harmonizing Technology & Music.**
+
+  <br />
+
+  <a href="https://guitariz.studio">Website</a> · 
+  <a href="https://github.com/abhi9vaidya/guitariz">GitHub</a> · 
+  <a href="https://x.com/GuitarizStudio">Twitter</a> · 
   <a href="mailto:guitariz.studio@gmail.com">Contact</a>
+
+  <br />
+  <br />
+
+  <sub>Built with ❤️ by <a href="https://github.com/abhi9vaidya">Abhinav Vaidya</a></sub>
+
+  <br />
+
+  <a href="#-guitariz-studio"><img src="https://img.shields.io/badge/⬆_Back_to_Top-0d1117?style=flat-square" alt="Back to Top" /></a>
+
 </div>
