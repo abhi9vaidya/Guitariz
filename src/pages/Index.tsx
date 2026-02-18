@@ -23,6 +23,7 @@ const toolCards = [
   { title: "Metronome", desc: "High-precision timing with visual pulse.", icon: Music, to: "/metronome", color: "from-orange-500/20 to-red-500/20" },
   { title: "Ear Training", desc: "Gamified interval recognition and pitch training.", icon: Trophy, to: "/ear-training", color: "from-yellow-500/20 to-amber-500/20" },
   { title: "Tuner", desc: "Real-time chromatic tuner with cent precision.", icon: Guitar, to: "/tuner", color: "from-rose-500/20 to-pink-500/20" },
+  { title: "Jam Studio", desc: "Loop chord progressions with piano & pad backing.", icon: Headphones, to: "/jam", color: "from-indigo-500/20 to-violet-500/20" },
 ];
 
 const Index = () => {
@@ -257,7 +258,7 @@ const Index = () => {
               </div>
 
               {/* Standard Tools Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {toolCards.map((tool) => (
                   <motion.div
                     key={tool.title}

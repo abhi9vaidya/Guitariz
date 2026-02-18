@@ -21,6 +21,7 @@ const StemSeparatorPage = lazy(() => import("./pages/StemSeparatorPage"));
 const TheoryPage = lazy(() => import("./pages/TheoryPage"));
 const TunerPage = lazy(() => import("./pages/TunerPage"));
 const EarTrainingPage = lazy(() => import("./pages/EarTrainingPage"));
+const JamPage = lazy(() => import("./pages/JamPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 import GuitarizLoader from "@/components/ui/loader";
@@ -232,6 +233,18 @@ const App = () => {
                     <PageWrapper>
                       <main id="main-content">
                         <EarTrainingPage />
+                      </main>
+                    </PageWrapper>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/jam"
+                element={
+                  <Suspense fallback={<RouteFallback />}>
+                    <PageWrapper>
+                      <main id="main-content">
+                        <JamPage />
                       </main>
                     </PageWrapper>
                   </Suspense>

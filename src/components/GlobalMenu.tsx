@@ -52,6 +52,7 @@ const menuCategories: MenuCategory[] = [
             { label: "Fretboard", icon: Grid3X3, href: "/fretboard", description: "Interactive guitar neck & piano" },
             { label: "Tuner", icon: Guitar, href: "/tuner", description: "Chromatic tuner with cent precision" },
             { label: "Metronome", icon: Clock, href: "/metronome", description: "High-precision timing engine" },
+            { label: "Jam Studio", icon: Music, href: "/jam", description: "Loop chord progressions & solo" },
         ],
     },
     {
