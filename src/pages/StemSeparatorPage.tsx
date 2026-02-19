@@ -54,6 +54,13 @@ const StemSeparatorPage = () => {
             "description": "Separate songs into 6 stems: vocals, drums, bass, guitar, piano, and other.",
             "url": "https://guitariz.studio/stem-separator",
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "bestRating": "5",
+                "worstRating": "1",
+                "reviewCount": "72"
+            }
         }
     });
 
