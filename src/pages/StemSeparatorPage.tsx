@@ -171,7 +171,6 @@ const StemSeparatorPage = () => {
     const play = useCallback(async () => {
         const hasAudio = STEM_TYPES.some(stem => stems[stem].audio);
         if (!hasAudio) {
-            console.log("[Play] No audio buffers loaded");
             return;
         }
 
