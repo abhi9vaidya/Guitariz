@@ -3,10 +3,19 @@ import { Mic, MicOff, Guitar, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import * as Comlink from 'comlink';
+
+// Worker interface based on src/workers/pitchWorker.ts
+interface PitchWorker {
+    detectPitch(buffer: Float32Array, sampleRate: number, referenceA4: number): Promise<{
+        freq?: number;
+        noteName?: string;
+        centsVal?: number;
+        found: boolean;
+    }>;
+}
 
 // Musical constants
-const SEMITONE = 69;
-const NOTE_STRINGS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 const GUITAR_STRINGS = [
     { note: "E", octave: 2, freq: 82.41, name: "E2 (Low)" },
@@ -38,80 +47,43 @@ export const Tuner = () => {
     const streamRef = useRef<MediaStream | null>(null);
     const bufferRef = useRef<Float32Array | null>(null);
 
+    // Worker ref
+    const workerRef = useRef<{ worker: Worker, proxy: Comlink.Remote<PitchWorker> } | null>(null);
+
+    // Setup Worker on mount
+    useEffect(() => {
+        const worker = new Worker(new URL('../workers/pitchWorker.ts', import.meta.url), {
+            type: 'module'
+        });
+        const proxy = Comlink.wrap<PitchWorker>(worker);
+        workerRef.current = { worker, proxy };
+
+        return () => {
+            worker.terminate();
+        };
+    }, []);
+
     // --- Core Pitch Detection (Auto-Correlation) ---
 
-    const getNote = useCallback((freq: number) => {
-        const rawNoteNum = 12 * (Math.log(freq / referenceA4) / Math.log(2)) + SEMITONE;
-        const noteNum = Math.round(rawNoteNum);
-        const difference = rawNoteNum - noteNum;
-        const centsVal = Math.floor(difference * 100);
-        const noteName = NOTE_STRINGS[noteNum % 12];
-        const octaveVal = Math.floor(noteNum / 12) - 1;
-
-        return { noteName, octaveVal, centsVal };
-    }, [referenceA4]);
-
-    const autoCorrelate = (buffer: Float32Array<ArrayBufferLike>, sampleRate: number) => {
-        // RMS Volume Check
-        let rms = 0;
-        for (let i = 0; i < buffer.length; i++) {
-            rms += buffer[i] * buffer[i];
-        }
-        rms = Math.sqrt(rms / buffer.length);
-        if (rms < 0.02) return -1; // Silence threshold
-
-        // Find first dip and peak
-        let r1 = 0, r2 = buffer.length - 1;
-        const thres = 0.2;
-        for (let i = 0; i < buffer.length / 2; i++) {
-            if (Math.abs(buffer[i]) < thres) { r1 = i; break; }
-        }
-        for (let i = 1; i < buffer.length / 2; i++) {
-            if (Math.abs(buffer[buffer.length - i]) < thres) { r2 = buffer.length - i; break; }
-        }
-
-        const buff = buffer.slice(r1, r2);
-        const c = new Float32Array(buff.length);
-        for (let i = 0; i < buff.length; i++) {
-            let sum = 0;
-            for (let j = 0; j < buff.length - i; j++) {
-                sum += buff[j] * buff[j + i];
-            }
-            c[i] = sum;
-        }
-
-        let d = 0; while (c[d] > c[d + 1]) d++;
-        let maxval = -1, maxpos = -1;
-        for (let i = d; i < buff.length; i++) {
-            if (c[i] > maxval) {
-                maxval = c[i];
-                maxpos = i;
-            }
-        }
-
-        let T0 = maxpos;
-
-        // Parabolic interpolation
-        const x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
-        const a = (x1 + x3 - 2 * x2) / 2;
-        const b = (x3 - x1) / 2;
-        if (a) T0 = T0 - b / (2 * a);
-
-        return sampleRate / T0;
-    };
-
-    const updatePitch = useCallback(() => {
-        if (!analyserRef.current || !audioContextRef.current) return;
+    const updatePitch = useCallback(async () => {
+        if (!analyserRef.current || !audioContextRef.current || !workerRef.current) return;
 
         const buffer = bufferRef.current;
         if (!buffer) return;
 
         analyserRef.current.getFloatTimeDomainData(buffer);
-        const ac = autoCorrelate(buffer as unknown as Float32Array, audioContextRef.current.sampleRate);
 
-        if (ac > -1 && ac > 50 && ac < 2000) {
+        // Pass to Web Worker instead of synchronous math
+        // We construct a new Array to bypass strict TS DOM ArrayBufferLike vs ArrayBuffer mismatch
+        const result = await workerRef.current.proxy.detectPitch(
+            new Float32Array(buffer),
+            audioContextRef.current.sampleRate,
+            referenceA4
+        );
+
+        if (result.found && result.freq && result.noteName !== undefined && result.centsVal !== undefined) {
             // Valid frequency found
-            const { noteName, centsVal } = getNote(ac);
+            const { noteName, centsVal, freq } = result;
 
             // Rolling average for smoother UI
             centsHistory.current.push(centsVal);
@@ -120,32 +92,33 @@ export const Tuner = () => {
 
             setNote(noteName);
             setCents(avgCents);
-            setFrequency(ac);
+            setFrequency(freq);
 
             // Find closest guitar string
             let minDiff = Infinity;
             let closestIdx = -1;
 
             GUITAR_STRINGS.forEach((s, idx) => {
-                // Simple heuristic: which string freq is closest?
-                const diff = Math.abs(ac - s.freq);
+                const diff = Math.abs(freq - s.freq);
                 if (diff < minDiff) {
                     minDiff = diff;
                     closestIdx = idx;
                 }
             });
 
-            // Only switch string focus if we are reasonably close (e.g., within 40Hz)
             if (closestIdx !== -1 && minDiff < 50) {
                 setTargetStringIndex(closestIdx);
             }
-
         } else {
-            // Keep visual state stable for brief moments of silence, or could reset here based on preference
+            // Keep visual state stable for brief moments of silence
         }
 
+        // We use setTimeout instead of pure rAF to give time for Worker to resolve 
+        // without backing up microtask queue if the worker is busy
         rafRef.current = requestAnimationFrame(updatePitch);
-    }, [getNote]);
+    }, [referenceA4]);
+
+
 
     const startListening = async () => {
         try {
@@ -177,7 +150,7 @@ export const Tuner = () => {
             setError("Microphone access denied. Please check permissions.");
             setIsListening(false);
         }
-    };                  
+    };
 
     const stopListening = () => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
