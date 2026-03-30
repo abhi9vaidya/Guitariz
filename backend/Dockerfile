@@ -23,10 +23,17 @@ ENV PATH="/home/user/.local/bin:$PATH"
 # Copy the requirements file into the container
 COPY --chown=user requirements.txt .
 
-# Install CPU-only Torch first (Much smaller download, prevents build timeout)
-RUN pip install --no-cache-dir torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+# Install numpy<2 FIRST — torch 2.1.2 was compiled against numpy 1.x and
+# will crash with numpy 2.x ("_ARRAY_API not found" → "Numpy is not available").
+RUN pip install --no-cache-dir "numpy<2"
 
-# Install remaining dependencies
+# Install CPU-only Torch with PINNED versions for ABI compatibility.
+# torch and torchaudio MUST come from the same index and be version-matched.
+# Using 2.1.2 — the last version with stable demucs 4.0.1 compatibility.
+RUN pip install --no-cache-dir torch==2.1.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies (torch==2.1.2 and torchaudio==2.1.2 are pinned
+# in requirements.txt too — pip sees they're already installed and skips them.)
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install madmom separately with --no-build-isolation to use the installed Cython and numpy

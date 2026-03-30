@@ -15,7 +15,7 @@ import dns.resolver
 from contextlib import asynccontextmanager
 import uvicorn
 
-from analysis import analyze_file, separate_audio_full, separate_audio_stems, STEM_TYPES
+from analysis import analyze_file, separate_audio_full, separate_audio_stems, STEM_TYPES, _get_separator_6stem
 from websocket_chords import websocket_chord_endpoint
 from youtube import extract_audio, get_video_info, check_rate_limit, get_remaining_requests, extract_video_id
 
@@ -144,11 +144,18 @@ async def lifespan(app: FastAPI):
     print("[Startup] Preloading models...")
     try:
         from analysis import _get_separator
-        # This will load the model into memory
+        # This will load the 2-stem model into memory
         _get_separator()
-        print("[Startup] ✓ Models preloaded and ready")
+        print("[Startup] ✓ 2-stem (htdemucs) model preloaded")
     except Exception as e:
-        print(f"[Startup] ⚠️ Model preload failed: {e}")
+        print(f"[Startup] ⚠️ 2-stem model preload failed: {e}")
+    
+    try:
+        # Also preload the 6-stem model
+        _get_separator_6stem()
+        print("[Startup] ✓ 6-stem (htdemucs_6s) model preloaded")
+    except Exception as e:
+        print(f"[Startup] ⚠️ 6-stem model preload failed: {e}")
     
     # Start cleanup thread
     thread = threading.Thread(target=cleanup_loop, daemon=True)
@@ -506,7 +513,7 @@ def separate_audio_6stems(
             result = separate_audio_stems(tmp_path)
 
             if not result:
-                raise HTTPException(status_code=500, detail="6-stem separation failed - model error")
+                raise HTTPException(status_code=500, detail="6-stem separation returned no stems")
 
             print("6-stem separation finished, starting transcoding...")
             session_id = str(uuid.uuid4())
@@ -568,6 +575,8 @@ def separate_audio_6stems(
                     **stem_urls,
                 }
             )
+        except HTTPException:
+            raise
         except Exception as exc:
             print(f"6-stem separation error: {exc}")
             import traceback
