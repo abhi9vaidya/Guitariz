@@ -8,6 +8,7 @@ import uuid
 import subprocess
 import time
 import os
+import json
 import threading
 import socket
 import httpx
@@ -15,7 +16,7 @@ import dns.resolver
 from contextlib import asynccontextmanager
 import uvicorn
 
-from analysis import analyze_file, separate_audio_full, separate_audio_stems, STEM_TYPES, _get_separator_6stem
+from analysis import analyze_file, separate_audio_full, separate_audio_stems, STEM_TYPES, _get_separator_6stem, get_file_hash
 from websocket_chords import websocket_chord_endpoint
 from youtube import extract_audio, get_video_info, check_rate_limit, get_remaining_requests, extract_video_id
 
@@ -23,12 +24,12 @@ from youtube import extract_audio, get_video_info, check_rate_limit, get_remaini
 try:
     from chord_madmom import analyze_file_madmom, MADMOM_AVAILABLE
     if MADMOM_AVAILABLE:
-        print("[Startup] ✓ madmom engine available - fast analysis enabled (~5-10s)")
+        print("[Startup] [OK] madmom engine available - fast analysis enabled (~5-10s)")
     else:
-        print("[Startup] ℹ madmom library not installed - using librosa engine (~1-3min)")
+        print("[Startup] [INFO] madmom library not installed - using librosa engine (~1-3min)")
 except ImportError:
     MADMOM_AVAILABLE = False
-    print("[Startup] ℹ madmom module not found - using librosa engine only")
+    print("[Startup] [INFO] madmom module not found - using librosa engine only")
 
 # --- NETWORK DIAGNOSTICS & PATCH ---
 # --- NETWORK DIAGNOSTICS & PATCH ---
@@ -40,15 +41,15 @@ try:
     res = dns.resolver.Resolver()
     res.nameservers = ['8.8.8.8', '8.8.4.4']
     ans = res.resolve('www.youtube.com', 'A')
-    print(f"[DIAG] ✓ dnspython Success: {ans[0].to_text()}")
+    print(f"[DIAG] [OK] dnspython Success: {ans[0].to_text()}")
     DNS_BYPASS_POSSIBLE = True
 except Exception as e:
-    print(f"[DIAG] ❌ dnspython FAILED: {e}")
+    print(f"[DIAG] [ERROR] dnspython FAILED: {e}")
     DNS_BYPASS_POSSIBLE = False
 
 # 2. Apply Monkey Patches
 try:
-    print("[DNS] 🛠️ Patching socket..." if DNS_BYPASS_POSSIBLE else "[DNS] ⚠️ Applying patch anyway...")
+    print("[DNS] [PATCH] Patching socket..." if DNS_BYPASS_POSSIBLE else "[DNS] [WARNING] Applying patch anyway...")
     
     _original_getaddrinfo = socket.getaddrinfo
     _original_gethostbyname = socket.gethostbyname
@@ -79,31 +80,37 @@ try:
 
     socket.getaddrinfo = patched_getaddrinfo
     socket.gethostbyname = patched_gethostbyname
-    print("[DNS] ✓ Patches applied to getaddrinfo and gethostbyname.")
+    print("[DNS] [OK] Patches applied to getaddrinfo and gethostbyname.")
 except Exception as e:
-    print(f"[DIAG] ❌ Patching Failed: {e}")
+    print(f"[DIAG] [ERROR] Patching Failed: {e}")
 
 # 3. Verify Patches
 try:
     target = "www.youtube.com"
     print(f"[DIAG] Testing socket.gethostbyname('{target}')...")
     ip = socket.gethostbyname(target)
-    print(f"[DIAG] ✓ gethostbyname Result: {ip}")
+    print(f"[DIAG] [OK] gethostbyname Result: {ip}")
 except Exception as e:
-    print(f"[DIAG] ❌ gethostbyname FAILED: {e}")
+    print(f"[DIAG] [ERROR] gethostbyname FAILED: {e}")
 
 try:
     target = "www.youtube.com"
     print(f"[DIAG] Testing httpx.get('https://{target}')...")
     response = httpx.get(f"https://{target}", timeout=10.0, follow_redirects=True)
-    print(f"[DIAG] ✓ HTTPS Result: {response.status_code}")
+    print(f"[DIAG] [OK] HTTPS Result: {response.status_code}")
 except Exception as e:
-    print(f"[DIAG] ❌ HTTPS FAILED: {e}")
+    print(f"[DIAG] [ERROR] HTTPS FAILED: {e}")
 
 print("[DIAG] Diagnostics complete.\n")
 # ---------------------------
 
 
+
+# Create cache directories
+ANALYSIS_CACHE_DIR = Path("cache/analyses")
+STEMS_CACHE_DIR = Path("cache/stems")
+for cache_dir in [ANALYSIS_CACHE_DIR, STEMS_CACHE_DIR]:
+    cache_dir.mkdir(parents=True, exist_ok=True)
 
 # Store separated audio files temporarily (in production, use S3/cloud storage)
 # Format: { id: {"paths": [path1, path2], "timestamp": float} }
@@ -126,6 +133,9 @@ def cleanup_loop():
             
             for fid in to_delete:
                 info = separated_files.pop(fid, {})
+                if info.get("preserve_paths", False):
+                    print(f"[Cleanup] Preserving cached paths for session: {fid}")
+                    continue
                 for p in info.get("paths", []):
                     try:
                         path = Path(p)
@@ -146,21 +156,21 @@ async def lifespan(app: FastAPI):
         from analysis import _get_separator
         # This will load the 2-stem model into memory
         _get_separator()
-        print("[Startup] ✓ 2-stem (htdemucs) model preloaded")
+        print("[Startup] [OK] 2-stem (htdemucs) model preloaded")
     except Exception as e:
-        print(f"[Startup] ⚠️ 2-stem model preload failed: {e}")
+        print(f"[Startup] [WARNING] 2-stem model preload failed: {e}")
     
     try:
         # Also preload the 6-stem model
         _get_separator_6stem()
-        print("[Startup] ✓ 6-stem (htdemucs_6s) model preloaded")
+        print("[Startup] [OK] 6-stem (htdemucs_6s) model preloaded")
     except Exception as e:
-        print(f"[Startup] ⚠️ 6-stem model preload failed: {e}")
+        print(f"[Startup] [WARNING] 6-stem model preload failed: {e}")
     
     # Start cleanup thread
     thread = threading.Thread(target=cleanup_loop, daemon=True)
     thread.start()
-    print("[Startup] ✓ Cleanup thread started")
+    print("[Startup] [OK] Cleanup thread started")
     yield
 
 app = FastAPI(title="Chord AI Backend", version="1.3.4", lifespan=lifespan)
@@ -198,6 +208,37 @@ def analyze(file: UploadFile = File(...), separate_vocals: bool = Form(False), u
                 tmp_path = Path(tmp.name)
         
             try:
+                # Check cache first
+                file_hash = get_file_hash(tmp_path)
+                cache_file = ANALYSIS_CACHE_DIR / f"{file_hash}_{separate_vocals}_{use_madmom}.json"
+                
+                if cache_file.exists():
+                    print(f"[API] Cache hit for analysis: {cache_file.name}")
+                    try:
+                        with open(cache_file, "r") as f:
+                            result = json.load(f)
+                        
+                        # If vocal separation was used, we need to serve the cached instrumental track
+                        if separate_vocals:
+                            cached_inst_path = STEMS_CACHE_DIR / file_hash / "instrumental.wav"
+                            if cached_inst_path.exists():
+                                file_id = str(uuid.uuid4())
+                                separated_files[file_id] = {
+                                    "paths": [str(cached_inst_path)],
+                                    "timestamp": time.time(),
+                                    "type": "analysis",
+                                    "preserve_paths": True # Protect cache from deletion
+                                }
+                                result["instrumentalUrl"] = f"/api/analyze/download/{file_id}/instrumental.wav"
+                                print(f"[API] Registered cached instrumental file with ID: {file_id}")
+                            else:
+                                print("[API] Cached instrumental file not found, forcing re-analysis")
+                                raise FileNotFoundError("Cached instrumental file missing")
+                        
+                        return JSONResponse(result)
+                    except Exception as e:
+                        print(f"[API] Error reading cache or cached files missing, running analysis: {e}")
+
                 # The 'use_madmom' flag is the primary engine selector (Fast vs Detailed)
                 if not use_madmom:
                     # User wants MORE ACCURATE -> Force Librosa
@@ -216,6 +257,25 @@ def analyze(file: UploadFile = File(...), separate_vocals: bool = Form(False), u
                     print("[API] Engine: LIBROSA (Fallback) | Madmom not found")
                     result = analyze_file(tmp_path, separate_vocals=False)
                 
+                # Save to cache
+                try:
+                    cache_result = result.copy()
+                    if "instrumentalPath" in result:
+                        inst_cache_dir = STEMS_CACHE_DIR / file_hash
+                        inst_cache_dir.mkdir(parents=True, exist_ok=True)
+                        cached_inst_path = inst_cache_dir / "instrumental.wav"
+                        shutil.copy2(result["instrumentalPath"], cached_inst_path)
+                        print(f"[API] Cached instrumental file to {cached_inst_path}")
+                        
+                        if "instrumentalPath" in cache_result:
+                            del cache_result["instrumentalPath"]
+                    
+                    with open(cache_file, "w") as f:
+                        json.dump(cache_result, f)
+                    print(f"[API] Saved analysis result to cache: {cache_file.name}")
+                except Exception as e:
+                    print(f"[API] Failed to save analysis result to cache: {e}")
+
                 # If vocal separation was used, store the instrumental file and return its URL
                 if "instrumentalPath" in result:
                     file_id = str(uuid.uuid4())
@@ -391,6 +451,76 @@ def separate_audio(
             tmp_path = Path(tmp.name)
 
         try:
+            # Check cache
+            file_hash = get_file_hash(tmp_path)
+            cached_vocals_wav = STEMS_CACHE_DIR / file_hash / "vocals.wav"
+            cached_inst_wav = STEMS_CACHE_DIR / file_hash / "instrumental.wav"
+            
+            has_requested_cache = False
+            vocals_cache_path = STEMS_CACHE_DIR / file_hash / f"vocals.{format}"
+            inst_cache_path = STEMS_CACHE_DIR / file_hash / f"instrumental.{format}"
+            
+            if vocals_cache_path.exists() and inst_cache_path.exists():
+                has_requested_cache = True
+            elif cached_vocals_wav.exists() and cached_inst_wav.exists():
+                has_requested_cache = True
+                
+            if has_requested_cache:
+                print(f"[API] Cache hit for separation: {file_hash} ({format})")
+                session_id = str(uuid.uuid4())
+                
+                if format == "mp3" and not (vocals_cache_path.exists() and inst_cache_path.exists()):
+                    try:
+                        print("[API] Transcoding cached WAV stems to MP3...")
+                        def to_mp3(src: Path) -> Path:
+                            dst = src.with_suffix(".mp3")
+                            subprocess.run(
+                                [
+                                    "ffmpeg",
+                                    "-y",
+                                    "-i",
+                                    str(src),
+                                    "-codec:a",
+                                    "libmp3lame",
+                                    "-b:a",
+                                    "192k",
+                                    str(dst),
+                                ],
+                                check=True,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                            )
+                            return dst
+                        to_mp3(cached_vocals_wav)
+                        to_mp3(cached_inst_wav)
+                    except Exception as e:
+                        print(f"MP3 transcoding from cache failed: {e}")
+                        format = "wav"
+                        vocals_cache_path = cached_vocals_wav
+                        inst_cache_path = cached_inst_wav
+                
+                vocals_cache_path = STEMS_CACHE_DIR / file_hash / f"vocals.{format}"
+                inst_cache_path = STEMS_CACHE_DIR / file_hash / f"instrumental.{format}"
+                
+                separated_files[session_id] = {
+                    "vocals": str(vocals_cache_path),
+                    "instrumental": str(inst_cache_path),
+                    "paths": [str(vocals_cache_path), str(inst_cache_path)],
+                    "format": format,
+                    "timestamp": time.time(),
+                    "type": "separation",
+                    "preserve_paths": True # Protect cache from deletion
+                }
+                
+                return JSONResponse(
+                    {
+                        "session_id": session_id,
+                        "format": format,
+                        "vocalsUrl": f"/api/separate/download/{session_id}/vocals?format={format}",
+                        "instrumentalUrl": f"/api/separate/download/{session_id}/instrumental?format={format}",
+                    }
+                )
+
             # Perform full separation (writes WAV stems)
             # Note: Analysis.py now handles truncation internally using librosa
             print(f"Starting separation for {file.filename}...")
@@ -439,6 +569,24 @@ def separate_audio(
                     # ffmpeg not installed
                     print("ffmpeg not found, falling back to WAV format")
                     format = "wav"
+
+            # Save to cache
+            try:
+                dest_dir = STEMS_CACHE_DIR / file_hash
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                
+                shutil.copy2(vocals_path, dest_dir / f"vocals.{format}")
+                shutil.copy2(instrumental_path, dest_dir / f"instrumental.{format}")
+                
+                orig_vocals_wav = Path(result["vocals"])
+                orig_inst_wav = Path(result["instrumental"])
+                if orig_vocals_wav.exists() and orig_vocals_wav.suffix == ".wav" and format == "mp3":
+                    shutil.copy2(orig_vocals_wav, dest_dir / "vocals.wav")
+                    shutil.copy2(orig_inst_wav, dest_dir / "instrumental.wav")
+                
+                print(f"[API] Saved separated stems to cache for {file_hash}")
+            except Exception as e:
+                print(f"[API] Failed to cache separated stems: {e}")
 
             # Store paths temporarily
             separated_files[session_id] = {
@@ -509,6 +657,79 @@ def separate_audio_6stems(
             tmp_path = Path(tmp.name)
 
         try:
+            # Check cache
+            file_hash = get_file_hash(tmp_path)
+            dest_dir = STEMS_CACHE_DIR / file_hash
+            
+            has_all_stems = True
+            for stem_name in STEM_TYPES:
+                if not (dest_dir / f"{stem_name}.{format}").exists() and not (dest_dir / f"{stem_name}.wav").exists():
+                    has_all_stems = False
+                    break
+                    
+            if has_all_stems:
+                print(f"[API] Cache hit for 6-stem separation: {file_hash} ({format})")
+                session_id = str(uuid.uuid4())
+                
+                stem_data = {}
+                all_paths = []
+                
+                for stem_name in STEM_TYPES:
+                    cached_wav = dest_dir / f"{stem_name}.wav"
+                    cached_target = dest_dir / f"{stem_name}.{format}"
+                    
+                    if format == "mp3" and not cached_target.exists() and cached_wav.exists():
+                        try:
+                            print(f"[API] Transcoding cached WAV stem '{stem_name}' to MP3...")
+                            subprocess.run(
+                                [
+                                    "ffmpeg",
+                                    "-y",
+                                    "-i",
+                                    str(cached_wav),
+                                    "-codec:a",
+                                    "libmp3lame",
+                                    "-b:a",
+                                    "192k",
+                                    "-loglevel", "quiet",
+                                    str(cached_target),
+                                ],
+                                check=True,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                            )
+                        except Exception as e:
+                            print(f"MP3 transcoding for stem {stem_name} failed: {e}")
+                            cached_target = cached_wav
+                    elif not cached_target.exists():
+                        cached_target = cached_wav
+                        
+                    stem_data[stem_name] = str(cached_target)
+                    all_paths.append(str(cached_target))
+                    
+                separated_files[session_id] = {
+                    **stem_data,
+                    "paths": all_paths,
+                    "format": format,
+                    "timestamp": time.time(),
+                    "type": "6stem-separation",
+                    "preserve_paths": True # Protect cache from deletion
+                }
+                
+                stem_urls = {}
+                for stem_name in STEM_TYPES:
+                    if stem_name in stem_data:
+                        stem_urls[f"{stem_name}Url"] = f"/api/separate-stems/download/{session_id}/{stem_name}?format={format}"
+                        
+                return JSONResponse(
+                    {
+                        "session_id": session_id,
+                        "format": format,
+                        "stems": list(stem_data.keys()),
+                        **stem_urls,
+                    }
+                )
+
             print(f"Starting 6-stem separation for {file.filename}...")
             result = separate_audio_stems(tmp_path)
 
@@ -538,7 +759,7 @@ def separate_audio_6stems(
                                 "libmp3lame",
                                 "-b:a",
                                 "192k",
-                                "-loglevel", "quiet", # fix: suppress ffmpeg output which might clutter logs or cause issues
+                                "-loglevel", "quiet",
                                 str(mp3_path),
                             ],
                             check=True,
@@ -551,6 +772,21 @@ def separate_audio_6stems(
                 
                 stem_data[stem_name] = str(stem_path)
                 all_paths.append(str(stem_path))
+
+            # Save to cache
+            try:
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                for stem_name in STEM_TYPES:
+                    if stem_name in stem_data:
+                        shutil.copy2(stem_data[stem_name], dest_dir / f"{stem_name}.{format}")
+                if format == "mp3":
+                    for stem_name, orig_wav_path in result.items():
+                        orig_wav = Path(orig_wav_path)
+                        if orig_wav.exists() and orig_wav.suffix == ".wav":
+                            shutil.copy2(orig_wav, dest_dir / f"{stem_name}.wav")
+                print(f"[API] Saved 6-stems to cache for {file_hash}")
+            except Exception as e:
+                print(f"[API] Failed to cache 6-stems: {e}")
 
             # Store paths temporarily
             separated_files[session_id] = {

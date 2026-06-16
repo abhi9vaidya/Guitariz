@@ -765,97 +765,44 @@ const ChordAIPage = () => {
                 />
                 {!audioBuffer && !result && !isYoutubeMode ? (
                   <div className="flex-1 m-4 flex flex-col gap-6">
-                    {/* Tabs for File vs YouTube */}
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        className={cn(
-                          "px-4 py-2 rounded-xl text-sm font-medium transition-all",
-                          !youtubeUrl ? "bg-white text-black" : "bg-white/10 text-white/70 hover:bg-white/15"
-                        )}
-                        onClick={() => setYoutubeUrl("")}
-                      >
-                        <Upload className="w-4 h-4 inline mr-2" />
-                        Upload File
-                      </button>
-                      <button
-                        className={cn(
-                          "px-4 py-2 rounded-xl text-sm font-medium transition-all",
-                          youtubeUrl ? "bg-red-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/15"
-                        )}
-                        onClick={() => setYoutubeUrl("https://")}
-                      >
-                        <Youtube className="w-4 h-4 inline mr-2" />
-                        YouTube URL
-                      </button>
-                    </div>
-
                     {/* File Upload Area */}
-                    {!youtubeUrl && (
-                      <div
-                        className={cn(
-                          "flex-1 border-2 border-dashed rounded-[2rem] transition-all flex flex-col items-center justify-center p-12 text-center cursor-pointer",
-                          dragActive ? "border-white/20 bg-white/[0.03]" : "border-white/5 hover:border-white/10"
-                        )}
-                        onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-                        onDragLeave={() => setDragActive(false)}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          setDragActive(false);
-                          const files = e.dataTransfer.files;
-                          if (files?.[0]) {
-                            const file = files[0];
-                            const fileId = `${file.name}-${file.size}-${file.lastModified}`;
-                            setSelectedFile(file);
-                            setOriginalFile(file);
-                            setCurrentFileId(fileId);
-                            setCachedResults({});
-                            setLoadedInstrumentalUrl(null);
-                            setIsInstrumentalLoaded(false);
-                            setWasVocalFilterOn(false);
-                            loadFile(file);
-                          }
-                        }}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <div className="w-24 h-24 bg-white/[0.03] rounded-full flex items-center justify-center mb-8 border border-white/5">
-                          <Wand2 className="w-10 h-10 text-muted-foreground" />
-                        </div>
-                        <h3 className="text-2xl font-light text-white mb-3">Initialize Analysis</h3>
-                        <p className="text-muted-foreground max-w-sm font-light">
-                          Drag and drop your project file or select from disk. Support for stem analysis and full mix transcription.
-                        </p>
-                        <p className="text-xs text-muted-foreground/60 font-mono">
-                          Maximum file size: 15MB
-                        </p>
+                    <div
+                      className={cn(
+                        "flex-1 border-2 border-dashed rounded-[2rem] transition-all flex flex-col items-center justify-center p-12 text-center cursor-pointer",
+                        dragActive ? "border-white/20 bg-white/[0.03]" : "border-white/5 hover:border-white/10"
+                      )}
+                      onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                      onDragLeave={() => setDragActive(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDragActive(false);
+                        const files = e.dataTransfer.files;
+                        if (files?.[0]) {
+                          const file = files[0];
+                          const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+                          setSelectedFile(file);
+                          setOriginalFile(file);
+                          setCurrentFileId(fileId);
+                          setCachedResults({});
+                          setLoadedInstrumentalUrl(null);
+                          setIsInstrumentalLoaded(false);
+                          setWasVocalFilterOn(false);
+                          loadFile(file);
+                        }
+                      }}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <div className="w-24 h-24 bg-white/[0.03] rounded-full flex items-center justify-center mb-8 border border-white/5">
+                        <Wand2 className="w-10 h-10 text-muted-foreground" />
                       </div>
-                    )}
-
-                    {/* YouTube URL Input Area */}
-                    {youtubeUrl !== "" && (
-                      <div className="flex-1 border border-white/10 rounded-[2rem] p-8 flex flex-col items-center justify-center gap-6 bg-gradient-to-b from-red-500/5 to-transparent">
-                        <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center border border-red-500/30">
-                          <Youtube className="w-10 h-10 text-red-400" />
-                        </div>
-
-                        <h3 className="text-2xl font-light text-white">YouTube Integration Update</h3>
-
-                        <div className="w-full max-w-md space-y-4 text-center">
-                          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                            <div className="flex flex-col items-center gap-3">
-                              <Activity className="w-8 h-8 text-amber-400 animate-pulse" />
-                              <h4 className="text-lg font-medium text-white">Work in Progress</h4>
-                              <p className="text-sm text-muted-foreground">
-                                We are currently upgrading our YouTube analysis engine to be faster and more reliable. This feature will be available soon!
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-muted-foreground/60 text-center max-w-sm">
-                          Please use the <strong>Upload File</strong> option to analyze your local audio files in the meantime.
-                        </p>
-                      </div>
-                    )}
+                      <h3 className="text-2xl font-light text-white mb-3">Initialize Analysis</h3>
+                      <p className="text-muted-foreground max-w-sm font-light">
+                        Drag and drop your project file or select from disk. Support for stem analysis and full mix transcription.
+                      </p>
+                      <p className="text-xs text-muted-foreground/60 font-mono">
+                        Maximum file size: 15MB
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <div className="p-10 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">

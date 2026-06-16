@@ -1,5 +1,6 @@
 import subprocess
 import tempfile
+import hashlib
 from pathlib import Path
 from typing import List, Tuple, Optional
 
@@ -180,6 +181,25 @@ for root in range(12):
         if name != "maj":
             chord_name += f"{name}"
         CHORD_TEMPLATES.append((chord_name, v / (norm + 1e-9)))
+
+
+def get_file_hash(file_path: Path) -> str:
+    """Generate MD5 hash based on file content and size for robust caching."""
+    hasher = hashlib.md5()
+    try:
+        stats = file_path.stat()
+        hasher.update(str(stats.st_size).encode())
+        with open(file_path, 'rb') as f:
+            chunk = f.read(1024 * 1024)
+            hasher.update(chunk)
+            if stats.st_size > 2 * 1024 * 1024:
+                f.seek(-1024 * 1024, 2)
+                chunk = f.read(1024 * 1024)
+                hasher.update(chunk)
+        return hasher.hexdigest()
+    except Exception as e:
+        print(f"[Analysis] Hashing failed: {e}")
+        return hashlib.md5(str(file_path.name).encode()).hexdigest()
 
 
 def _ffmpeg_to_wav(src: Path, dst: Path):
@@ -534,8 +554,8 @@ def analyze_file(file_path: Path, separate_vocals: bool = False) -> dict:
     y_harmonic = librosa.effects.hpss(y)[0]
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=hop_length)
     
-    # Use Chroma CQT (works better than STFT for chords)
-    chroma = librosa.feature.chroma_cqt(y=y_harmonic, sr=sr, hop_length=hop_length)
+    # Use Chroma CQT (works better than STFT for chords) with optimized bins_per_octave for CPU speed
+    chroma = librosa.feature.chroma_cqt(y=y_harmonic, sr=sr, hop_length=hop_length, bins_per_octave=12)
     
     # Light normalization only - don't over-process
     chroma = librosa.util.normalize(chroma, axis=0)
